@@ -42,6 +42,7 @@ public class ChessBoard {
     public void resetBoard() {
         resetBackRow(ChessGame.TeamColor.WHITE);
         resetBackRow(ChessGame.TeamColor.BLACK);
+        resetPawns();
     }
 
     /**
@@ -63,5 +64,15 @@ public class ChessBoard {
         boardArray[row][6] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
         boardArray[row][7] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
         boardArray[row][8] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
+    }
+
+    private void resetPawns(){
+        ChessGame.TeamColor color = ChessGame.TeamColor.WHITE;
+        for (int i = 1; i < 7; i++){
+            for (int j = 0; j < 8; j++){
+                boardArray[i][j] = new ChessPiece(color, ChessPiece.PieceType.PAWN);
+                if (i == 1) { i = 6; color = ChessGame.TeamColor.BLACK; }
+            }
+        }
     }
 }
