@@ -66,6 +66,9 @@ public class ChessBoard {
         boardArray[row][8] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
     }
 
+    /**
+     * Resets both colors pawns
+     */
     private void resetPawns(){
         ChessGame.TeamColor color = ChessGame.TeamColor.WHITE;
         for (int i = 1; i < 7; i++){
