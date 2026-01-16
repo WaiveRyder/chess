@@ -1,5 +1,8 @@
 package chess;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -140,5 +143,19 @@ public class ChessBoard {
             }
         }
         return builder.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(boardArray, that.boardArray);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(boardArray);
     }
 }
