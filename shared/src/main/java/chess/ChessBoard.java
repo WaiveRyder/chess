@@ -9,9 +9,23 @@ package chess;
 public class ChessBoard {
 
     private ChessPiece[][] boardArray;
+    private ChessPiece.PieceType[] backRow;
 
     public ChessBoard() {
         boardArray = new ChessPiece[9][9];
+        initBackRow();
+    }
+
+    private void initBackRow(){
+        backRow = new ChessPiece.PieceType[9];
+        backRow[1] = ChessPiece.PieceType.ROOK;
+        backRow[2] = ChessPiece.PieceType.KNIGHT;
+        backRow[3] = ChessPiece.PieceType.BISHOP;
+        backRow[4] = ChessPiece.PieceType.QUEEN;
+        backRow[5] = ChessPiece.PieceType.KING;
+        backRow[6] = ChessPiece.PieceType.BISHOP;
+        backRow[7] = ChessPiece.PieceType.KNIGHT;
+        backRow[8] = ChessPiece.PieceType.ROOK;
     }
 
     /**
@@ -52,18 +66,13 @@ public class ChessBoard {
      * @param color The color of which team gets reset
      */
     private void resetBackRow(ChessGame.TeamColor color){
-        int row = 0;
+        int row = 1;
         if(color == ChessGame.TeamColor.BLACK){
-            row = 7;
+            row = 8;
         }
-        boardArray[row][1] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
-        boardArray[row][2] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
-        boardArray[row][3] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
-        boardArray[row][4] = new ChessPiece(color, ChessPiece.PieceType.QUEEN);
-        boardArray[row][5] = new ChessPiece(color, ChessPiece.PieceType.KING);
-        boardArray[row][6] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
-        boardArray[row][7] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
-        boardArray[row][8] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
+        for(int i = 1; i < 9; i++){
+            this.addPiece(new ChessPosition(row, 1), new ChessPiece(color, backRow[i]));
+        }
     }
 
     /**
