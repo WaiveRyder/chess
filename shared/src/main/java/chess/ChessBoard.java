@@ -40,6 +40,28 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        resetBackRow(ChessGame.TeamColor.WHITE);
+        resetBackRow(ChessGame.TeamColor.BLACK);
+    }
+
+    /**
+     * Resets the back row of a color for a new game
+     *
+     * @param color The color of which team gets reset
+     */
+    private void resetBackRow(ChessGame.TeamColor color){
+        int row = 0;
+        if(color == ChessGame.TeamColor.BLACK){
+            row = 7;
+        }
+        boardArray[row][0] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
+        boardArray[row][1] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
+        boardArray[row][2] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
+        boardArray[row][3] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
+        boardArray[row][4] = new ChessPiece(color, ChessPiece.PieceType.QUEEN);
+        boardArray[row][5] = new ChessPiece(color, ChessPiece.PieceType.KING);
+        boardArray[row][6] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
+        boardArray[row][7] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
+        boardArray[row][8] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
     }
 }
