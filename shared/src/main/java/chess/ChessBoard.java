@@ -11,7 +11,7 @@ public class ChessBoard {
     private ChessPiece[][] boardArray;
 
     public ChessBoard() {
-        boardArray = new ChessPiece[8][8];
+        boardArray = new ChessPiece[9][9];
     }
 
     /**
@@ -43,6 +43,7 @@ public class ChessBoard {
         resetBackRow(ChessGame.TeamColor.WHITE);
         resetBackRow(ChessGame.TeamColor.BLACK);
         resetPawns();
+        resetMiddle();
     }
 
     /**
@@ -55,9 +56,8 @@ public class ChessBoard {
         if(color == ChessGame.TeamColor.BLACK){
             row = 7;
         }
-        boardArray[row][0] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
-        boardArray[row][1] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
-        boardArray[row][2] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
+        boardArray[row][1] = new ChessPiece(color, ChessPiece.PieceType.ROOK);
+        boardArray[row][2] = new ChessPiece(color, ChessPiece.PieceType.KNIGHT);
         boardArray[row][3] = new ChessPiece(color, ChessPiece.PieceType.BISHOP);
         boardArray[row][4] = new ChessPiece(color, ChessPiece.PieceType.QUEEN);
         boardArray[row][5] = new ChessPiece(color, ChessPiece.PieceType.KING);
@@ -71,10 +71,21 @@ public class ChessBoard {
      */
     private void resetPawns(){
         ChessGame.TeamColor color = ChessGame.TeamColor.WHITE;
-        for (int i = 1; i < 7; i++){
-            for (int j = 0; j < 8; j++){
+        for (int i = 2; i < 8; i++){
+            for (int j = 1; j < 9; j++){
                 boardArray[i][j] = new ChessPiece(color, ChessPiece.PieceType.PAWN);
-                if (i == 1) { i = 6; color = ChessGame.TeamColor.BLACK; }
+                if (i == 2) { i = 7; color = ChessGame.TeamColor.BLACK; }
+            }
+        }
+    }
+
+    /**
+     * Resets the middle spaces on the board to empty/null
+     */
+    private void resetMiddle(){
+        for(int i = 3; i < 7; i++){
+            for(int j = 1; j < 9; j++){
+                boardArray[i][j] = null;
             }
         }
     }
