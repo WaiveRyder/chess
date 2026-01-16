@@ -71,7 +71,7 @@ public class ChessBoard {
             row = 8;
         }
         for(int i = 1; i < 9; i++){
-            this.addPiece(new ChessPosition(row, 1), new ChessPiece(color, backRow[i]));
+            this.addPiece(new ChessPosition(row, i), new ChessPiece(color, backRow[i]));
         }
     }
 
@@ -82,8 +82,8 @@ public class ChessBoard {
         ChessGame.TeamColor color = ChessGame.TeamColor.WHITE;
         for (int i = 2; i < 8; i++){
             for (int j = 1; j < 9; j++){
-                boardArray[i][j] = new ChessPiece(color, ChessPiece.PieceType.PAWN);
-                if (i == 2) { i = 7; color = ChessGame.TeamColor.BLACK; }
+                this.addPiece(new ChessPosition(i, j), new ChessPiece(color, ChessPiece.PieceType.PAWN));
+                if (i == 2 && j == 8) { i = 6; color = ChessGame.TeamColor.BLACK; }
             }
         }
     }
@@ -103,7 +103,7 @@ public class ChessBoard {
     public String toString(){
         StringBuilder builder = new StringBuilder();
 
-        for(int i = 1; i < 9; i++){
+        for(int i = 8; i > 0; i--){
             for(int j = 1; j < 9; j++){
                 ChessPiece piece = boardArray[i][j];
                 ChessGame.TeamColor color;
@@ -133,7 +133,7 @@ public class ChessBoard {
                 builder.append("|").append(nextPiece);
                 if(j == 8){
                     builder.append("|");
-                    if(i != 8){
+                    if(i != 1){
                         builder.append("\n");
                     }
                 }
