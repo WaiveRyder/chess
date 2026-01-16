@@ -89,4 +89,47 @@ public class ChessBoard {
             }
         }
     }
+
+    @Override
+    public String toString(){
+        StringBuilder builder = new StringBuilder();
+
+        for(int i = 1; i < 9; i++){
+            for(int j = 1; j < 9; j++){
+                ChessPiece piece = boardArray[i][j];
+                ChessGame.TeamColor color;
+                ChessPiece.PieceType pieceType;
+                if(piece != null){
+                    color = piece.getTeamColor();
+                    pieceType = piece.getPieceType();
+                } else {
+                    color = null;
+                    pieceType = null;
+                }
+
+
+                String nextPiece = switch (pieceType) {
+                    case KING -> "K";
+                    case QUEEN -> "Q";
+                    case BISHOP -> "B";
+                    case KNIGHT -> "N";
+                    case ROOK -> "R";
+                    case PAWN -> "P";
+                    case null -> " ";
+                };
+                if(!nextPiece.equals(" ") && color == ChessGame.TeamColor.BLACK){
+                    nextPiece = nextPiece.toLowerCase();
+                }
+
+                builder.append("|").append(nextPiece);
+                if(j == 8){
+                    builder.append("|");
+                    if(i != 8){
+                        builder.append("\n");
+                    }
+                }
+            }
+        }
+        return builder.toString();
+    }
 }
