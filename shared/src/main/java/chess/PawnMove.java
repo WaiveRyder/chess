@@ -24,6 +24,9 @@ public class PawnMove {
 
         int myRow = myPosition.getRow();
         int myCol = myPosition.getColumn();
+        int[] gridCol = {-1, 0, 1};
+
+        ChessPiece.PieceType[] promotions = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT};
 
         pawnMoves = new ArrayList<ChessMove>();
 
@@ -33,19 +36,36 @@ public class PawnMove {
             direction = -1;
         }
 
-        if(myPosition.getRow() <= lastRow-direction){
-            ChessPosition newPosition = new ChessPosition(myRow+direction, myCol);
+        ChessPosition newPosition;
 
-            if(board.getPiece(newPosition) == null || board.getPiece(newPosition).getTeamColor() != color){
-                pawnMoves.add(new ChessMove(myPosition, new ChessPosition(myRow+direction, myCol), null));
-            }
+        for(int col : gridCol){
+            newPosition = new ChessPosition(myRow+direction, myCol+col);
+            //If enemy on either side, add option to take
+            if(col != 0 && myCol+col < 9 && myCol+col > 0 && board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != color){
+                if(myRow+direction == lastRow){
+                    for(ChessPiece.PieceType type : promotions){
+                        pawnMoves.add(new ChessMove(myPosition, newPosition, type));
+                    }
+                } else {
+                    pawnMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
+                //Else if no one in front add option to move
+            } else if(col == 0 && myCol+col < 9 && myCol+col > 0 && board.getPiece(newPosition) == null){
+                if(myRow+direction == lastRow){
+                    for(ChessPiece.PieceType type : promotions){
+                        pawnMoves.add(new ChessMove(myPosition, newPosition, type));
+                    }
+                } else {
+                    pawnMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
 
-            newPosition = new ChessPosition(myRow+2*direction, myCol);
-            if(myPosition.getRow() == firstRow && (board.getPiece(newPosition) == null || board.getPiece(newPosition).getTeamColor() != color)){
-                pawnMoves.add(new ChessMove(myPosition, newPosition, null));
+                //If the pawn has never moved, add the second square in front
+                newPosition = new ChessPosition(myRow+2*direction, myCol);
+                if(myPosition.getRow() == firstRow && board.getPiece(newPosition) == null){
+                    pawnMoves.add(new ChessMove(myPosition, newPosition, null));
+                }
             }
         }
-
         return pawnMoves;
     }
 }
