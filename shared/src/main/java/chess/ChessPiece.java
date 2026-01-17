@@ -64,6 +64,9 @@ public class ChessPiece {
             case ROOK:
                 RookMove rookMove = new RookMove(board, myPosition, pieceColor);
                 return rookMove.getRookMoves();
+            case KNIGHT:
+                KnightMove knightMove = new KnightMove(board, myPosition, pieceColor);
+                return knightMove.getKnightMoves();
             default:
                 throw new RuntimeException("ChessPiece.pieceMoves() called on " + pieceType + " at " + myPosition);
         }
