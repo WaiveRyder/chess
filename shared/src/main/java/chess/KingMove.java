@@ -40,18 +40,4 @@ public class KingMove {
         }
         return kingMoves;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        KingMove kingMove = (KingMove) o;
-        return Objects.equals(board, kingMove.board) && Objects.equals(myPosition, kingMove.myPosition) && color == kingMove.color;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(board, myPosition, color);
-    }
 }

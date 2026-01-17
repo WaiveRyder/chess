@@ -49,18 +49,4 @@ public class RookMove {
         }
         return rookMoves;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RookMove rookMove = (RookMove) o;
-        return Objects.equals(board, rookMove.board) && Objects.equals(myPosition, rookMove.myPosition) && color == rookMove.color;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(board, myPosition, color);
-    }
 }
