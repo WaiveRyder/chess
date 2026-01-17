@@ -60,4 +60,32 @@ public class PersonalTests {
 
         Assertions.assertEquals(expectedMoves, actualMoves);
     }
+
+    @Test
+    @DisplayName("KingMove Possible")
+    public void kingMovePossible(){
+        ChessBoard board = new ChessBoard();
+
+        ChessPosition position1 = new ChessPosition(1, 1);
+        board.addPiece(position1, new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING));
+        board.addPiece(new ChessPosition(2, 1), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+
+        Collection<ChessMove> actualMoves1 = board.getPiece(position1).pieceMoves(board, position1);
+        Collection<ChessMove> expectedMoves1 = new ArrayList<ChessMove>();
+        expectedMoves1.add(new ChessMove(position1, new ChessPosition(1, 2), null));
+        expectedMoves1.add(new ChessMove(position1, new ChessPosition(2, 1), null));
+        expectedMoves1.add(new ChessMove(position1, new ChessPosition(2, 2), null));
+
+        Assertions.assertEquals(expectedMoves1, actualMoves1);
+
+
+        board.resetBoard();
+
+        ChessPosition position2 = new ChessPosition(1, 5);
+        Collection<ChessMove> actualMoves2 = board.getPiece(position2).pieceMoves(board, position2);
+
+        Collection<ChessMove> expectedMoves2 = new ArrayList<ChessMove>();
+
+        Assertions.assertEquals(expectedMoves2, actualMoves2);
+    }
 }
