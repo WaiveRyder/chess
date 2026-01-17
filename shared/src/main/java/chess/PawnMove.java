@@ -36,12 +36,12 @@ public class PawnMove {
         if(myPosition.getRow() <= lastRow-direction){
             ChessPosition newPosition = new ChessPosition(myRow+direction, myCol);
 
-            if(board.getPiece(newPosition).getTeamColor() != color){
+            if(board.getPiece(newPosition) == null || board.getPiece(newPosition).getTeamColor() != color){
                 pawnMoves.add(new ChessMove(myPosition, new ChessPosition(myRow+direction, myCol), null));
             }
 
             newPosition = new ChessPosition(myRow+2*direction, myCol);
-            if(myPosition.getRow() == firstRow && board.getPiece(newPosition).getTeamColor() != color){
+            if(myPosition.getRow() == firstRow && (board.getPiece(newPosition) == null || board.getPiece(newPosition).getTeamColor() != color)){
                 pawnMoves.add(new ChessMove(myPosition, newPosition, null));
             }
         }
