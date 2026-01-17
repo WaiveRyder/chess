@@ -25,18 +25,25 @@ public class PawnMove {
         int myRow = myPosition.getRow();
         int myCol = myPosition.getColumn();
 
+        pawnMoves = new ArrayList<ChessMove>();
+
         if(color == ChessGame.TeamColor.BLACK){
             lastRow = 1;
             firstRow = 7;
             direction = -1;
         }
 
-        pawnMoves = new ArrayList<ChessMove>();
         if(myPosition.getRow() <= lastRow-direction){
-            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(myRow+direction, myCol), null));
-        }
-        if(myPosition.getRow() == firstRow && board.getPiece(new ChessPosition(myRow+direction, myCol)) == null){
-            pawnMoves.add(new ChessMove(myPosition, new ChessPosition(myRow+2*direction, myCol), null));
+            ChessPosition newPosition = new ChessPosition(myRow+direction, myCol);
+
+            if(board.getPiece(newPosition).getTeamColor() != color){
+                pawnMoves.add(new ChessMove(myPosition, new ChessPosition(myRow+direction, myCol), null));
+            }
+
+            newPosition = new ChessPosition(myRow+2*direction, myCol);
+            if(myPosition.getRow() == firstRow && board.getPiece(newPosition).getTeamColor() != color){
+                pawnMoves.add(new ChessMove(myPosition, newPosition, null));
+            }
         }
 
         return pawnMoves;
