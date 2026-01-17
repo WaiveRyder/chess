@@ -70,6 +70,9 @@ public class ChessPiece {
             case BISHOP:
                 BishopMove bishopMove = new BishopMove(board, myPosition, pieceColor);
                 return bishopMove.getBishopMoves();
+            case QUEEN:
+                QueenMove queenMove = new QueenMove(board, myPosition, pieceColor);
+                return queenMove.getQueenMoves();
             default:
                 throw new RuntimeException("ChessPiece.pieceMoves() called on " + pieceType + " at " + myPosition);
         }
