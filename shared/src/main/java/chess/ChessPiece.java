@@ -62,7 +62,7 @@ public class ChessPiece {
                 KingMove kingMove = new KingMove(board, myPosition, pieceColor);
                 return kingMove.getKingMoves();
             default:
-                return null;
+                throw new RuntimeException("ChessPiece.pieceMoves() called on " + pieceType + " at " + myPosition);
         }
     }
 
