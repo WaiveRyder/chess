@@ -26,7 +26,12 @@ public class PawnMove {
         int myCol = myPosition.getColumn();
         int[] gridCol = {-1, 0, 1};
 
-        ChessPiece.PieceType[] promotions = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT};
+        ChessPiece.PieceType[] promotions = {
+                ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.ROOK,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KNIGHT
+        };
 
         pawnMoves = new ArrayList<ChessMove>();
 
@@ -41,7 +46,8 @@ public class PawnMove {
         for(int col : gridCol){
             newPosition = new ChessPosition(myRow+direction, myCol+col);
             //If enemy on either side, add option to take
-            if(col != 0 && myCol+col < 9 && myCol+col > 0 && board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != color){
+            int newCol = myCol + col;
+            if(col != 0 && newCol < 9 && newCol > 0 && board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != color){
                 if(myRow+direction == lastRow){
                     for(ChessPiece.PieceType type : promotions){
                         pawnMoves.add(new ChessMove(myPosition, newPosition, type));
