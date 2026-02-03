@@ -153,19 +153,14 @@ public class ChessGame {
                 if(newPiece != null
                         && newPiece.getTeamColor() != color
                         && pieceList.contains(newPiece.getPieceType())) {
-                    if (newPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
-                        if (color == TeamColor.WHITE && newRow - myRow == 1 && col[i] != 0) {
-                            return true;
-                        } else if(color == TeamColor.BLACK && myRow-newRow == 1 && col[i] != 0) {
-                            return true;
-                        }
-                    } else if (newPiece.getPieceType() == ChessPiece.PieceType.KING){
-                        if(newRow - myRow < 2 && newRow - myRow > -2 && newCol - myCol < 2 && newCol - myCol > -2) {
-                            return true;
-                        }
-                    } else {
+
+                    ChessPiece.PieceType[] isKingPawnCheck = handlePawnKingCase(newPiece, color, pos, newPos, col[i]);
+                    if(isKingPawnCheck[0] == newPiece.getPieceType() && isKingPawnCheck[1] == newPiece.getPieceType()){
+                        return true;
+                    } else if(isKingPawnCheck[0] == null) {
                         return true;
                     }
+
                 } else if(newPiece != null) {
                     break;
                 }
@@ -181,6 +176,34 @@ public class ChessGame {
         }
 
         return false;
+    }
+
+    private ChessPiece.PieceType[] handlePawnKingCase(
+            ChessPiece newPiece, TeamColor color, ChessPosition myPos, ChessPosition newPos, int vector) {
+        int newRow = newPos.getRow();
+        int newCol = newPos.getColumn();
+        int myRow = myPos.getRow();
+        int myCol = myPos.getColumn();
+        ChessPiece.PieceType[] returnValue = new ChessPiece.PieceType[2];
+        if (newPiece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            returnValue[0] = ChessPiece.PieceType.PAWN;
+            if (color == TeamColor.WHITE && newRow - myRow == 1 && vector != 0) {
+                returnValue[1] = ChessPiece.PieceType.PAWN;
+                return returnValue;
+            } else if (color == TeamColor.BLACK && myRow - newRow == 1 && vector != 0) {
+                returnValue[1] = ChessPiece.PieceType.PAWN;
+                return returnValue;
+            }
+            return returnValue;
+        } else if (newPiece.getPieceType() == ChessPiece.PieceType.KING) {
+            returnValue[0] = ChessPiece.PieceType.KING;
+            if (newRow - myRow < 2 && newRow - myRow > -2 && newCol - myCol < 2 && newCol - myCol > -2) {
+                returnValue[1] = ChessPiece.PieceType.KING;
+                return returnValue;
+            }
+            return returnValue;
+        }
+        return returnValue;
     }
 
     private ChessPosition findKingPos(TeamColor color) {
