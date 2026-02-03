@@ -15,9 +15,9 @@ public class ChessGame {
     ChessBoard board;
     TeamColor teamTurn;
 
-    Vector<ChessPiece.PieceType> KQRList;
-    Vector<ChessPiece.PieceType> KQBPList;
-    Vector<ChessPiece.PieceType> NList;
+    Vector<ChessPiece.PieceType> listKQR;
+    Vector<ChessPiece.PieceType> listKQBP;
+    Vector<ChessPiece.PieceType> listN;
 
     int[] gridRowQR;
     int[] gridColQR;
@@ -133,9 +133,9 @@ public class ChessGame {
 
         if(kingPos == null) {return false;}
 
-        return kingVectors(kingPos, teamColor, KQRList, gridRowQR, gridColQR)
-                || kingVectors(kingPos, teamColor, NList, gridRowN, gridColN)
-                || kingVectors(kingPos, teamColor, KQBPList, gridRowQBP, gridColQBP);
+        return kingVectors(kingPos, teamColor, listKQR, gridRowQR, gridColQR)
+                || kingVectors(kingPos, teamColor, listN, gridRowN, gridColN)
+                || kingVectors(kingPos, teamColor, listKQBP, gridRowQBP, gridColQBP);
     }
 
     private boolean kingVectors(ChessPosition pos, TeamColor color, Vector<ChessPiece.PieceType> pieceList, int[] row, int[] col) {
@@ -271,19 +271,19 @@ public class ChessGame {
     }
 
     private void initLists() {
-        KQRList = new Vector<>();
-        KQRList.add(ChessPiece.PieceType.KING);
-        KQRList.add(ChessPiece.PieceType.QUEEN);
-        KQRList.add(ChessPiece.PieceType.ROOK);
+        listKQR = new Vector<>();
+        listKQR.add(ChessPiece.PieceType.KING);
+        listKQR.add(ChessPiece.PieceType.QUEEN);
+        listKQR.add(ChessPiece.PieceType.ROOK);
 
-        KQBPList = new Vector<>();
-        KQBPList.add(ChessPiece.PieceType.KING);
-        KQBPList.add(ChessPiece.PieceType.QUEEN);
-        KQBPList.add(ChessPiece.PieceType.BISHOP);
-        KQBPList.add(ChessPiece.PieceType.PAWN);
+        listKQBP = new Vector<>();
+        listKQBP.add(ChessPiece.PieceType.KING);
+        listKQBP.add(ChessPiece.PieceType.QUEEN);
+        listKQBP.add(ChessPiece.PieceType.BISHOP);
+        listKQBP.add(ChessPiece.PieceType.PAWN);
 
-        NList = new Vector<>();
-        NList.add(ChessPiece.PieceType.KNIGHT);
+        listN = new Vector<>();
+        listN.add(ChessPiece.PieceType.KNIGHT);
     }
 
     @Override
