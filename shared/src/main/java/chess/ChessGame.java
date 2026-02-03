@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Vector;
 
 /**
@@ -14,8 +15,8 @@ public class ChessGame {
     ChessBoard board;
     TeamColor teamTurn;
 
-    Vector<ChessPiece.PieceType> QRList;
-    Vector<ChessPiece.PieceType> QBPList;
+    Vector<ChessPiece.PieceType> KQRList;
+    Vector<ChessPiece.PieceType> KQBPList;
     Vector<ChessPiece.PieceType> NList;
 
     int[] gridRowQR;
@@ -27,7 +28,7 @@ public class ChessGame {
 
     public ChessGame() {
         board = new ChessBoard();
-        setBoard(board);
+        board.resetBoard();
         teamTurn = TeamColor.WHITE;
         initCoords();
         initLists();
@@ -66,11 +67,29 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
+        Collection<ChessMove> moves;
+        Collection<ChessMove> legalMoves = new Vector<>();
+
         if(piece != null) {
-            return piece.pieceMoves(board, startPosition);
+            moves = piece.pieceMoves(board, startPosition);
         } else {
             return null;
         }
+
+        for(ChessMove move : moves) {
+            ChessPiece otherPiece = board.getPiece(move.getEndPosition());
+            board.addPiece(move.getEndPosition(), piece);
+            board.addPiece(move.getStartPosition(), null);
+
+            if (!isInCheck(piece.getTeamColor())) {
+                legalMoves.add(move);
+            }
+
+            board.addPiece(move.getEndPosition(), otherPiece);
+            board.addPiece(move.getStartPosition(), piece);
+        }
+
+        return legalMoves;
     }
 
     /**
@@ -84,7 +103,7 @@ public class ChessGame {
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPosition);
 
-        if(!validMoves(startPosition).contains(move)) {
+        if(piece == null || !validMoves(startPosition).contains(move) || piece.getTeamColor() != teamTurn) {
             String builder = "Warning invalid move on " + piece +
                     " at " + startPosition +
                     " to " + endPosition;
@@ -95,6 +114,11 @@ public class ChessGame {
             }
             board.addPiece(endPosition, piece);
             board.addPiece(startPosition, null);
+            if(teamTurn == TeamColor.WHITE){
+                teamTurn = TeamColor.BLACK;
+            } else {
+                teamTurn = TeamColor.WHITE;
+            }
         }
     }
 
@@ -109,9 +133,9 @@ public class ChessGame {
 
         if(kingPos == null) {return false;}
 
-        return kingVectors(kingPos, teamColor, QRList, gridRowQR, gridColQR)
+        return kingVectors(kingPos, teamColor, KQRList, gridRowQR, gridColQR)
                 || kingVectors(kingPos, teamColor, NList, gridRowN, gridColN)
-                || kingVectors(kingPos, teamColor, QBPList, gridRowQBP, gridColQBP);
+                || kingVectors(kingPos, teamColor, KQBPList, gridRowQBP, gridColQBP);
     }
 
     private boolean kingVectors(ChessPosition pos, TeamColor color, Vector<ChessPiece.PieceType> pieceList, int[] row, int[] col) {
@@ -135,6 +159,10 @@ public class ChessGame {
                         } else if(color == TeamColor.BLACK && myRow-newRow == 1 && col[i] != 0) {
                             return true;
                         }
+                    } else if (newPiece.getPieceType() == ChessPiece.PieceType.KING){
+                        if(newRow - myRow < 2 && newRow - myRow > -2 && newCol - myCol < 2 && newCol - myCol > -2) {
+                            return true;
+                        }
                     } else {
                         return true;
                     }
@@ -142,8 +170,13 @@ public class ChessGame {
                     break;
                 }
 
-                newRow += row[i];
-                newCol += col[i];
+                if(!pieceList.contains(ChessPiece.PieceType.KNIGHT)){
+                    newRow += row[i];
+                    newCol += col[i];
+                } else {
+                    break;
+                }
+
             }
         }
 
@@ -171,7 +204,17 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        for(int row = 1; row < 9; row++){
+            for(int col = 1; col < 9; col++){
+                ChessPosition pos = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(pos);
+                if(piece != null && piece.getTeamColor() == teamColor && !validMoves(pos).isEmpty()){
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -182,7 +225,20 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if(!isInCheck(teamColor)) {
+            for (int row = 1; row < 9; row++) {
+                for (int col = 1; col < 9; col++) {
+                    ChessPosition pos = new ChessPosition(row, col);
+                    ChessPiece piece = board.getPiece(pos);
+                    if (piece != null && piece.getTeamColor() == teamColor && !validMoves(pos).isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -215,16 +271,32 @@ public class ChessGame {
     }
 
     private void initLists() {
-        QRList = new Vector<>();
-        QRList.add(ChessPiece.PieceType.QUEEN);
-        QRList.add(ChessPiece.PieceType.ROOK);
+        KQRList = new Vector<>();
+        KQRList.add(ChessPiece.PieceType.KING);
+        KQRList.add(ChessPiece.PieceType.QUEEN);
+        KQRList.add(ChessPiece.PieceType.ROOK);
 
-        QBPList = new Vector<>();
-        QBPList.add(ChessPiece.PieceType.QUEEN);
-        QBPList.add(ChessPiece.PieceType.BISHOP);
-        QBPList.add(ChessPiece.PieceType.PAWN);
+        KQBPList = new Vector<>();
+        KQBPList.add(ChessPiece.PieceType.KING);
+        KQBPList.add(ChessPiece.PieceType.QUEEN);
+        KQBPList.add(ChessPiece.PieceType.BISHOP);
+        KQBPList.add(ChessPiece.PieceType.PAWN);
 
         NList = new Vector<>();
         NList.add(ChessPiece.PieceType.KNIGHT);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(board, teamTurn);
     }
 }
