@@ -53,4 +53,8 @@ public class GameDAO {
             throw new DataAccessException("Cannot join game because game is full: " + id);
         }
     }
+
+    public void clear() {
+        gameMap = new HashMap<>();
+    }
 }
