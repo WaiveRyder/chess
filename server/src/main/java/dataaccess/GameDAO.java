@@ -41,16 +41,16 @@ public class GameDAO {
         return gameMap.values();
     }
 
-    public GameData joinGame(int id, String username) throws DataAccessException {
+    public GameData joinGame(int id, String username, String teamColor) throws DataAccessException {
         GameData game = gameMap.get(id);
         if (game == null) {
             throw new DataAccessException("Cannot join game because game ID does not map to a game: " + id);
-        } else if (game.whiteUsername() != null) {
+        } else if (teamColor.equals("white") && game.whiteUsername() != null) {
             return game.setWhitePlayer(username);
-        } else if (game.blackUsername() != null) {
+        } else if (teamColor.equals("black") && game.blackUsername() != null) {
             return game.setBlackPlayer(username);
         } else {
-            throw new DataAccessException("Cannot join game because game is full: " + id);
+            throw new DataAccessException("Cannot join game because " + teamColor + " is taken. Game id: "  + id);
         }
     }
 
