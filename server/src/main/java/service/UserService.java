@@ -5,6 +5,9 @@ import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
+import service.requests.AuthRequest;
+import service.requests.LoginRequest;
+import service.requests.RegisterRequest;
 
 public class UserService {
     UserDAO userDAO;
@@ -20,13 +23,13 @@ public class UserService {
         authDAO.clear();
     }
 
-    public RequestAndResponse registerUser(RequestAndResponse request) {
+    public RequestAndResponse registerUser(RegisterRequest request) {
         try {
             AuthData newAuth = authDAO.createAuth(
                     userDAO.createUser(
-                            request.getUsername(),
-                            request.getPassword(),
-                            request.getEmail())
+                            request.username(),
+                            request.password(),
+                            request.email())
             );
             return new RequestAndResponse().setUsername(newAuth.username()).setAuthToken(newAuth.authToken());
         } catch (DataAccessException e) {
@@ -34,10 +37,10 @@ public class UserService {
         }
     }
 
-    public RequestAndResponse loginUser(RequestAndResponse request) {
+    public RequestAndResponse loginUser(LoginRequest request) {
         try {
-            UserData user = userDAO.getUser(request.getUsername());
-            if (user.password().equals(request.getPassword())) {
+            UserData user = userDAO.getUser(request.username());
+            if (user.password().equals(request.password())) {
                 AuthData newAuth = authDAO.createAuth(user);
                 return new RequestAndResponse().setUsername(newAuth.username()).setAuthToken(newAuth.authToken());
             } else {
@@ -48,9 +51,9 @@ public class UserService {
         }
     }
 
-    public RequestAndResponse logoutUser(RequestAndResponse request) {
+    public RequestAndResponse logoutUser(AuthRequest request) {
         try {
-            authDAO.deleteAuthData(request.getAuthToken());
+            authDAO.deleteAuthData(request.authToken());
             return new RequestAndResponse();
         } catch (DataAccessException e) {
             return new RequestAndResponse().setErrorMessage(e.getMessage());
