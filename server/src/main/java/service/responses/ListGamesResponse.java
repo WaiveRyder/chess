@@ -4,4 +4,4 @@ import chess.ChessGame;
 
 import java.util.Collection;
 
-public record ListGamesResponse(Collection<ChessGame> gamesList) {}
+public record ListGamesResponse(Collection<ChessGame> gamesList, String message) {}

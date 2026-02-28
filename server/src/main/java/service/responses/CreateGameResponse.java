@@ -1,3 +1,3 @@
 package service.responses;
 
-public record CreateGameResponse(int gameID) {}
+public record CreateGameResponse(int gameID, String message) {}

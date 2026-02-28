@@ -1,3 +1,3 @@
 package service.responses;
 
-public record AuthResponse(String username, String authToken) {}
+public record AuthResponse(String username, String authToken, String message) {}
