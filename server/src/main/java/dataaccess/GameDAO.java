@@ -3,9 +3,7 @@ package dataaccess;
 import chess.ChessGame;
 import model.GameData;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class GameDAO {
     private Map<Integer, GameData> gameMap;
@@ -28,27 +26,22 @@ public class GameDAO {
         return game;
     }
 
-    public GameData getGame(int id) throws DataAccessException {
-        GameData game = gameMap.get(id);
-        if (game == null) {
-            throw new DataAccessException("Cannot get game because game ID does not map to a game: " + id);
-        } else {
-            return game;
-        }
-    }
-
     public Collection<GameData> listGames() {
-        return gameMap.values();
+        return new Vector<>(gameMap.values());
     }
 
-    public GameData joinGame(int id, String username, String teamColor) throws DataAccessException {
+    public GameData joinGame(int id, String username, ChessGame.TeamColor teamColor) throws DataAccessException {
         GameData game = gameMap.get(id);
         if (game == null) {
             throw new DataAccessException("Cannot join game because game ID does not map to a game: " + id);
-        } else if (teamColor.equals("white") && game.whiteUsername() != null) {
-            return game.setWhitePlayer(username);
-        } else if (teamColor.equals("black") && game.blackUsername() != null) {
-            return game.setBlackPlayer(username);
+        } else if (teamColor == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) {
+            GameData newGame = game.setWhitePlayer(username);
+            gameMap.put(id, newGame);
+            return newGame;
+        } else if (teamColor == ChessGame.TeamColor.BLACK && game.blackUsername() == null) {
+            GameData newGame = game.setBlackPlayer(username);
+            gameMap.put(id, newGame);
+            return newGame;
         } else {
             throw new DataAccessException("Cannot join game because " + teamColor + " is taken. Game id: "  + id);
         }
