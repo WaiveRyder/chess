@@ -8,6 +8,8 @@ import model.UserData;
 import service.requests.AuthRequest;
 import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
+import service.responses.AuthResponse;
+import service.responses.GenericResponse;
 
 public class UserService {
     UserDAO userDAO;
@@ -23,7 +25,7 @@ public class UserService {
         authDAO.clear();
     }
 
-    public RequestAndResponse registerUser(RegisterRequest request) {
+    public AuthResponse registerUser(RegisterRequest request) {
         try {
             AuthData newAuth = authDAO.createAuth(
                     userDAO.createUser(
@@ -31,32 +33,32 @@ public class UserService {
                             request.password(),
                             request.email())
             );
-            return new RequestAndResponse().setUsername(newAuth.username()).setAuthToken(newAuth.authToken());
+            return new AuthResponse(newAuth.username(), newAuth.authToken(), "");
         } catch (DataAccessException e) {
-            return new RequestAndResponse().setErrorMessage(e.getMessage());
+            return new AuthResponse("", "", e.getMessage());
         }
     }
 
-    public RequestAndResponse loginUser(LoginRequest request) {
+    public AuthResponse loginUser(LoginRequest request) {
         try {
             UserData user = userDAO.getUser(request.username());
             if (user.password().equals(request.password())) {
                 AuthData newAuth = authDAO.createAuth(user);
-                return new RequestAndResponse().setUsername(newAuth.username()).setAuthToken(newAuth.authToken());
+                return new AuthResponse(newAuth.username(), newAuth.authToken(), "");
             } else {
-                throw new DataAccessException("Password is incorrect");
+                return new AuthResponse("", "", "Password is incorrect");
             }
         } catch (DataAccessException e) {
-            return new RequestAndResponse().setErrorMessage(e.getMessage());
+            return new AuthResponse("", "", e.getMessage());
         }
     }
 
-    public RequestAndResponse logoutUser(AuthRequest request) {
+    public GenericResponse logoutUser(AuthRequest request) {
         try {
             authDAO.deleteAuthData(request.authToken());
-            return new RequestAndResponse();
+            return new GenericResponse("");
         } catch (DataAccessException e) {
-            return new RequestAndResponse().setErrorMessage(e.getMessage());
+            return new GenericResponse(e.getMessage());
         }
     }
 }
