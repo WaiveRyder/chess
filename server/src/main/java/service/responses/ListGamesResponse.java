@@ -1,7 +1,7 @@
 package service.responses;
 
-import chess.ChessGame;
+import model.GameData;
 
 import java.util.Collection;
 
-public record ListGamesResponse(Collection<ChessGame> gamesList, String message) {}
+public record ListGamesResponse(Collection<GameData> gamesList, String message) {}
