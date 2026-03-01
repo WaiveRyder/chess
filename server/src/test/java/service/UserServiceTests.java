@@ -1,9 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import model.AuthData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -89,5 +87,12 @@ public class UserServiceTests {
         GenericResponse expected = new GenericResponse("Given token is not valid");
 
         Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void clearDatabase() {
+        userService.clear();
+
+
     }
 }
