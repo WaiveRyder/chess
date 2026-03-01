@@ -8,6 +8,9 @@ import model.GameData;
 import service.requests.AuthRequest;
 import service.requests.CreateGameRequest;
 import service.requests.JoinGameRequest;
+import service.responses.CreateGameResponse;
+import service.responses.GenericResponse;
+import service.responses.ListGamesResponse;
 
 public class GameService {
     AuthDAO authDAO;
@@ -26,32 +29,32 @@ public class GameService {
         return authDAO.getAuthData(token);
     }
 
-    public RequestAndResponse createGame(CreateGameRequest request) {
+    public CreateGameResponse createGame(CreateGameRequest request) {
         try {
             AuthData auth = authenticate(request.authToken());
             GameData newGame = gameDAO.createGame(request.gameName());
-            return new RequestAndResponse().setGameID(newGame.gameID());
+            return new CreateGameResponse(newGame.gameID(), "");
         } catch (DataAccessException e) {
-            return new RequestAndResponse().setErrorMessage(e.getMessage());
+            return new CreateGameResponse(0, e.getMessage());
         }
     }
 
-    public RequestAndResponse joinGame(JoinGameRequest request) {
+    public GenericResponse joinGame(JoinGameRequest request) {
         try {
             AuthData auth = authenticate(request.authToken());
             GameData game = gameDAO.joinGame(request.gameID(), auth.username(), request.playerColor());
-            return new RequestAndResponse();
+            return new GenericResponse("");
         } catch (DataAccessException e) {
-            return new RequestAndResponse().setErrorMessage(e.getMessage());
+            return new GenericResponse(e.getMessage());
         }
     }
 
-    public RequestAndResponse listGames(AuthRequest request) {
+    public ListGamesResponse listGames(AuthRequest request) {
         try {
             AuthData auth = authenticate(request.authToken());
-            return new RequestAndResponse().setGamesList(gameDAO.listGames());
+            return new ListGamesResponse(gameDAO.listGames(), "");
         } catch (DataAccessException e) {
-            return new RequestAndResponse().setErrorMessage(e.getMessage());
+            return new ListGamesResponse(null, e.getMessage());
         }
     }
 }
