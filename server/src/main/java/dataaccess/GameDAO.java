@@ -33,7 +33,7 @@ public class GameDAO {
     public GameData joinGame(int id, String username, ChessGame.TeamColor teamColor) throws DataAccessException {
         GameData game = gameMap.get(id);
         if (game == null) {
-            throw new DataAccessException("Cannot join game because game ID does not map to a game: " + id);
+            throw new DataAccessException("Error: Cannot join game because game ID does not map to a game: " + id);
         } else if (teamColor == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) {
             GameData newGame = game.setWhitePlayer(username);
             gameMap.put(id, newGame);
@@ -43,7 +43,7 @@ public class GameDAO {
             gameMap.put(id, newGame);
             return newGame;
         } else {
-            throw new DataAccessException("Cannot join game because " + teamColor + " is taken. Game id: "  + id);
+            throw new DataAccessException("Error: Cannot join game because "+teamColor + " is taken. Game id: "  + id);
         }
     }
 

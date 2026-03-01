@@ -14,7 +14,7 @@ public class UserDAO {
 
     public UserData createUser(String username, String password, String email) throws DataAccessException {
         if (userMap.containsKey(username)) {
-            throw new DataAccessException("Database already contains username: " + username);
+            throw new DataAccessException("Error: Database already contains username: " + username);
         } else {
             UserData newUser = new UserData(username, password, email);
             userMap.put(username, newUser);
@@ -25,7 +25,7 @@ public class UserDAO {
     public UserData getUser(String username) throws DataAccessException {
         UserData user = userMap.get(username);
         if (user == null) {
-            throw new DataAccessException("Database does not contain a user called: " + username);
+            throw new DataAccessException("Error: Database does not contain a user called: " + username);
         } else {
             return user;
         }

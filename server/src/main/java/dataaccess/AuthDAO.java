@@ -23,7 +23,7 @@ public class AuthDAO {
     public AuthData getAuthData(String token) throws DataAccessException {
         AuthData auth = authMap.get(token);
         if(auth == null) {
-            throw new DataAccessException("Given token is not valid");
+            throw new DataAccessException("Error: Given token is not valid");
         } else {
             return auth;
         }
@@ -32,7 +32,7 @@ public class AuthDAO {
     public void deleteAuthData(String token) throws DataAccessException {
         AuthData auth = authMap.get(token);
         if(auth == null) {
-            throw new DataAccessException("Given token is not valid");
+            throw new DataAccessException("Error: Given token is not valid");
         } else {
             authMap.remove(token);
         }
