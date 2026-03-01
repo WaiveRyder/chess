@@ -15,6 +15,7 @@ import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
 import service.responses.AuthResponse;
 import service.responses.GenericResponse;
+import service.responses.ListGamesResponse;
 
 import java.util.Objects;
 
@@ -69,6 +70,21 @@ public class Server {
             public void handle(@NotNull Context context) {
                 AuthRequest request = new AuthRequest(context.header("Authorization"));
                 GenericResponse response = userService.logoutUser(request);
+
+                context.contentType("application/json");
+                context.result(serializer.toJson(response));
+                if(Objects.equals(response.message(), "")) {
+                    context.status(200);
+                } else {
+                    context.status(400);
+                }
+            }
+        });
+
+        javalin.get("/game", new Handler() {
+            public void handle(@NotNull Context context) {
+                AuthRequest request = new AuthRequest(context.header("Authorization"));
+                ListGamesResponse response = gameService.listGames(request);
 
                 context.contentType("application/json");
                 context.result(serializer.toJson(response));
