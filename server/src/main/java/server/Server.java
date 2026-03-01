@@ -65,6 +65,21 @@ public class Server {
             }
         });
 
+        javalin.delete("/session", new Handler() {
+            public void handle(@NotNull Context context) {
+                AuthRequest request = new AuthRequest(context.header("Authorization"));
+                GenericResponse response = userService.logoutUser(request);
+
+                context.contentType("application/json");
+                context.result(serializer.toJson(response));
+                if(Objects.equals(response.message(), "")) {
+                    context.status(200);
+                } else {
+                    context.status(400);
+                }
+            }
+        });
+
     }
 
     public int run(int desiredPort) {
