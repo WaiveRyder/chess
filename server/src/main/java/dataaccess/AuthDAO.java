@@ -15,7 +15,9 @@ public class AuthDAO {
     }
 
     public AuthData createAuth(UserData user) {
-        return new AuthData(UUID.randomUUID().toString(), user.username(), "");
+        AuthData newAuthData = new AuthData(UUID.randomUUID().toString(), user.username());
+        authMap.put(newAuthData.authToken(), newAuthData);
+        return newAuthData;
     }
 
     public AuthData getAuthData(String token) throws DataAccessException {
