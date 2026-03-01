@@ -12,8 +12,8 @@ import service.responses.AuthResponse;
 import service.responses.GenericResponse;
 
 public class UserService {
-    UserDAO userDAO;
-    AuthDAO authDAO;
+    private UserDAO userDAO;
+    private AuthDAO authDAO;
 
     public UserService (UserDAO userDAO, AuthDAO authDAO) {
         this.userDAO = userDAO;

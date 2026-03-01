@@ -13,8 +13,8 @@ import service.responses.GenericResponse;
 import service.responses.ListGamesResponse;
 
 public class GameService {
-    AuthDAO authDAO;
-    GameDAO gameDAO;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
 
     public GameService (AuthDAO authDAO, GameDAO gameDAO) {
         this.authDAO = authDAO;
