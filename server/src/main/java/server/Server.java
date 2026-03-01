@@ -130,6 +130,17 @@ public class Server {
             }
         });
 
+        javalin.delete("/db", new Handler() {
+            public void handle(@NotNull Context context) {
+                userService.clear();
+                gameService.clear();
+
+                context.contentType("application/jason");
+                context.status(200);
+                context.result(serializer.toJson(new GenericResponse("")));
+            }
+        });
+
     }
 
     public int run(int desiredPort) {
