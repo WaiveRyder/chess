@@ -10,10 +10,7 @@ import io.javalin.http.Handler;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.UserService;
-import service.requests.AuthRequest;
-import service.requests.CreateGameRequest;
-import service.requests.LoginRequest;
-import service.requests.RegisterRequest;
+import service.requests.*;
 import service.responses.AuthResponse;
 import service.responses.CreateGameResponse;
 import service.responses.GenericResponse;
@@ -102,6 +99,26 @@ public class Server {
             public void handle(@NotNull Context context) {
                 CreateGameRequest request = new CreateGameRequest(context.header("Authorization"), context.body());
                 CreateGameResponse response = gameService.createGame(request);
+
+                context.contentType("application/json");
+                context.result(serializer.toJson(response));
+                if(Objects.equals(response.message(), "")) {
+                    context.status(200);
+                } else {
+                    context.status(400);
+                }
+            }
+        });
+
+        javalin.put("/game", new Handler() {
+            public void handle(@NotNull Context context) {
+                JoinGameRequest body = serializer.fromJson(context.body(), JoinGameRequest.class);
+                JoinGameRequest request = new JoinGameRequest(
+                        context.header("Authorization"),
+                        body.playerColor(),
+                        body.gameID()
+                );
+                GenericResponse response = gameService.joinGame(request);
 
                 context.contentType("application/json");
                 context.result(serializer.toJson(response));
