@@ -35,7 +35,7 @@ public class GameService {
             GameData newGame = gameDAO.createGame(request.gameName());
             return new CreateGameResponse(newGame.gameID(), "");
         } catch (DataAccessException e) {
-            return new CreateGameResponse(0, e.getMessage());
+            return new CreateGameResponse(null, e.getMessage());
         }
     }
 

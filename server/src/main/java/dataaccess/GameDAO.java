@@ -7,11 +7,11 @@ import java.util.*;
 
 public class GameDAO {
     private Map<Integer, GameData> gameMap;
-    private static int gameID;
+    private static Integer gameID;
 
     public GameDAO() {
         gameMap = new HashMap<>();
-        gameID = 0;
+        gameID = 1;
     }
 
     private void increaseGameID() {

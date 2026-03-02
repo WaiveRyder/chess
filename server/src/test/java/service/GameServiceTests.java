@@ -36,7 +36,7 @@ public class GameServiceTests {
 
         gameService.createGame(new CreateGameRequest(mockUser.authToken(), "First Game"));
 
-        gameService.joinGame(new JoinGameRequest(mockUser.authToken(), ChessGame.TeamColor.BLACK, 0));
+        gameService.joinGame(new JoinGameRequest(mockUser.authToken(), ChessGame.TeamColor.BLACK, 1));
     }
 
     @Test
@@ -45,7 +45,7 @@ public class GameServiceTests {
                 new CreateGameRequest(mockUser.authToken(), "Hello")
         );
 
-        CreateGameResponse expected = new CreateGameResponse(1, "");
+        CreateGameResponse expected = new CreateGameResponse(2, "");
 
         Assertions.assertEquals(expected, actual);
     }
@@ -56,7 +56,7 @@ public class GameServiceTests {
                 new CreateGameRequest("ThisIsAValidAuthTokenTrustMe", "Hello")
         );
 
-        CreateGameResponse expected = new CreateGameResponse(0, "Given token is not valid");
+        CreateGameResponse expected = new CreateGameResponse(null, "Error: Given token is not valid");
 
         Assertions.assertEquals(expected, actual);
     }
@@ -64,7 +64,7 @@ public class GameServiceTests {
     @Test
     public void joinGameValidId() {
         GenericResponse actual = gameService.joinGame(
-                new JoinGameRequest(mockUser.authToken(), ChessGame.TeamColor.WHITE, 0)
+                new JoinGameRequest(mockUser.authToken(), ChessGame.TeamColor.WHITE, 1)
         );
 
         GenericResponse expected = new GenericResponse("");
@@ -75,11 +75,11 @@ public class GameServiceTests {
     @Test
     public void joinGameColorFull() {
         GenericResponse actual = gameService.joinGame(
-                new JoinGameRequest(mockUser.authToken(), ChessGame.TeamColor.BLACK, 0)
+                new JoinGameRequest(mockUser.authToken(), ChessGame.TeamColor.BLACK, 1)
         );
 
 
-        GenericResponse expected = new GenericResponse("Cannot join game because BLACK is taken. Game id: 0");
+        GenericResponse expected = new GenericResponse("Error: Cannot join game because BLACK is taken. Game id: 1");
 
         Assertions.assertEquals(expected, actual);
     }
@@ -92,7 +92,7 @@ public class GameServiceTests {
 
         Collection<GameData> gamesList = new Vector<>();
         gamesList.add(new GameData(
-                0,
+                1,
                 null,
                 "john",
                 "First Game",
@@ -107,7 +107,7 @@ public class GameServiceTests {
     public void listGamesInvalidId() {
         ListGamesResponse actual = gameService.listGames(new AuthRequest("ThisIsAValidTokenTrustMe"));
 
-        ListGamesResponse expected = new ListGamesResponse(null, "Given token is not valid");
+        ListGamesResponse expected = new ListGamesResponse(null, "Error: Given token is not valid");
 
         Assertions.assertEquals(expected, actual);
     }
@@ -118,7 +118,7 @@ public class GameServiceTests {
 
         ListGamesResponse gamesList = gameService.listGames(new AuthRequest(mockUser.authToken()));
 
-        Assertions.assertTrue(gamesList.gamesList().isEmpty());
+        Assertions.assertTrue(gamesList.games().isEmpty());
     }
 
 }

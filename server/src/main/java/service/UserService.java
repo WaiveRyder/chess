@@ -35,7 +35,7 @@ public class UserService {
             );
             return new AuthResponse(newAuth.username(), newAuth.authToken(), "");
         } catch (DataAccessException e) {
-            return new AuthResponse("", "", e.getMessage());
+            return new AuthResponse(null, null, e.getMessage());
         }
     }
 
@@ -46,10 +46,10 @@ public class UserService {
                 AuthData newAuth = authDAO.createAuth(user);
                 return new AuthResponse(newAuth.username(), newAuth.authToken(), "");
             } else {
-                return new AuthResponse("", "", "Password is incorrect");
+                return new AuthResponse(null, null, "Error: Password is incorrect");
             }
         } catch (DataAccessException e) {
-            return new AuthResponse("", "", e.getMessage());
+            return new AuthResponse(null, null, e.getMessage());
         }
     }
 
