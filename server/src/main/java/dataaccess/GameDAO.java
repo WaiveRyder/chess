@@ -53,6 +53,6 @@ public class GameDAO {
     }
 
     public void clear() {
-        gameMap = new HashMap<>();
+        gameMap.clear();
     }
 }
