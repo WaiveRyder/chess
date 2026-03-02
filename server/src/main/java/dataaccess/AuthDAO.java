@@ -43,6 +43,6 @@ public class AuthDAO {
     }
 
     public void clear() {
-        authMap = new HashMap<>();
+        authMap.clear();
     }
 }

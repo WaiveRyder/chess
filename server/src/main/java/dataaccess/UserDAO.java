@@ -36,6 +36,6 @@ public class UserDAO {
     }
 
     public void clear() {
-        userMap = new HashMap<String, UserData>();
+        userMap.clear();
     }
 }
