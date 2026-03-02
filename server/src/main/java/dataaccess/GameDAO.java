@@ -16,6 +16,7 @@ public class GameDAO {
 
     public GameDAO(Map<Integer, GameData> gameMap) {
         this.gameMap = gameMap;
+        gameID = 1;
     }
 
     private void increaseGameID() {
