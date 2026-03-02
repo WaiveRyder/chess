@@ -27,7 +27,6 @@ public class Server {
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-
         // Register your endpoints and exception handlers here.
         UserDAO userDAO = new UserDAO();
         AuthDAO authDAO = new AuthDAO();
@@ -35,7 +34,6 @@ public class Server {
 
         gameService = new GameService(authDAO, gameDAO);
         userService = new UserService(userDAO, authDAO);
-
         serializer = new Gson();
 
         //Register a user
@@ -115,7 +113,6 @@ public class Server {
                 handleJoinGame(context, request);
             }
         });
-
         //Clear
         javalin.delete("/db", new Handler() {
             public void handle(@NotNull Context context) {
@@ -127,7 +124,6 @@ public class Server {
                 context.result(serializer.toJson(new GenericResponse("")));
             }
         });
-
     }
 
     public int run(int desiredPort) {
