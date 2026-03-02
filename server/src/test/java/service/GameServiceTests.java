@@ -17,22 +17,35 @@ import service.responses.GenericResponse;
 import service.responses.ListGamesResponse;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 public class GameServiceTests {
 
+    private Map<String, AuthData> authMap;
+    Map<Integer, GameData> gameMap;
+
     private GameService gameService;
 
     private AuthData mockUser;
+    private AuthData mockUserN;
+
+    private ChessGame game;
 
     @BeforeEach
     public void setup() {
-        AuthDAO authDAO = new AuthDAO();
-        GameDAO gameDAO = new GameDAO();
+        authMap = new HashMap<>();
+        AuthDAO authDAO = new AuthDAO(authMap);
+
+        gameMap = new HashMap<>();
+        GameDAO gameDAO = new GameDAO(gameMap);
 
         gameService = new GameService(authDAO, gameDAO);
 
         mockUser = authDAO.createAuth(new UserData("john", "password", "email"));
+        mockUserN = authDAO.createAuth(new UserData("jim", "pass", "email"));
+        game = new ChessGame();
 
         gameService.createGame(new CreateGameRequest(mockUser.authToken(), "First Game"));
 
@@ -47,7 +60,12 @@ public class GameServiceTests {
 
         CreateGameResponse expected = new CreateGameResponse(2, "");
 
+        GameData expectedGame = new GameData(2, null, null, "Hello", game);
+
+        GameData actualGame = gameMap.get(2);
+
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(expectedGame, actualGame);
     }
 
     @Test
@@ -59,6 +77,7 @@ public class GameServiceTests {
         CreateGameResponse expected = new CreateGameResponse(null, "Error: Given token is not valid");
 
         Assertions.assertEquals(expected, actual);
+        Assertions.assertNull(gameMap.get(2));
     }
 
     @Test
@@ -69,19 +88,27 @@ public class GameServiceTests {
 
         GenericResponse expected = new GenericResponse("");
 
+        GameData expectedGame = new GameData(1, mockUser.username(), "john", "First Game", game);
+        GameData actualGame = gameMap.get(1);
+
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(expectedGame, actualGame);
     }
 
     @Test
     public void joinGameColorFull() {
         GenericResponse actual = gameService.joinGame(
-                new JoinGameRequest(mockUser.authToken(), ChessGame.TeamColor.BLACK, 1)
+                new JoinGameRequest(mockUserN.authToken(), ChessGame.TeamColor.BLACK, 1)
         );
 
 
         GenericResponse expected = new GenericResponse("Error: Cannot join game because BLACK is taken. Game id: 1");
 
+        GameData expectedGame = new GameData(1, null, "john", "First Game", game);
+        GameData actualGame = gameMap.get(1);
+
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(expectedGame, actualGame);
     }
 
     @Test
@@ -116,9 +143,10 @@ public class GameServiceTests {
     public void clearDatabase() {
         gameService.clear();
 
-        ListGamesResponse gamesList = gameService.listGames(new AuthRequest(mockUser.authToken()));
+        System.out.println(gameMap.values());
 
-        Assertions.assertTrue(gamesList.games().isEmpty());
+        Assertions.assertTrue(gameService.listGames(new AuthRequest(mockUser.authToken())).games().isEmpty());
+        Assertions.assertTrue(gameMap.isEmpty());
     }
 
 }
