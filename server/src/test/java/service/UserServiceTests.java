@@ -108,7 +108,7 @@ public class UserServiceTests {
     public void logoutUserWithValidToken() {
         GenericResponse actual = userService.logoutUser(new AuthRequest(mockUserAuthData.authToken()));
 
-        GenericResponse expected = new GenericResponse(null);
+        GenericResponse expected = new GenericResponse("");
 
         Assertions.assertEquals(expected, actual);
         Assertions.assertNull(authMap.get(mockUserAuthData.authToken()));
