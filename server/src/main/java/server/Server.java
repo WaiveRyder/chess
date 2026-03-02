@@ -19,6 +19,9 @@ import service.responses.ListGamesResponse;
 import java.util.Objects;
 
 public class Server {
+    private final Gson serializer;
+    private final UserService userService;
+    private final GameService gameService;
 
     private final Javalin javalin;
 
@@ -30,10 +33,10 @@ public class Server {
         AuthDAO authDAO = new AuthDAO();
         GameDAO gameDAO = new GameDAO();
 
-        GameService gameService = new GameService(authDAO, gameDAO);
-        UserService userService = new UserService(userDAO, authDAO);
+        gameService = new GameService(authDAO, gameDAO);
+        userService = new UserService(userDAO, authDAO);
 
-        var serializer = new Gson();
+        serializer = new Gson();
 
         //Register a user
         javalin.post("/user", new Handler() {
@@ -41,24 +44,7 @@ public class Server {
                 RegisterRequest request = serializer.fromJson(context.body(), RegisterRequest.class);
                 context.contentType("application/json");
 
-                if(request.username() == null || request.password() == null || request.email() == null) {
-                    context.result(serializer.toJson(new AuthResponse(
-                            null,
-                            null,
-                            "Error: No Null Elements Allowed"
-                    )));
-                    context.status(400);
-                } else {
-
-                    AuthResponse response = userService.registerUser(request);
-
-                    context.result(serializer.toJson(response));
-                    if (Objects.equals(response.message(), "")) {
-                        context.status(200);
-                    } else {
-                        context.status(403);
-                    }
-                }
+                handleRegister(context, request);
             }
         });
 
@@ -68,24 +54,7 @@ public class Server {
                 LoginRequest request = serializer.fromJson(context.body(), LoginRequest.class);
                 context.contentType("application/json");
 
-                if (request.username() == null || request.password() == null) {
-                    context.result(serializer.toJson(new AuthResponse(
-                            null,
-                            null,
-                            "Error: No Null Elements Allowed")));
-                    context.status(400);
-                } else {
-
-                    AuthResponse response = userService.loginUser(request);
-
-
-                    context.result(serializer.toJson(response));
-                    if (Objects.equals(response.message(), "")) {
-                        context.status(200);
-                    } else {
-                        context.status(401);
-                    }
-                }
+                handleLogin(context, request);
             }
         });
 
@@ -94,8 +63,8 @@ public class Server {
             public void handle(@NotNull Context context) {
                 AuthRequest request = new AuthRequest(context.header("Authorization"));
                 GenericResponse response = userService.logoutUser(request);
-
                 context.contentType("application/json");
+
                 context.result(serializer.toJson(response));
                 if(Objects.equals(response.message(), "")) {
                     context.status(200);
@@ -128,21 +97,7 @@ public class Server {
                 CreateGameRequest request = new CreateGameRequest(context.header("Authorization"), body.gameName());
                 context.contentType("application/json");
 
-                if (request.authToken() == null || request.gameName() == null) {
-                    context.result(serializer.toJson(new CreateGameResponse(
-                            null,
-                            "Error: No Null Elements Allowed"
-                    )));
-                    context.status(400);
-                } else {
-                    CreateGameResponse response = gameService.createGame(request);
-                    context.result(serializer.toJson(response));
-                    if (Objects.equals(response.message(), "")) {
-                        context.status(200);
-                    } else {
-                        context.status(401);
-                    }
-                }
+                handleCreateGame(context, request);
             }
         });
 
@@ -157,23 +112,7 @@ public class Server {
                 );
                 context.contentType("application/json");
 
-                if (request.gameID() == null || request.playerColor() == null || request.authToken() == null) {
-                    context.result(serializer.toJson(new GenericResponse("Error: No Null Elements Allowed")));
-                    context.status(400);
-                } else {
-
-                    GenericResponse response = gameService.joinGame(request);
-                    context.result(serializer.toJson(response));
-                    if (Objects.equals(response.message(), "")) {
-                        context.status(200);
-                    } else if (response.message().contains("taken")) {
-                        context.status(403);
-                    } else if (response.message().contains("token")) {
-                        context.status(401);
-                    } else {
-                        context.status(400);
-                    }
-                }
+                handleJoinGame(context, request);
             }
         });
 
@@ -198,5 +137,85 @@ public class Server {
 
     public void stop() {
         javalin.stop();
+    }
+
+    private void handleRegister(Context context, RegisterRequest request) {
+        if(request.username() == null || request.password() == null || request.email() == null) {
+            context.result(serializer.toJson(new AuthResponse(
+                    null,
+                    null,
+                    "Error: No Null Elements Allowed"
+            )));
+            context.status(400);
+        } else {
+
+            AuthResponse response = userService.registerUser(request);
+
+            context.result(serializer.toJson(response));
+            if (Objects.equals(response.message(), "")) {
+                context.status(200);
+            } else {
+                context.status(403);
+            }
+        }
+    }
+
+    private void handleLogin(Context context, LoginRequest request) {
+        if (request.username() == null || request.password() == null) {
+            context.result(serializer.toJson(new AuthResponse(
+                    null,
+                    null,
+                    "Error: No Null Elements Allowed")));
+            context.status(400);
+        } else {
+
+            AuthResponse response = userService.loginUser(request);
+
+
+            context.result(serializer.toJson(response));
+            if (Objects.equals(response.message(), "")) {
+                context.status(200);
+            } else {
+                context.status(401);
+            }
+        }
+    }
+
+    private void handleCreateGame(Context context, CreateGameRequest request) {
+        if (request.authToken() == null || request.gameName() == null) {
+            context.result(serializer.toJson(new CreateGameResponse(
+                    null,
+                    "Error: No Null Elements Allowed"
+            )));
+            context.status(400);
+        } else {
+            CreateGameResponse response = gameService.createGame(request);
+            context.result(serializer.toJson(response));
+            if (Objects.equals(response.message(), "")) {
+                context.status(200);
+            } else {
+                context.status(401);
+            }
+        }
+    }
+
+    private void handleJoinGame(Context context, JoinGameRequest request) {
+        if (request.gameID() == null || request.playerColor() == null || request.authToken() == null) {
+            context.result(serializer.toJson(new GenericResponse("Error: No Null Elements Allowed")));
+            context.status(400);
+        } else {
+
+            GenericResponse response = gameService.joinGame(request);
+            context.result(serializer.toJson(response));
+            if (Objects.equals(response.message(), "")) {
+                context.status(200);
+            } else if (response.message().contains("taken")) {
+                context.status(403);
+            } else if (response.message().contains("token")) {
+                context.status(401);
+            } else {
+                context.status(400);
+            }
+        }
     }
 }
