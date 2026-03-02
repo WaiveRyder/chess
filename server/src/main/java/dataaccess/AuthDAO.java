@@ -14,6 +14,10 @@ public class AuthDAO {
         authMap = new HashMap<>();
     }
 
+    public AuthDAO(Map<String, AuthData> authMap) {
+        this.authMap = authMap;
+    }
+
     public AuthData createAuth(UserData user) {
         AuthData newAuthData = new AuthData(UUID.randomUUID().toString(), user.username());
         authMap.put(newAuthData.authToken(), newAuthData);
