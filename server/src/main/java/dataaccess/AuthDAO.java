@@ -50,7 +50,7 @@ public class AuthDAO {
         if (useMap) {
             return authDAOMap.getAuthData(token);
         } else {
-            var statement = "SELECT * FROM users WHERE token = ?";
+            var statement = "SELECT * FROM auth WHERE token = ?";
             try (Connection conn = DatabaseManager.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
                 pstmt.setString(1, token);
