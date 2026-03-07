@@ -139,9 +139,7 @@ public class GameDAO {
             var statement = "DELETE FROM game";
             try (Connection conn = DatabaseManager.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
-                if (pstmt.executeUpdate() == 0) {
-                    System.out.println("Database was empty");
-                }
+                pstmt.executeUpdate();
             } catch (SQLException e) {
                 throw new DataAccessException("Error: could not connect to database");
             }
