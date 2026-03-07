@@ -129,7 +129,6 @@ public class Server {
                 context.contentType("application/jason");
 
                 if (!Objects.equals(userClear.message(), "")) {
-
                     context.status(500);
                     context.result(serializer.toJson(userClear));
                 } else if (!Objects.equals(gameClear.message(), "")) {
