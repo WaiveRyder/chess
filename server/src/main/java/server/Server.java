@@ -35,9 +35,9 @@ public class Server {
         }
 
 
-        UserDAO userDAO = new UserDAO(databaseManager);
-        AuthDAO authDAO = new AuthDAO(databaseManager);
-        GameDAO gameDAO = new GameDAO(databaseManager);
+        UserDAO userDAO = new UserDAO();
+        AuthDAO authDAO = new AuthDAO();
+        GameDAO gameDAO = new GameDAO();
 
         gameService = new GameService(authDAO, gameDAO);
         userService = new UserService(userDAO, authDAO);
