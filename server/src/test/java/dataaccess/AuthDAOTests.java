@@ -138,4 +138,23 @@ public class AuthDAOTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void deleteAuthDataValidTokenTest() {
+        try {
+            AuthData mockData = authDAO.createAuth(mockUser);
+            authDAO.deleteAuthData(mockData.authToken());
+
+            var statement = "SELECT * FROM auth WHERE token = ?";
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
+                pstmt.setString(1, mockData.authToken());
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    Assertions.assertFalse(rs.next());
+                }
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
