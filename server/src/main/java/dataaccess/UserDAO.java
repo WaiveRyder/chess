@@ -48,14 +48,12 @@ public class UserDAO {
                             insert.setString(2, hashedPassword);
                             insert.setString(3, email);
                             insert.executeUpdate();
-                            System.out.println("Ran this line, hashed password: " + hashedPassword);
                             return new UserData(username, hashedPassword, email);
-
                         }
                     }
                 }
             } catch (SQLException e) {
-                throw new DataAccessException("could not connect to database", e);
+                throw new DataAccessException("Error: could not connect to database");
             }
         }
     }
@@ -78,7 +76,7 @@ public class UserDAO {
                     throw new DataAccessException("Error: Database does not contain a user called: " + username);
                 }
             } catch (SQLException e) {
-                throw new DataAccessException("could not connect to database", e);
+                throw new DataAccessException("Error: could not connect to database");
             }
         }
     }
@@ -92,7 +90,7 @@ public class UserDAO {
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
                 pstmt.executeUpdate();
             } catch (SQLException e) {
-                throw new DataAccessException("could not connect to database", e);
+                throw new DataAccessException("Error: could not connect to database");
             }
         }
     }

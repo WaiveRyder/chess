@@ -73,6 +73,8 @@ public class Server {
                 context.result(serializer.toJson(response));
                 if(Objects.equals(response.message(), "")) {
                     context.status(200);
+                } else if (response.message().contains("connect")){
+                    context.status(500);
                 } else {
                     context.status(401);
                 }
@@ -89,6 +91,8 @@ public class Server {
                 context.result(serializer.toJson(response));
                 if(Objects.equals(response.message(), "")) {
                     context.status(200);
+                } else if (response.message().contains("connect")) {
+                    context.status(500);
                 } else {
                     context.status(401);
                 }
@@ -123,8 +127,8 @@ public class Server {
         //Clear
         javalin.delete("/db", new Handler() {
             public void handle(@NotNull Context context) {
-                GenericResponse userClear = userService.clear();
                 GenericResponse gameClear = gameService.clear();
+                GenericResponse userClear = userService.clear();
 
                 context.contentType("application/jason");
 
@@ -166,6 +170,8 @@ public class Server {
             context.result(serializer.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);
+            } else if (response.message().contains("connect")) {
+                context.status(500);
             } else {
                 context.status(403);
             }
@@ -187,6 +193,8 @@ public class Server {
             context.result(serializer.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);
+            } else if (response.message().contains("connect")) {
+                context.status(500);
             } else {
                 context.status(401);
             }
@@ -205,6 +213,8 @@ public class Server {
             context.result(serializer.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);
+            } else if (response.message().contains("connect")){
+                context.status(500);
             } else {
                 context.status(401);
             }
@@ -225,6 +235,8 @@ public class Server {
                 context.status(403);
             } else if (response.message().contains("token")) {
                 context.status(401);
+            } else if (response.message().contains("connect")) {
+                context.status(500);
             } else {
                 context.status(400);
             }

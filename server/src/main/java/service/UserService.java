@@ -23,8 +23,8 @@ public class UserService {
 
     public GenericResponse clear() {
         try {
-            userDAO.clear();
             authDAO.clear();
+            userDAO.clear();
             return new GenericResponse("");
         } catch (DataAccessException e) {
             return new GenericResponse(e.getMessage());

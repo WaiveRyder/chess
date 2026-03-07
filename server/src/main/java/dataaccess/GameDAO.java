@@ -53,7 +53,7 @@ public class GameDAO {
 
                 return new GameData(id, null, null, gameName, newGame);
             } catch (SQLException e) {
-                throw new DataAccessException("could not connect to database", e);
+                throw new DataAccessException("Error: could not connect to database");
             }
         }
     }
@@ -78,7 +78,7 @@ public class GameDAO {
                 }
                 return games;
             } catch (SQLException e) {
-                throw new DataAccessException("could not connect to database", e);
+                throw new DataAccessException("Error: could not connect to database");
             }
         }
     }
@@ -106,15 +106,16 @@ public class GameDAO {
                         } else if(teamColor == ChessGame.TeamColor.BLACK && blackUsername != null) {
                             throw new DataAccessException("Error: "+teamColor + "is taken by: " + blackUsername);
                         } else if (teamColor == ChessGame.TeamColor.WHITE) {
-                            whiteUsername = username;
+                            gameData = gameData.setWhitePlayer(username);
                             newStatement = "UPDATE game SET whiteUsername = ? WHERE gameID = " + gameID;
                         } else {
-                            blackUsername = username;
+                            gameData = gameData.setBlackPlayer(username);
                             newStatement = "UPDATE game SET blackUsername = ? WHERE gameID = " + gameID;
                         }
 
                         int rows;
                         try (PreparedStatement npstmt = conn.prepareStatement(newStatement)) {
+                            npstmt.setString(1, username);
                             rows = npstmt.executeUpdate();
                         }
                         if (rows == 0) {
@@ -126,7 +127,7 @@ public class GameDAO {
                     }
                 }
             } catch (SQLException e) {
-                throw new DataAccessException("could not connect to database", e);
+                throw new DataAccessException("Error: could not connect to database");
             }
         }
     }
@@ -142,7 +143,7 @@ public class GameDAO {
                     System.out.println("Database was empty");
                 }
             } catch (SQLException e) {
-                throw new DataAccessException("could not connect to database", e);
+                throw new DataAccessException("Error: could not connect to database");
             }
         }
     }
