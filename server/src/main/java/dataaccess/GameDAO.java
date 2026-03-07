@@ -1,58 +1,54 @@
 package dataaccess;
 
 import chess.ChessGame;
+import dataaccess.offline.GameDAOMap;
 import model.GameData;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 
 public class GameDAO {
-    private Map<Integer, GameData> gameMap;
-    private static Integer gameID;
+    private DatabaseManager databaseManager;
+    private GameDAOMap gameDAOMap;
+    private boolean useMap;
 
-    public GameDAO() {
-        gameMap = new HashMap<>();
-        gameID = 1;
+    public GameDAO(DatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
+        useMap = false;
     }
 
     public GameDAO(Map<Integer, GameData> gameMap) {
-        this.gameMap = gameMap;
-        gameID = 1;
-    }
-
-    private void increaseGameID() {
-        gameID++;
+        gameDAOMap = new GameDAOMap(gameMap);
+        useMap = true;
     }
 
     public GameData createGame(String gameName) {
-        ChessGame chessGame = new ChessGame();
-        GameData game = new GameData(gameID, null, null, gameName, chessGame);
-        gameMap.put(gameID, game);
-        increaseGameID();
-        return game;
+        if (useMap) {
+            return gameDAOMap.createGame(gameName);
+        } else {
+            return null;
+        }
     }
 
     public Collection<GameData> listGames() {
-        return new Vector<>(gameMap.values());
+        if (useMap) {
+            return gameDAOMap.listGames();
+        } else {
+            return null;
+        }
     }
 
     public GameData joinGame(int id, String username, ChessGame.TeamColor teamColor) throws DataAccessException {
-        GameData game = gameMap.get(id);
-        if (game == null) {
-            throw new DataAccessException("Error: Cannot join game because game ID does not map to a game: " + id);
-        } else if (teamColor == ChessGame.TeamColor.WHITE && game.whiteUsername() == null) {
-            GameData newGame = game.setWhitePlayer(username);
-            gameMap.put(id, newGame);
-            return newGame;
-        } else if (teamColor == ChessGame.TeamColor.BLACK && game.blackUsername() == null) {
-            GameData newGame = game.setBlackPlayer(username);
-            gameMap.put(id, newGame);
-            return newGame;
+        if (useMap) {
+            return gameDAOMap.joinGame(id, username, teamColor);
         } else {
-            throw new DataAccessException("Error: Cannot join game because "+teamColor + " is taken. Game id: "  + id);
+            return null;
         }
     }
 
     public void clear() {
-        gameMap.clear();
+        if (useMap) {
+            gameDAOMap.clear();
+        }
     }
 }
