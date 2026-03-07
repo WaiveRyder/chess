@@ -58,11 +58,28 @@ public class GameDAO {
         }
     }
 
-    public Collection<GameData> listGames() {
+    public Collection<GameData> listGames() throws DataAccessException {
         if (useMap) {
             return gameDAOMap.listGames();
         } else {
-            return null;
+            var statement = "SELECT * FROM game";
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(statement);
+                 ResultSet rs = pstmt.executeQuery()) {
+                Vector<GameData> games = new Vector<>();
+                while (rs.next()) {
+                    int gameID = rs.getInt("gameID");
+                    String whiteUsername = rs.getString("whiteUsername");
+                    String blackUsername = rs.getString("blackUsername");
+                    String gameName = rs.getString("gameName");
+                    ChessGame chessGame = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+                    GameData newGameData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
+                    games.add(newGameData);
+                }
+                return games;
+            } catch (SQLException e) {
+                throw new DataAccessException("could not connect to database", e);
+            }
         }
     }
 
