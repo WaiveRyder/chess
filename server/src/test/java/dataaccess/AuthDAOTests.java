@@ -117,4 +117,25 @@ public class AuthDAOTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void getAuthDataInvalidTokenTest() {
+        try {
+            authDAO.getAuthData("ThisIsAValidAuthTokenTrustMe");
+            Assertions.fail("Expected an error to be thrown here, no auth in system");
+
+        } catch (DataAccessException e) {
+            Assertions.assertEquals("Error: Given token is not valid", e.getMessage());
+        }
+
+        var statement = "SELECT * FROM auth WHERE token = 'ThisIsAValidAuthTokenTrustMe'";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Assertions.assertFalse(rs.next());
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
