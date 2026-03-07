@@ -15,7 +15,6 @@ import java.util.Vector;
 public class AuthDAOTests {
     AuthDAO authDAO;
     UserDAO userDAO;
-    GameDAO gameDAO;
 
     UserData mockUser;
 
@@ -27,11 +26,9 @@ public class AuthDAOTests {
 
             authDAO = new AuthDAO();
             userDAO = new UserDAO();
-            gameDAO = new GameDAO();
 
             authDAO.clear();
             userDAO.clear();
-            gameDAO.clear();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
