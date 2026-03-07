@@ -25,12 +25,14 @@ public class AuthDAO {
         if (useMap) {
             return authDAOMap.createAuth(user);
         }
+        return null;
     }
 
     public AuthData getAuthData(String token) throws DataAccessException {
         if (useMap) {
             return authDAOMap.getAuthData(token);
         }
+        return null;
     }
 
     public void deleteAuthData(String token) throws DataAccessException {
