@@ -7,6 +7,7 @@ import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import service.requests.AuthRequest;
 import service.requests.LoginRequest;
 import service.requests.RegisterRequest;
@@ -45,13 +46,14 @@ public class UserServiceTests {
 
         AuthResponse expected = new AuthResponse("John", actual.authToken(), "");
 
-        UserData expectedData = new UserData("John", "password", "john@email.com");
         UserData actualData = userMap.get("John");
 
         Assertions.assertEquals(expected, actual);
         Assertions.assertNotEquals("", actual.authToken());
         Assertions.assertNotNull(authMap.get(actual.authToken()));
-        Assertions.assertEquals(expectedData, actualData);
+        Assertions.assertEquals("John", actualData.username());
+        Assertions.assertEquals("john@email.com", actualData.email());
+        Assertions.assertTrue(BCrypt.checkpw("password", actualData.password()));
     }
 
     @Test
@@ -65,15 +67,16 @@ public class UserServiceTests {
         int expectedLength = 1;
         int actualLength = userMap.size();
 
-        UserData expectedData = new UserData("Wally", "passwords", "wally@gmail.com");
-        UserData acutalData = userMap.get("Wally");
+        UserData actualData = userMap.get("Wally");
 
         int expectedAuthLength = 1;
         int actualAuthLength = authMap.size();
 
         Assertions.assertEquals(expected, actual);
         Assertions.assertEquals(expectedLength, actualLength);
-        Assertions.assertEquals(expectedData, acutalData);
+        Assertions.assertEquals("Wally", actualData.username());
+        Assertions.assertEquals("wally@gmail.com", actualData.email());
+        Assertions.assertTrue(BCrypt.checkpw("passwords", actualData.password()));
         Assertions.assertEquals(expectedAuthLength, actualAuthLength);
     }
 

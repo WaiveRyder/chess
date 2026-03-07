@@ -2,6 +2,7 @@ package dataaccess.offline;
 
 import dataaccess.DataAccessException;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,8 @@ public class UserDAOMap {
         if (userMap.containsKey(username)) {
             throw new DataAccessException("Error: Database already contains username: " + username);
         } else {
-            UserData newUser = new UserData(username, password, email);
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+            UserData newUser = new UserData(username, hashedPassword, email);
             userMap.put(username, newUser);
             return newUser;
         }
