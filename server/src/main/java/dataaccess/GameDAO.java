@@ -88,49 +88,48 @@ public class GameDAO {
     public GameData joinGame(int id, String username, ChessGame.TeamColor teamColor) throws DataAccessException {
         if (useMap) {
             return gameDAOMap.joinGame(id, username, teamColor);
-        } else {
-            var statement = "SELECT * FROM game WHERE gameID = ?";
-            try (Connection conn = DatabaseManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
-                pstmt.setInt(1, id);
-                GameData gameData = null;
-                try (ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) {
-                        int gameID = rs.getInt("gameID");
-                        String whiteUsername = rs.getString("whiteUsername");
-                        String blackUsername = rs.getString("blackUsername");
-                        String gameName = rs.getString("gameName");
-                        ChessGame chessGame = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
-                        gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
-                        var newStatement = "";
-                        if(teamColor == ChessGame.TeamColor.WHITE && whiteUsername != null) {
-                            throw new DataAccessException("Error: "+teamColor + "is taken by: " + whiteUsername);
-                        } else if(teamColor == ChessGame.TeamColor.BLACK && blackUsername != null) {
-                            throw new DataAccessException("Error: "+teamColor + "is taken by: " + blackUsername);
-                        } else if (teamColor == ChessGame.TeamColor.WHITE) {
-                            gameData = gameData.setWhitePlayer(username);
-                            newStatement = "UPDATE game SET whiteUsername = ? WHERE gameID = " + gameID;
-                        } else {
-                            gameData = gameData.setBlackPlayer(username);
-                            newStatement = "UPDATE game SET blackUsername = ? WHERE gameID = " + gameID;
-                        }
-
-                        int rows;
-                        try (PreparedStatement npstmt = conn.prepareStatement(newStatement)) {
-                            npstmt.setString(1, username);
-                            rows = npstmt.executeUpdate();
-                        }
-                        if (rows == 0) {
-                            throw new DataAccessException("Error: Could not update game");
-                        }
-                        return gameData;
+        }
+        var statement = "SELECT * FROM game WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setInt(1, id);
+            GameData gameData = null;
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int gameID = rs.getInt("gameID");
+                    String whiteUsername = rs.getString("whiteUsername");
+                    String blackUsername = rs.getString("blackUsername");
+                    String gameName = rs.getString("gameName");
+                    ChessGame chessGame = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+                    gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
+                    var newStatement = "";
+                    if(teamColor == ChessGame.TeamColor.WHITE && whiteUsername != null) {
+                        throw new DataAccessException("Error: "+teamColor + "is taken by: " + whiteUsername);
+                    } else if(teamColor == ChessGame.TeamColor.BLACK && blackUsername != null) {
+                        throw new DataAccessException("Error: "+teamColor + "is taken by: " + blackUsername);
+                    } else if (teamColor == ChessGame.TeamColor.WHITE) {
+                        gameData = gameData.setWhitePlayer(username);
+                        newStatement = "UPDATE game SET whiteUsername = ? WHERE gameID = " + gameID;
                     } else {
-                        throw new DataAccessException("Error: Game ID not valid: " + id);
+                        gameData = gameData.setBlackPlayer(username);
+                        newStatement = "UPDATE game SET blackUsername = ? WHERE gameID = " + gameID;
                     }
+
+                    int rows;
+                    try (PreparedStatement npstmt = conn.prepareStatement(newStatement)) {
+                        npstmt.setString(1, username);
+                        rows = npstmt.executeUpdate();
+                    }
+                    if (rows == 0) {
+                        throw new DataAccessException("Error: Could not update game");
+                    }
+                    return gameData;
+                } else {
+                    throw new DataAccessException("Error: Game ID not valid: " + id);
                 }
-            } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to database");
             }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: could not connect to database");
         }
     }
 
