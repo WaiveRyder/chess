@@ -9,10 +9,6 @@ import java.util.Map;
 public class UserDAOMap {
     private Map<String, UserData> userMap;
 
-    public UserDAOMap() {
-        userMap = new HashMap<String, UserData>();
-    }
-
     public UserDAOMap(Map<String, UserData> userMap) {
         this.userMap = userMap;
     }
