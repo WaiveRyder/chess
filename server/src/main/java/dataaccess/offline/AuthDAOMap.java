@@ -11,10 +11,6 @@ import java.util.UUID;
 public class AuthDAOMap {
     private Map<String, AuthData> authMap;
 
-    public AuthDAOMap() {
-        authMap = new HashMap<>();
-    }
-
     public AuthDAOMap(Map<String, AuthData> authMap) {
         this.authMap = authMap;
     }
