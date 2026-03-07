@@ -135,4 +135,43 @@ public class GameDAOTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void listGamesInvalidInfo() {
+        try {
+            gameDAO.listGames();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void joinGameValidInfo() {
+        ChessGame blankGame = new ChessGame();
+        try {
+            gameDAO.createGame("First Game");
+            GameData actual = gameDAO.joinGame(1, "John", ChessGame.TeamColor.WHITE);
+            GameData expected = new GameData(1, "John", null, "First Game", blankGame);
+
+            Assertions.assertEquals(expected, actual);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        var statement = "SELECT * FROM game WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setInt(1, 1);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Assertions.assertTrue(rs.next());
+                Assertions.assertEquals(1, rs.getInt("gameID"));
+                Assertions.assertEquals("John", rs.getString("whiteUsername"));
+                Assertions.assertNull(rs.getString("blackUsername"));
+                Assertions.assertEquals("First Game", rs.getString("gameName"));
+                Assertions.assertEquals(blankGame, gson.fromJson(rs.getString("chessGame"), ChessGame.class));
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
