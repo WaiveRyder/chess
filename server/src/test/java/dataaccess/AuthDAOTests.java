@@ -2,6 +2,7 @@ package dataaccess;
 
 import model.AuthData;
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,8 +44,9 @@ public class AuthDAOTests {
     @Test
     public void createAuthValidUserTest() {
         try {
-            AuthData actual = authDAO.createAuth(mockUser);
-            AuthData expected = new AuthData(actual.authToken(), "john");
+            UserData newUser = userDAO.createUser("bob", "pass", "email");
+            AuthData actual = authDAO.createAuth(newUser);
+            AuthData expected = new AuthData(actual.authToken(), "bob");
 
             try (Connection conn = DatabaseManager.getConnection()) {
                 var statement = "SELECT * FROM auth WHERE token = ?";
@@ -52,7 +54,7 @@ public class AuthDAOTests {
                     pstmt.setString(1, actual.authToken());
                     try (ResultSet rs = pstmt.executeQuery()) {
                         Assertions.assertTrue(rs.next());
-                        Assertions.assertEquals("john", rs.getString("username"));
+                        Assertions.assertEquals("bob", rs.getString("username"));
                         Assertions.assertEquals(actual.authToken(), rs.getString("token"));
                     }
                 }
