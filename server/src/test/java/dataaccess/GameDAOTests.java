@@ -138,10 +138,14 @@ public class GameDAOTests {
 
     @Test
     public void listGamesInvalidInfo() {
-        try {
+        var statement = "DROP TABLE game";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.executeUpdate();
             gameDAO.listGames();
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            Assertions.fail("Expected an error to be thrown here, game table DNE");
+        } catch (SQLException | DataAccessException e) {
+            Assertions.assertEquals("Error: could not connect to database", e.getMessage());
         }
     }
 
