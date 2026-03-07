@@ -196,4 +196,23 @@ public class GameDAOTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void clearGames() {
+        try {
+            gameDAO.createGame("First Game");
+            gameDAO.createGame("Second Game");
+            gameDAO.createGame("Third Game");
+            gameDAO.clear();
+
+            var statement = "SELECT * FROM game";
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(statement);
+                 ResultSet rs = pstmt.executeQuery()) {
+                Assertions.assertFalse(rs.next());
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
