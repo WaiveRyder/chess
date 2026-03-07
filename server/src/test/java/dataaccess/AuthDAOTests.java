@@ -64,6 +64,7 @@ public class AuthDAOTests {
             }
 
             Assertions.assertEquals(expected, actual);
+            Assertions.assertNotNull(actual.authToken());
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -87,6 +88,33 @@ public class AuthDAOTests {
             }
         } catch (DataAccessException e) {
             Assertions.assertEquals("Error: Database does not contain a user called: Sarah", e.getMessage());
+        }
+    }
+
+    @Test
+    public void getAuthDataValidTokenTest() {
+        try {
+            AuthData mockData = authDAO.createAuth(mockUser);
+            AuthData actual = authDAO.getAuthData(mockData.authToken());
+            AuthData expected = new AuthData(actual.authToken(), mockData.username());
+            Assertions.assertEquals(expected, actual);
+            Assertions.assertEquals(actual, mockData);
+            Assertions.assertNotNull(actual.authToken());
+
+            var statement = "SELECT * FROM auth WHERE token = ?";
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
+                pstmt.setString(1, actual.authToken());
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    Assertions.assertTrue(rs.next());
+                    Assertions.assertEquals("john", rs.getString("username"));
+                    Assertions.assertEquals(actual.authToken(), rs.getString("token"));
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 }
