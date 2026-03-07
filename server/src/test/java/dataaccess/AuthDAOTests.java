@@ -175,4 +175,22 @@ public class AuthDAOTests {
             Assertions.assertEquals("Error: Given token is not valid", e.getMessage());
         }
     }
+
+    @Test
+    public void clearTest() {
+        try {
+            AuthData mockData = authDAO.createAuth(mockUser);
+            authDAO.clear();
+
+            var statement = "SELECT * FROM auth";
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    Assertions.assertFalse(rs.next());
+                }
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
