@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
@@ -43,8 +44,12 @@ public class GameServiceTests {
 
         gameService = new GameService(authDAO, gameDAO);
 
-        mockUser = authDAO.createAuth(new UserData("john", "password", "email"));
-        mockUserN = authDAO.createAuth(new UserData("jim", "pass", "email"));
+        try {
+            mockUser = authDAO.createAuth(new UserData("john", "password", "email"));
+            mockUserN = authDAO.createAuth(new UserData("jim", "pass", "email"));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         game = new ChessGame();
 
         gameService.createGame(new CreateGameRequest(mockUser.authToken(), "First Game"));
