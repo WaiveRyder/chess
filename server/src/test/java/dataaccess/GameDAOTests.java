@@ -95,4 +95,44 @@ public class GameDAOTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void listGamesValidInfo() {
+        ChessGame blankGame = new ChessGame();
+        try {
+            GameData actualFirstGame = gameDAO.createGame("First Game");
+            GameData actualSecondGame = gameDAO.createGame("Second Game");
+
+            GameData expectedFirstGame = new GameData(1, null, null, "First Game", blankGame);
+            GameData expectedSecondGame = new GameData(2, null, null, "Second Game", blankGame);
+            Assertions.assertEquals(expectedFirstGame, actualFirstGame);
+            Assertions.assertEquals(expectedSecondGame, actualSecondGame);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        var statement = "SELECT * FROM game";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Assertions.assertTrue(rs.next());
+                Assertions.assertEquals(1, rs.getInt("gameID"));
+                Assertions.assertNull(rs.getString("whiteUsername"));
+                Assertions.assertNull(rs.getString("blackUsername"));
+                Assertions.assertEquals("First Game", rs.getString("gameName"));
+                Assertions.assertEquals(blankGame, gson.fromJson(rs.getString("chessGame"), ChessGame.class));
+
+                Assertions.assertTrue(rs.next());
+                Assertions.assertEquals(2, rs.getInt("gameID"));
+                Assertions.assertNull(rs.getString("whiteUsername"));
+                Assertions.assertNull(rs.getString("blackUsername"));
+                Assertions.assertEquals("Second Game", rs.getString("gameName"));
+                Assertions.assertEquals(blankGame, gson.fromJson(rs.getString("chessGame"), ChessGame.class));
+
+                Assertions.assertFalse(rs.next());
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
