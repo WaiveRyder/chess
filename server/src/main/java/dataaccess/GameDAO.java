@@ -131,9 +131,19 @@ public class GameDAO {
         }
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         if (useMap) {
             gameDAOMap.clear();
+        } else {
+            var statement = "DELETE FROM game";
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
+                if (pstmt.executeUpdate() == 0) {
+                    System.out.println("Database was empty");
+                }
+            } catch (SQLException e) {
+                throw new DataAccessException("could not connect to database", e);
+            }
         }
     }
 }
