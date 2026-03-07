@@ -28,30 +28,29 @@ public class AuthDAO {
     public AuthData createAuth(UserData user) throws DataAccessException {
         if (useMap) {
             return authDAOMap.createAuth(user);
-        } else {
-            String token = UUID.randomUUID().toString();
-            var statement = "SELECT * FROM users WHERE username = ?";
+        }
+        String token = UUID.randomUUID().toString();
+        var statement = "SELECT * FROM users WHERE username = ?";
 
-            try (Connection conn = DatabaseManager.getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
-                pstmt.setString(1, user.username());
-                try(ResultSet rs = pstmt.executeQuery()) {
-                    if (rs.next()) {
-                        statement = "INSERT INTO auth (token, username) VALUES (?, ?)";
-                        try (PreparedStatement npstmt = conn.prepareStatement(statement)) {
-                            npstmt.setString(1, token);
-                            npstmt.setString(2, user.username());
-                            npstmt.executeUpdate();
-                        }
-                    } else {
-                        throw new DataAccessException("Error: Database does not contain a user called: "
-                                + user.username());
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setString(1, user.username());
+            try(ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    statement = "INSERT INTO auth (token, username) VALUES (?, ?)";
+                    try (PreparedStatement npstmt = conn.prepareStatement(statement)) {
+                        npstmt.setString(1, token);
+                        npstmt.setString(2, user.username());
+                        npstmt.executeUpdate();
                     }
+                } else {
+                    throw new DataAccessException("Error: Database does not contain a user called: "
+                            + user.username());
                 }
-                return new AuthData(token, user.username());
-            } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to the database");
             }
+            return new AuthData(token, user.username());
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: could not connect to the database");
         }
     }
 
