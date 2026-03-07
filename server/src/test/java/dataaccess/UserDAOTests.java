@@ -110,4 +110,25 @@ public class UserDAOTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void getUserInvalidInfo() {
+        try {
+            userDAO.getUser("John");
+            Assertions.fail("Expected an error to be thrown here, no user in system");
+        } catch (DataAccessException e) {
+            Assertions.assertEquals("Error: Database does not contain a user called: John", e.getMessage());
+        }
+
+        var statement = "SELECT * FROM users WHERE username = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setString(1, "John");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Assertions.assertFalse(rs.next());
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
