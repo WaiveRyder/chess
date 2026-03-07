@@ -13,11 +13,6 @@ public class GameDAOMap {
     private Map<Integer, GameData> gameMap;
     private static Integer gameID;
 
-    public GameDAOMap() {
-        gameMap = new HashMap<>();
-        gameID = 1;
-    }
-
     public GameDAOMap(Map<Integer, GameData> gameMap) {
         this.gameMap = gameMap;
         gameID = 1;
