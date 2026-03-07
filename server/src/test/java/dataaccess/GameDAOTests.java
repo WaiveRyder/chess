@@ -174,4 +174,26 @@ public class GameDAOTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void joinGameInvalidInfo() {
+        try {
+            gameDAO.createGame("First Game");
+            gameDAO.joinGame(2, "John", ChessGame.TeamColor.WHITE);
+            Assertions.fail("Expected an error to be thrown here, game with id 2 doesn't exist");
+        } catch (DataAccessException e) {
+            Assertions.assertEquals("Error: Game ID not valid: 2", e.getMessage());
+        }
+
+        var statement = "SELECT * FROM game WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setInt(1, 2);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Assertions.assertFalse(rs.next());
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
