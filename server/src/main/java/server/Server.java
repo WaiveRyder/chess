@@ -124,7 +124,7 @@ public class Server {
         javalin.delete("/db", new Handler() {
             public void handle(@NotNull Context context) {
                 GenericResponse userClear = userService.clear();
-                gameService.clear();
+                GenericResponse gameClear = gameService.clear();
 
                 context.contentType("application/jason");
 
@@ -132,6 +132,9 @@ public class Server {
 
                     context.status(500);
                     context.result(serializer.toJson(userClear));
+                } else if (!Objects.equals(gameClear.message(), "")) {
+                    context.status(500);
+                    context.result(serializer.toJson(gameClear));
                 } else {
                     context.status(200);
                     context.result(serializer.toJson(new GenericResponse("")));
