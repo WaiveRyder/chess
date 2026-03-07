@@ -20,9 +20,15 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public void clear() {
-        userDAO.clear();
-        authDAO.clear();
+    public GenericResponse clear() {
+        try {
+            userDAO.clear();
+            authDAO.clear();
+            return new GenericResponse("");
+        } catch (DataAccessException e) {
+            return new GenericResponse(e.getMessage());
+        }
+
     }
 
     public AuthResponse registerUser(RegisterRequest request) {

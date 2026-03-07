@@ -1,9 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -28,9 +26,18 @@ public class Server {
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         // Register your endpoints and exception handlers here.
-        UserDAO userDAO = new UserDAO();
-        AuthDAO authDAO = new AuthDAO();
-        GameDAO gameDAO = new GameDAO();
+        DatabaseManager databaseManager = new DatabaseManager();
+        try {
+            DatabaseManager.createDatabase();
+            DatabaseManager.initTables();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        UserDAO userDAO = new UserDAO(databaseManager);
+        AuthDAO authDAO = new AuthDAO(databaseManager);
+        GameDAO gameDAO = new GameDAO(databaseManager);
 
         gameService = new GameService(authDAO, gameDAO);
         userService = new UserService(userDAO, authDAO);
@@ -116,12 +123,19 @@ public class Server {
         //Clear
         javalin.delete("/db", new Handler() {
             public void handle(@NotNull Context context) {
-                userService.clear();
+                GenericResponse userClear = userService.clear();
                 gameService.clear();
 
                 context.contentType("application/jason");
-                context.status(200);
-                context.result(serializer.toJson(new GenericResponse("")));
+
+                if (!Objects.equals(userClear.message(), "")) {
+
+                    context.status(500);
+                    context.result(serializer.toJson(userClear));
+                } else {
+                    context.status(200);
+                    context.result(serializer.toJson(new GenericResponse("")));
+                }
             }
         });
     }
