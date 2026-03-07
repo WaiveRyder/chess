@@ -63,7 +63,22 @@ public class UserDAO {
         if (useMap) {
             return userDAOMap.getUser(username);
         } else {
-            return null;
+            var statement = "SELECT 1 FROM users WHERE username = ?";
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
+
+                pstmt.setString(1, username);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String password = rs.getString("password");
+                        String email = rs.getString("email");
+                        return new UserData(username, password, email);
+                    }
+                    throw new DataAccessException("Error: Database does not contain a user called: " + username);
+                }
+            } catch (SQLException e) {
+                throw new DataAccessException("could not connect to database", e);
+            }
         }
     }
 
