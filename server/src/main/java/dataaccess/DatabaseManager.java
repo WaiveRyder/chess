@@ -1,5 +1,6 @@
 package dataaccess;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.Properties;
 
@@ -26,6 +27,49 @@ public class DatabaseManager {
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             throw new DataAccessException("failed to create database", ex);
+        }
+    }
+
+    static public void initTables() throws DataAccessException {
+        var createUserStatement = """
+                CREATE TABLE IF NOT EXISTS users (
+                username VARCHAR(255) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                PRIMARY KEY (username)
+                )
+                """;
+
+        var createAuthStatement = """
+                CREATE TABLE IF NOT EXISTS auth (
+                token VARCHAR(255) NOT NULL,
+                username VARCHAR(255) NOT NULL,
+                FOREIGN KEY (username) REFERENCES users(username)
+                )
+                """;
+
+        var createGameStatement = """
+                CREATE TABLE IF NOT EXISTS game (
+                gameID int NOT NULL AUTO_INCREMENT,
+                whiteUsername VARCHAR(255),
+                blackUsername VARCHAR(255),
+                gameName VARCHAR(255),
+                chessGame TEXT NOT NULL,
+                PRIMARY KEY (gameID)
+                )
+                """;
+
+        initTablesCall(createUserStatement);
+        initTablesCall(createAuthStatement);
+        initTablesCall(createGameStatement);
+    }
+
+    static private void initTablesCall(String statement) throws DataAccessException {
+        try (Connection conn = getConnection()) {
+            var preparedStatement = conn.prepareStatement(statement);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to initialize database", e);
         }
     }
 
