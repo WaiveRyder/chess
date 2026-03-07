@@ -75,4 +75,24 @@ public class GameDAOTests {
         }
     }
 
+    @Test
+    public void createGameInvalidInfo() {
+        try {
+            gameDAO.createGame(null);
+            Assertions.fail("Expected an error to be thrown here, game can't be null");
+        } catch (DataAccessException e) {
+            Assertions.assertEquals("Error: Game name cannot be null", e.getMessage());
+        }
+
+        var statement = "SELECT * FROM game WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setInt(1, 1);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                Assertions.assertFalse(rs.next());
+            }
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

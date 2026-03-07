@@ -28,6 +28,10 @@ public class GameDAO {
         if (useMap) {
             return gameDAOMap.createGame(gameName);
         } else {
+            if (gameName == null || gameName.isEmpty()) {
+                throw new DataAccessException("Error: Game name cannot be null");
+            }
+
             var statement = "INSERT INTO game (whiteUsername, blackUsername, gameName, chessGame) VALUES (" +
                     "null, null, ?, ?)";
             try (Connection conn = DatabaseManager.getConnection();
@@ -134,7 +138,7 @@ public class GameDAO {
         if (useMap) {
             gameDAOMap.clear();
         } else {
-            var statement = "DELETE FROM game";
+            var statement = "TRUNCATE TABLE game";
             try (Connection conn = DatabaseManager.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
                 pstmt.executeUpdate();
