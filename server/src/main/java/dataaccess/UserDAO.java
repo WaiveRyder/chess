@@ -32,7 +32,7 @@ public class UserDAO {
             return userDAOMap.createUser(username, password, email);
         } else {
             try (Connection conn = DatabaseManager.getConnection()) {
-                var statement = "SELECT 1 FROM users WHERE username = ?";
+                var statement = "SELECT * FROM users WHERE username = ?";
 
                 try (PreparedStatement check = conn.prepareStatement(statement)) {
                     check.setString(1, username);
@@ -48,6 +48,7 @@ public class UserDAO {
                             insert.setString(2, hashedPassword);
                             insert.setString(3, email);
                             insert.executeUpdate();
+                            System.out.println("Ran this line, hashed password: " + hashedPassword);
                             return new UserData(username, hashedPassword, email);
 
                         }
@@ -63,7 +64,7 @@ public class UserDAO {
         if (useMap) {
             return userDAOMap.getUser(username);
         } else {
-            var statement = "SELECT 1 FROM users WHERE username = ?";
+            var statement = "SELECT * FROM users WHERE username = ?";
             try (Connection conn = DatabaseManager.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
 
