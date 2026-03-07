@@ -33,7 +33,7 @@ public class DatabaseManager {
     static public void initTables() throws DataAccessException {
         var createUserStatement = """
                 CREATE TABLE IF NOT EXISTS users (
-                username VARCHAR(255) NOT NULL,
+                username VARCHAR(255) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
                 email VARCHAR(255) NOT NULL,
                 PRIMARY KEY (username)
