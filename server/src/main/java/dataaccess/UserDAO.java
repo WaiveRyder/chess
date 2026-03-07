@@ -1,41 +1,44 @@
 package dataaccess;
 
+import dataaccess.offline.UserDAOMap;
 import model.UserData;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class UserDAO {
-    private Map<String, UserData> userMap;
+    DatabaseManager databaseManager;
+    UserDAOMap userDAOMap;
+    boolean useMap;
 
-    public UserDAO() {
-        userMap = new HashMap<String, UserData>();
+    public UserDAO(DatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
+        useMap = false;
     }
 
     public UserDAO(Map<String, UserData> userMap) {
-        this.userMap = userMap;
+        userDAOMap = new UserDAOMap(userMap);
+        useMap = true;
     }
 
     public UserData createUser(String username, String password, String email) throws DataAccessException {
-        if (userMap.containsKey(username)) {
-            throw new DataAccessException("Error: Database already contains username: " + username);
+        if (useMap) {
+            return userDAOMap.createUser(username, password, email);
         } else {
-            UserData newUser = new UserData(username, password, email);
-            userMap.put(username, newUser);
-            return newUser;
+            return null;
         }
     }
 
     public UserData getUser(String username) throws DataAccessException {
-        UserData user = userMap.get(username);
-        if (user == null) {
-            throw new DataAccessException("Error: Database does not contain a user called: " + username);
+        if (useMap) {
+            return userDAOMap.getUser(username);
         } else {
-            return user;
+            return null;
         }
     }
 
     public void clear() {
-        userMap.clear();
+        if (useMap) {
+            userDAOMap.clear();
+        }
     }
 }
