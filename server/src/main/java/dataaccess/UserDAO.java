@@ -82,9 +82,17 @@ public class UserDAO {
         }
     }
 
-    public void clear() {
+    public void clear() throws DataAccessException {
         if (useMap) {
             userDAOMap.clear();
+        } else {
+            var statement = "DELETE FROM users";
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new DataAccessException("could not connect to database", e);
+            }
         }
     }
 }
