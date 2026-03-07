@@ -157,4 +157,22 @@ public class AuthDAOTests {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void deleteAuthDataInvalidTokenTest() {
+        try {
+            authDAO.deleteAuthData("ThisIsAValidAuthTokenTrustMe");
+            Assertions.fail("Expected an error to be thrown here no auth in system");
+
+            var statement = "SELECT * FROM auth WHERE token = 'ThisIsAValidAuthTokenTrustMe'";
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    Assertions.assertFalse(rs.next());
+                }
+            }
+        } catch (SQLException | DataAccessException e) {
+            Assertions.assertEquals("Error: Given token is not valid", e.getMessage());
+        }
+    }
 }
