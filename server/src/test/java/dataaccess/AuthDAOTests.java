@@ -69,4 +69,24 @@ public class AuthDAOTests {
         }
     }
 
+    @Test
+    public void createAuthInvalidUserTest() {
+        try {
+            authDAO.createAuth(new UserData("Sarah", "password", "email"));
+            Assertions.fail("Expected an error to be thrown here, no user in system");
+
+            try (Connection conn = DatabaseManager.getConnection()) {
+                var statement = "SELECT * FROM auth WHERE username = Sarah";
+                try (PreparedStatement pstmt = conn.prepareStatement(statement)) {
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        Assertions.assertFalse(rs.next());
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (DataAccessException e) {
+            Assertions.assertEquals("Error: Database does not contain a user called: Sarah", e.getMessage());
+        }
+    }
 }

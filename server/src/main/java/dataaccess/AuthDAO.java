@@ -30,13 +30,24 @@ public class AuthDAO {
             return authDAOMap.createAuth(user);
         } else {
             String token = UUID.randomUUID().toString();
-            var statement = "INSERT INTO auth (token, username) VALUES (?, ?)";
+            var statement = "SELECT * FROM users WHERE username = ?";
 
             try (Connection conn = DatabaseManager.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
-                pstmt.setString(1, token);
-                pstmt.setString(2, user.username());
-                pstmt.executeUpdate();
+                pstmt.setString(1, user.username());
+                try(ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        statement = "INSERT INTO auth (token, username) VALUES (?, ?)";
+                        try (PreparedStatement npstmt = conn.prepareStatement(statement)) {
+                            npstmt.setString(1, token);
+                            npstmt.setString(2, user.username());
+                            npstmt.executeUpdate();
+                        }
+                    } else {
+                        throw new DataAccessException("Error: Database does not contain a user called: "
+                                + user.username());
+                    }
+                }
                 return new AuthData(token, user.username());
             } catch (SQLException e) {
                 throw new DataAccessException("Error: could not connect to the database");
