@@ -21,8 +21,13 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public void clear() throws DataAccessException {
-        gameDAO.clear();
+    public GenericResponse clear() {
+        try {
+            gameDAO.clear();
+            return new GenericResponse("");
+        } catch (DataAccessException e) {
+            return new GenericResponse(e.getMessage());
+        }
     }
 
     private AuthData authenticate(String token) throws DataAccessException {
