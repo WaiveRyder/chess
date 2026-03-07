@@ -13,12 +13,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AuthDAO {
-    DatabaseManager database;
     AuthDAOMap authDAOMap;
     boolean useMap;
 
-    public AuthDAO(DatabaseManager database) {
-        this.database = database;
+    public AuthDAO() {
         useMap = false;
     }
 

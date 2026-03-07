@@ -13,12 +13,10 @@ import java.sql.SQLException;
 import java.util.Map;
 
 public class UserDAO {
-    DatabaseManager databaseManager;
     UserDAOMap userDAOMap;
     boolean useMap;
 
-    public UserDAO(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
+    public UserDAO() {
         useMap = false;
     }
 

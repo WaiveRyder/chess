@@ -10,13 +10,11 @@ import java.sql.*;
 import java.util.*;
 
 public class GameDAO {
-    private DatabaseManager databaseManager;
     private GameDAOMap gameDAOMap;
     private boolean useMap;
     Gson gson;
 
-    public GameDAO(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
+    public GameDAO() {
         useMap = false;
         gson = new Gson();
     }
