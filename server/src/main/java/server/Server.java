@@ -33,43 +33,34 @@ public class Server {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-
-
         UserDAO userDAO = new UserDAO();
         AuthDAO authDAO = new AuthDAO();
         GameDAO gameDAO = new GameDAO();
-
         gameService = new GameService(authDAO, gameDAO);
         userService = new UserService(userDAO, authDAO);
         serializer = new Gson();
-
         //Register a user
         javalin.post("/user", new Handler() {
             public void handle(@NotNull Context context) {
                 RegisterRequest request = serializer.fromJson(context.body(), RegisterRequest.class);
                 context.contentType("application/json");
-
                 handleRegister(context, request);
             }
         });
-
         //Login a user
         javalin.post("/session", new Handler() {
             public void handle(@NotNull Context context) {
                 LoginRequest request = serializer.fromJson(context.body(), LoginRequest.class);
                 context.contentType("application/json");
-
                 handleLogin(context, request);
             }
         });
-
         //Logout a user
         javalin.delete("/session", new Handler() {
             public void handle(@NotNull Context context) {
                 AuthRequest request = new AuthRequest(context.header("Authorization"));
                 GenericResponse response = userService.logoutUser(request);
                 context.contentType("application/json");
-
                 context.result(serializer.toJson(response));
                 if(Objects.equals(response.message(), "")) {
                     context.status(200);
@@ -80,13 +71,11 @@ public class Server {
                 }
             }
         });
-
         //List all games
         javalin.get("/game", new Handler() {
             public void handle(@NotNull Context context) {
                 AuthRequest request = new AuthRequest(context.header("Authorization"));
                 ListGamesResponse response = gameService.listGames(request);
-
                 context.contentType("application/json");
                 context.result(serializer.toJson(response));
                 if(Objects.equals(response.message(), "")) {
@@ -98,7 +87,6 @@ public class Server {
                 }
             }
         });
-
         //Create new game
         javalin.post("/game", new Handler() {
             public void handle(@NotNull Context context) {
@@ -109,7 +97,6 @@ public class Server {
                 handleCreateGame(context, request);
             }
         });
-
         //Join a game
         javalin.put("/game", new Handler() {
             public void handle(@NotNull Context context) {
@@ -127,21 +114,7 @@ public class Server {
         //Clear
         javalin.delete("/db", new Handler() {
             public void handle(@NotNull Context context) {
-                GenericResponse gameClear = gameService.clear();
-                GenericResponse userClear = userService.clear();
-
-                context.contentType("application/jason");
-
-                if (!Objects.equals(userClear.message(), "")) {
-                    context.status(500);
-                    context.result(serializer.toJson(userClear));
-                } else if (!Objects.equals(gameClear.message(), "")) {
-                    context.status(500);
-                    context.result(serializer.toJson(gameClear));
-                } else {
-                    context.status(200);
-                    context.result(serializer.toJson(new GenericResponse("")));
-                }
+                handleClear(context);
             }
         });
     }
@@ -240,6 +213,24 @@ public class Server {
             } else {
                 context.status(400);
             }
+        }
+    }
+
+    private void handleClear(Context context) {
+        GenericResponse gameClear = gameService.clear();
+        GenericResponse userClear = userService.clear();
+
+        context.contentType("application/jason");
+
+        if (!Objects.equals(userClear.message(), "")) {
+            context.status(500);
+            context.result(serializer.toJson(userClear));
+        } else if (!Objects.equals(gameClear.message(), "")) {
+            context.status(500);
+            context.result(serializer.toJson(gameClear));
+        } else {
+            context.status(200);
+            context.result(serializer.toJson(new GenericResponse("")));
         }
     }
 }
