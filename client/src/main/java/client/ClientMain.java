@@ -22,5 +22,7 @@ public class ClientMain {
                 System.out.println("I heard: " + input);
             }
         }
+
+        scanner.close();
     }
 }
