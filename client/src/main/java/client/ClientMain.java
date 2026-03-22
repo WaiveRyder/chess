@@ -22,7 +22,7 @@ public class ClientMain {
             if (input.equalsIgnoreCase("help")) {
                 clientDraw.draw(input, state);
             } else if (input.equalsIgnoreCase("quit")) {
-                System.out.println("Thanks for playing! Catch you next time.");
+                clientDraw.draw(input, state);
                 break;
             } else {
                 System.out.println("I didn't quite catch that. Type 'help' for a list of commands.");

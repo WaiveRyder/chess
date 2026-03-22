@@ -18,6 +18,7 @@ public class ClientDraw {
     private void preLoginHandler(String command) {
         switch (command.toLowerCase()) {
             case "help" -> preLoginHelp();
+            case "quit" -> System.out.println("Thanks for playing! Catch you next time.");
         }
     }
 
