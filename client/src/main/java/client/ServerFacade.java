@@ -10,4 +10,11 @@ public class ServerFacade {
         this.port = port;
         client = HttpClient.newHttpClient();
     }
+
+    public void request(String... args) {
+        if (args.length == 0) {
+            ClientDraw.printError("No command provided");
+        }
+    }
+
 }
