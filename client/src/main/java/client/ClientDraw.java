@@ -15,6 +15,13 @@ public class ClientDraw {
 
 
 
+    public static void printError(String message) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + message + EscapeSequences.RESET_TEXT_COLOR);
+        System.out.println("Type 'help' for a list of commands.");
+    }
+
+
+
     // All pre-login commands are handled here ---------------------------------------
     private static void preLoginHandler(String command) {
         switch (command.toLowerCase()) {
