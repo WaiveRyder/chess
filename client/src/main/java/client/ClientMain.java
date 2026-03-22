@@ -13,16 +13,15 @@ public class ClientMain {
         Scanner scanner = new Scanner(System.in);
 
         ServerFacade serverFacade = new ServerFacade(8080);
-        ClientDraw clientDraw = new ClientDraw();
         State state = State.PRE_LOGIN;
 
         while (true) {
             String input = scanner.nextLine();
 
             if (input.equalsIgnoreCase("help")) {
-                clientDraw.draw(input, state);
+                ClientDraw.draw(input, state);
             } else if (input.equalsIgnoreCase("quit")) {
-                clientDraw.draw(input, state);
+                ClientDraw.draw(input, state);
                 break;
             } else {
                 System.out.println("I didn't quite catch that. Type 'help' for a list of commands.");

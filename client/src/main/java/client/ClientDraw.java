@@ -4,7 +4,8 @@ import ui.EscapeSequences;
 
 public class ClientDraw {
 
-    public void draw(String command, State state) {
+    // Main draw method that routes commands based on state
+    public static void draw(String command, State state) {
         switch (state) {
             case PRE_LOGIN -> preLoginHandler(command);
             case POST_LOGIN -> postLoginHandler(command);
@@ -15,14 +16,14 @@ public class ClientDraw {
 
 
     // All pre-login commands are handled here ---------------------------------------
-    private void preLoginHandler(String command) {
+    private static void preLoginHandler(String command) {
         switch (command.toLowerCase()) {
             case "help" -> preLoginHelp();
             case "quit" -> System.out.println("Thanks for playing! Catch you next time.");
         }
     }
 
-    private void preLoginHelp() {
+    private static void preLoginHelp() {
         System.out.println("Commands:");
         System.out.println("- login <username> <password>: Login with username and password");
         System.out.println("- register <username> <password> <email>: Register with username, password, and email");
@@ -33,13 +34,13 @@ public class ClientDraw {
 
 
     // All post-login commands are handled here ---------------------------------------
-    private void postLoginHandler(String command) {
+    private static void postLoginHandler(String command) {
         switch (command.toLowerCase()) {
             case "help" -> postLoginHelp();
         }
     }
 
-    private void postLoginHelp() {
+    private static void postLoginHelp() {
         System.out.println("Commands:");
         System.out.println("- list: Lists all games");
         System.out.println("- join <id> [WHITE|BLACK]: Joins game with specified ID and color");
@@ -52,13 +53,13 @@ public class ClientDraw {
 
 
     // All observe commands are handled here ---------------------------------------
-    private void observeHandler(String command) {
+    private static void observeHandler(String command) {
         switch (command.toLowerCase()) {
             case "help" -> observeHelp();
         }
     }
 
-    private void observeHelp() {
+    private static void observeHelp() {
         System.out.println("Commands:");
         System.out.println("- leave: Stop observing the game");
         System.out.println("- help: Lists all commands");
