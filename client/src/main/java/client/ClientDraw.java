@@ -27,7 +27,19 @@ public class ClientDraw {
     }
 
     private void postLoginHandler(String command) {
+        switch (command.toLowerCase()) {
+            case "help" -> postLoginHelp();
+        }
+    }
 
+    private void postLoginHelp() {
+        System.out.println("Commands:");
+        System.out.println("- list: Lists all games");
+        System.out.println("- join <id> [WHITE|BLACK]: Joins game with specified ID and color");
+        System.out.println("- create <name>: Creates a new game with the specified name");
+        System.out.println("- observe <id>: Observe a game with the specified ID");
+        System.out.println("- logout: Logout from your account");
+        System.out.println("- help: Lists all commands");
     }
 
     private void observeHandler(String command) {
