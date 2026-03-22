@@ -12,6 +12,9 @@ public class ClientDraw {
         }
     }
 
+
+
+    // All pre-login commands are handled here ---------------------------------------
     private void preLoginHandler(String command) {
         switch (command.toLowerCase()) {
             case "help" -> preLoginHelp();
@@ -26,6 +29,9 @@ public class ClientDraw {
         System.out.println("- help: Lists all commands");
     }
 
+
+
+    // All post-login commands are handled here ---------------------------------------
     private void postLoginHandler(String command) {
         switch (command.toLowerCase()) {
             case "help" -> postLoginHelp();
@@ -42,7 +48,18 @@ public class ClientDraw {
         System.out.println("- help: Lists all commands");
     }
 
-    private void observeHandler(String command) {
 
+
+    // All observe commands are handled here ---------------------------------------
+    private void observeHandler(String command) {
+        switch (command.toLowerCase()) {
+            case "help" -> observeHelp();
+        }
+    }
+
+    private void observeHelp() {
+        System.out.println("Commands:");
+        System.out.println("- leave: Stop observing the game");
+        System.out.println("- help: Lists all commands");
     }
 }
