@@ -16,7 +16,7 @@ public class ClientDraw {
 
 
     public static void printError(String message) {
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + message + EscapeSequences.RESET_TEXT_COLOR);
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Hold up: " + message + EscapeSequences.RESET_TEXT_COLOR);
         System.out.println("Type 'help' for a list of commands.");
     }
 
@@ -27,6 +27,7 @@ public class ClientDraw {
         switch (command.toLowerCase()) {
             case "help" -> preLoginHelp();
             case "quit" -> System.out.println("Thanks for playing! Catch you next time.");
+            case "login" -> System.out.println("Successfully logged in. Welcome back!");
         }
     }
 
