@@ -10,6 +10,7 @@ public class ClientMain {
         System.out.println("♕ 240 Chess Client: " + piece);
 
         Scanner scanner = new Scanner(System.in);
+        ServerFacade serverFacade = new ServerFacade(8080);
 
         while (true) {
             System.out.println("Running REPL. Type 'exit' to quit.");
