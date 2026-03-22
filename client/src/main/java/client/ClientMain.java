@@ -24,7 +24,7 @@ public class ClientMain {
                 ClientDraw.draw(input, state);
                 break;
             } else {
-                System.out.println("I didn't quite catch that. Type 'help' for a list of commands.");
+                serverFacade.request(input.split(" "));
             }
         }
 
