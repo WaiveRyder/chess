@@ -1,3 +1,3 @@
 package service.requests;
 
-public record ObserveGameRequest(int gameID, String token, boolean leave) {}
+public record ObserveGameRequest(Integer gameID, String token, boolean leave) {}

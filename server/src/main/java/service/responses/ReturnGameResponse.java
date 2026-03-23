@@ -2,4 +2,4 @@ package service.responses;
 
 import model.GameData;
 
-public record ReturnGameResponse(GameData game, String msg) {}
+public record ReturnGameResponse(GameData game, String message) {}
