@@ -16,13 +16,13 @@ import java.util.Collection;
 import java.util.List;
 
 public class ServerFacade {
-    int port;
-    HttpClient client;
-    Gson gson;
-    String authToken;
-    State state;
-    List<GameData> games;
-    Integer gameID;
+    private final int port;
+    private final HttpClient client;
+    private final Gson gson;
+    private String authToken;
+    public State state;
+    private List<GameData> games;
+    private Integer gameID;
 
     public ServerFacade(int port, State state) {
         this.port = port;
@@ -37,6 +37,7 @@ public class ServerFacade {
             ClientDraw.printError("No command provided");
         } else {
             switch (args[0].toLowerCase()) {
+                case "help", "quit" -> ClientDraw.draw(args[0], state);
                 case "login" -> loginHandler(args);
                 case "register" -> registerHandler(args);
                 case "list" -> listHandler(args);

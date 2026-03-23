@@ -50,6 +50,7 @@ public class ClientDraw {
             case "create" -> System.out.println("Successfully created game: " + args[0]);
             case "logout" -> System.out.println("Successfully logged out.");
             case "observe" -> System.out.println("Now observing game with ID: " + args[0]);
+            case "quit" -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED+"Hold up: You must be logout first!"+EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
@@ -77,6 +78,7 @@ public class ClientDraw {
         switch (command.toLowerCase()) {
             case "help" -> observeHelp();
             case "leave" -> System.out.println("Stopped observing game.");
+            case "quit" -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED+"Hold up: You must be logout first!"+EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 

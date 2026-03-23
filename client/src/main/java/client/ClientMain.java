@@ -19,13 +19,9 @@ public class ClientMain {
         while (true) {
             String input = scanner.nextLine();
 
-            if (input.equalsIgnoreCase("help")) {
-                ClientDraw.draw(input, state);
-            } else if (input.equalsIgnoreCase("quit")) {
-                ClientDraw.draw(input, state);
+            serverFacade.request(input.split(" "));
+            if (input.equalsIgnoreCase("quit") && serverFacade.state == State.PRE_LOGIN) {
                 break;
-            } else {
-                serverFacade.request(input.split(" "));
             }
         }
 
