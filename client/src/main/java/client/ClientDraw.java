@@ -100,32 +100,36 @@ public class ClientDraw {
     // Oh boy this is the big one
     public static void drawBoard(ChessBoard board, ChessGame.TeamColor playerColor) {
         String[][] drawnBoard = assembleBoard(playerColor);
-        ChessBoard newBoard = new ChessBoard();
-        newBoard.resetBoard();
-        String[][] placedPiecesBoard = placePieces(newBoard, drawnBoard, playerColor);
+        String[][] placedPiecesBoard = placePieces(board, drawnBoard, playerColor);
         print2D(placedPiecesBoard);
     }
 
     private static String[][] placePieces(ChessBoard board, String[][] drawnBoard, ChessGame.TeamColor playerColor) {
-        String loadColor;
+        String coloredPiece = "";
 
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPiece piece;
                 if (playerColor == ChessGame.TeamColor.BLACK) {
                     piece = board.getPiece(new ChessPosition(9 - row, 9 - col));
-                    loadColor = EscapeSequences.SET_TEXT_COLOR_BLACK;
                 } else {
                     piece = board.getPiece(new ChessPosition(row, col));
-                    loadColor = EscapeSequences.SET_TEXT_COLOR_WHITE;
                 }
                 String currentBox = drawnBoard[row][col];
-                if (piece != null && currentBox.contains("15")) {
-                    String fullPiece = loadColor + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
-                    drawnBoard[row][col] = chessSquareWhite(fullPiece);
+                if (piece != null && currentBox.contains("12m")) {
+                    if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_WHITE + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                    } else {
+                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_BLACK + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                    }
+                    drawnBoard[row][col] = chessSquareWhite(coloredPiece);
                 } else if (piece != null) {
-                    String fullPiece = loadColor + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
-                    drawnBoard[row][col] = chessSquareBlack(fullPiece);
+                    if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_WHITE + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                    } else {
+                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_BLACK + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                    }
+                    drawnBoard[row][col] = chessSquareBlack(coloredPiece);
                 }
             }
         }
@@ -206,15 +210,14 @@ public class ClientDraw {
                 + EscapeSequences.RESET_BG_COLOR
                 + EscapeSequences.RESET_TEXT_COLOR;
     }
-
     private static String chessSquareWhite(String piece) {
-        return EscapeSequences.SET_BG_COLOR_WHITE
+        return EscapeSequences.SET_BG_COLOR_BLUE
                 + " " + piece + " "
                 + EscapeSequences.RESET_BG_COLOR;
     }
 
     private static String chessSquareBlack(String piece) {
-        return EscapeSequences.SET_BG_COLOR_BLACK
+        return EscapeSequences.SET_BG_COLOR_DARK_GREEN
                 + " " + piece + " "
                 + EscapeSequences.RESET_BG_COLOR;
     }

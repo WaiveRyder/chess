@@ -21,7 +21,7 @@ public class ClientMain {
 
             if(input.equalsIgnoreCase("draw")) {
 
-                ClientDraw.drawBoard(new ChessBoard(), ChessGame.TeamColor.WHITE);
+                ClientDraw.drawBoard(new ChessBoard(), ChessGame.TeamColor.BLACK);
             } else {
                 serverFacade.request(input.split(" "));
             }
