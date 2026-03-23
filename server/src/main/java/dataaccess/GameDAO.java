@@ -43,7 +43,7 @@ public class GameDAO {
 
                 int rows = pstmt.executeUpdate();
                 if (rows == 0) {
-                    throw new DataAccessException("Error: Could not create game");
+                    throw new DataAccessException("Error: Could not create game. Please try again later.");
                 }
 
                 int id = -1;
@@ -55,7 +55,7 @@ public class GameDAO {
 
                 return new GameData(id, null, null, gameName, newGame);
             } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to database");
+                throw new DataAccessException("Error: could not connect to the database. Please try again later.");
             }
         }
     }
@@ -80,7 +80,7 @@ public class GameDAO {
                 }
                 return games;
             } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to database");
+                throw new DataAccessException("Error: could not connect to the database. Please try again later.");
             }
         }
     }
@@ -121,15 +121,15 @@ public class GameDAO {
                         rows = npstmt.executeUpdate();
                     }
                     if (rows == 0) {
-                        throw new DataAccessException("Error: Could not update game");
+                        throw new DataAccessException("Error: Could not update game. Please try again later.");
                     }
                     return gameData;
                 } else {
-                    throw new DataAccessException("Error: Game ID not valid: " + id);
+                    throw new DataAccessException("Error: Game ID not valid. Please refresh and try again.");
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: could not connect to database");
+            throw new DataAccessException("Error: could not connect to the database. Please try again later.");
         }
     }
 
@@ -152,7 +152,7 @@ public class GameDAO {
                     ChessGame chessGame = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
                     gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
                 } else {
-                    throw new DataAccessException("Error: Game ID not valid: " + id);
+                    throw new DataAccessException("Error: Game ID not valid. Please refresh and try again.");
                 }
             }
 
@@ -162,14 +162,14 @@ public class GameDAO {
                 nnpstmt.setString(2, username);
                 int rows = nnpstmt.executeUpdate();
                 if (rows == 0) {
-                    throw new DataAccessException("Error: Could not add observer to game");
+                    throw new DataAccessException("Error: Could not add observer to game. Please try again later.");
                 } else {
                     return gameData;
                 }
 
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: could not connect to database");
+            throw new DataAccessException("Error: could not connect to the database. Please try again later.");
         }
     }
 
@@ -187,15 +187,15 @@ public class GameDAO {
                         nnpstmt.setString(2, username);
                         int rows = nnpstmt.executeUpdate();
                         if (rows == 0) {
-                            throw new DataAccessException("Error: Could not remove observer from game");
+                            throw new DataAccessException("Error: Could not remove observer from game. Try again.");
                         }
                     }
                 } else {
-                    throw new DataAccessException("Error: User is not an observer of this game");
+                    throw new DataAccessException("Error: User is not an observer of this game.");
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: could not connect to database");
+            throw new DataAccessException("Error: could not connect to the database. Please try again later.");
         }
     }
 
@@ -208,7 +208,7 @@ public class GameDAO {
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
                 pstmt.executeUpdate();
             } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to database");
+                throw new DataAccessException("Error: could not connect to the database. Please try again later.");
             }
         }
     }

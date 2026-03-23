@@ -44,13 +44,13 @@ public class AuthDAO {
                         npstmt.executeUpdate();
                     }
                 } else {
-                    throw new DataAccessException("Error: Database does not contain a user called: "
-                            + user.username());
+                    throw new DataAccessException("Error: Username not recognized: "
+                            + user.username() + ".");
                 }
             }
             return new AuthData(token, user.username());
         } catch (SQLException e) {
-            throw new DataAccessException("Error: could not connect to the database");
+            throw new DataAccessException("Error: could not connect to the database. Please try again later.. Please try again later.");
         }
     }
 
@@ -68,10 +68,10 @@ public class AuthDAO {
                         String username = rs.getString("username");
                         return new AuthData(token, username);
                     }
-                    throw new DataAccessException("Error: Given token is not valid");
+                    throw new DataAccessException("Error: Authorization token is not valid. Please login again.");
                 }
             } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to the database");
+                throw new DataAccessException("Error: could not connect to the database. Please try again later.");
             }
         }
     }
@@ -87,10 +87,10 @@ public class AuthDAO {
                 pstmt.setString(1, token);
 
                 if (pstmt.executeUpdate() == 0) {
-                    throw new DataAccessException("Error: Given token is not valid");
+                    throw new DataAccessException("Error: Authorization token is not valid. Please login again.");
                 }
             } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to the database");
+                throw new DataAccessException("Error: could not connect to the database. Please try again later.");
             }
         }
     }
@@ -105,7 +105,7 @@ public class AuthDAO {
                 PreparedStatement pstmt = conn.prepareStatement(statement)) {
                 pstmt.executeUpdate();
             } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to the database");
+                throw new DataAccessException("Error: could not connect to the database. Please try again later.");
             }
         }
     }

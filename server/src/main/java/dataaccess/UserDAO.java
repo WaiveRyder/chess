@@ -37,7 +37,7 @@ public class UserDAO {
 
                 try (ResultSet rs = check.executeQuery()) {
                     if (rs.next()) {
-                        throw new DataAccessException("Error: Database already contains username: " + username);
+                        throw new DataAccessException("Error: Username not recognized: " + username);
                     }
                     statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
                     try (PreparedStatement insert = conn.prepareStatement(statement) ) {
@@ -51,7 +51,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: could not connect to database");
+            throw new DataAccessException("Error: could not connect to the database. Please try again later.");
         }
     }
 
@@ -70,10 +70,10 @@ public class UserDAO {
                         String email = rs.getString("email");
                         return new UserData(username, password, email);
                     }
-                    throw new DataAccessException("Error: Database does not contain a user called: " + username);
+                    throw new DataAccessException("Error: Username not recognized: " + username);
                 }
             } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to database");
+                throw new DataAccessException("Error: could not connect to the database. Please try again later.");
             }
         }
     }
@@ -87,7 +87,7 @@ public class UserDAO {
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
                 pstmt.executeUpdate();
             } catch (SQLException e) {
-                throw new DataAccessException("Error: could not connect to database");
+                throw new DataAccessException("Error: could not connect to the database. Please try again later.");
             }
         }
     }
