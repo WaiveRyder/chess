@@ -9,10 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.UserService;
 import service.requests.*;
-import service.responses.AuthResponse;
-import service.responses.CreateGameResponse;
-import service.responses.GenericResponse;
-import service.responses.ListGamesResponse;
+import service.responses.*;
 
 import java.util.Objects;
 
@@ -93,7 +90,6 @@ public class Server {
                 CreateGameRequest body = serializer.fromJson(context.body(), CreateGameRequest.class);
                 CreateGameRequest request = new CreateGameRequest(context.header("Authorization"), body.gameName());
                 context.contentType("application/json");
-
                 handleCreateGame(context, request);
             }
         });
@@ -107,8 +103,25 @@ public class Server {
                         body.gameID()
                 );
                 context.contentType("application/json");
-
                 handleJoinGame(context, request);
+            }
+        });
+        //Observe a game
+        javalin.put("/observe", new Handler() {
+            public void handle(@NotNull Context context) {
+                ObserveGameRequest body = serializer.fromJson(context.body(), ObserveGameRequest.class);
+                ObserveGameRequest request = new ObserveGameRequest(body.gameID(), context.header("Authorization"), false);
+                context.contentType("application/json");
+                handleObserveGame(context, request);
+            }
+        });
+        //Leave observing a game
+        javalin.delete("/observe", new Handler() {
+            public void handle(@NotNull Context context) {
+                ObserveGameRequest body = serializer.fromJson(context.body(), ObserveGameRequest.class);
+                ObserveGameRequest request = new ObserveGameRequest(body.gameID(), context.header("Authorization"), true);
+                context.contentType("application/json");
+                handleObserveGame(context, request);
             }
         });
         //Clear
@@ -206,6 +219,28 @@ public class Server {
                 context.status(200);
             } else if (response.message().contains("taken")) {
                 context.status(403);
+            } else if (response.message().contains("token")) {
+                context.status(401);
+            } else if (response.message().contains("connect")) {
+                context.status(500);
+            } else {
+                context.status(400);
+            }
+        }
+    }
+
+    private void handleObserveGame(Context context, ObserveGameRequest request) {
+        if (request.gameID() == null || request.token() == null) {
+            context.result(serializer.toJson(new ReturnGameResponse(
+                    null,
+                    "Error: No Null Elements Allowed"
+            )));
+            context.status(400);
+        } else {
+            ReturnGameResponse response = gameService.observeGame(request);
+            context.result(serializer.toJson(response));
+            if (Objects.equals(response.message(), "")) {
+                context.status(200);
             } else if (response.message().contains("token")) {
                 context.status(401);
             } else if (response.message().contains("connect")) {
