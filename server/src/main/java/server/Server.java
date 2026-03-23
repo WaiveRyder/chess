@@ -107,10 +107,10 @@ public class Server {
             }
         });
         //Observe a game
-        javalin.put("/observe", new Handler() {
+        javalin.get("/observe", new Handler() {
             public void handle(@NotNull Context context) {
-                ObserveGameRequest body = serializer.fromJson(context.body(), ObserveGameRequest.class);
-                ObserveGameRequest request = new ObserveGameRequest(body.gameID(), context.header("Authorization"), false);
+                ObserveGameRequest request = new ObserveGameRequest(Integer.parseInt(Objects.requireNonNull(context.header("gameID"))),
+                        context.header("Authorization"), false);
                 context.contentType("application/json");
                 handleObserveGame(context, request);
             }
@@ -118,8 +118,8 @@ public class Server {
         //Leave observing a game
         javalin.delete("/observe", new Handler() {
             public void handle(@NotNull Context context) {
-                ObserveGameRequest body = serializer.fromJson(context.body(), ObserveGameRequest.class);
-                ObserveGameRequest request = new ObserveGameRequest(body.gameID(), context.header("Authorization"), true);
+                ObserveGameRequest request = new ObserveGameRequest(Integer.parseInt(Objects.requireNonNull(context.header("gameID"))),
+                        context.header("Authorization"), true);
                 context.contentType("application/json");
                 handleObserveGame(context, request);
             }

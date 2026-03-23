@@ -9,7 +9,7 @@ public class ClientDraw {
         switch (state) {
             case PRE_LOGIN -> preLoginHandler(command, args);
             case POST_LOGIN -> postLoginHandler(command, args);
-            case OBSERVE -> observeHandler(command, args);
+            case OBSERVE -> observeHandler(command);
         }
     }
 
@@ -73,9 +73,10 @@ public class ClientDraw {
 
 
     // All observe commands are handled here ---------------------------------------
-    private static void observeHandler(String command, String[] args) {
+    private static void observeHandler(String command) {
         switch (command.toLowerCase()) {
             case "help" -> observeHelp();
+            case "leave" -> System.out.println("Stopped observing game.");
         }
     }
 

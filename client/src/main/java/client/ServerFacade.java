@@ -22,6 +22,7 @@ public class ServerFacade {
     String authToken;
     State state;
     List<GameData> games;
+    Integer gameID;
 
     public ServerFacade(int port, State state) {
         this.port = port;
@@ -210,7 +211,6 @@ public class ServerFacade {
         } else if (games == null) {
             ClientDraw.printError("You must list games before trying to observe!");
         } else {
-            Integer gameID;
             Integer givenGameID;
             try {
                 givenGameID = Integer.parseInt(args[1]);
@@ -222,9 +222,10 @@ public class ServerFacade {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/observe"))
-                    .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"}"))
+                    .GET()
                     .header("Content-Type", "application/json")
                     .header("Authorization", authToken)
+                    .header("gameID", String.valueOf(gameID))
                     .build();
             try {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -269,7 +270,38 @@ public class ServerFacade {
         }
     }
 
-    private void leaveHandler(String... args) {}
+    private void leaveHandler(String... args) {
+        if (state == State.PRE_LOGIN) {
+            ClientDraw.printError("You must be logged in to leave a game");
+            return;
+        } else if (state == State.POST_LOGIN) {
+            ClientDraw.printError("You must be observing a game to leave a game");
+            return;
+        }
+
+        if (args.length != 1) {
+            ClientDraw.printError("Usage: leave");
+        } else {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + port + "/observe"))
+                    .DELETE()
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", authToken)
+                    .header("gameID", String.valueOf(gameID))
+                    .build();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    ClientDraw.draw(args[0], state);
+                    state = State.POST_LOGIN;
+                } else {
+                    ClientDraw.printError("Leaving game failed due to " + gson.fromJson(response.body(), Message.class).message());
+                }
+            } catch (Exception e) {
+                ClientDraw.printError("Error: failed to connect to server, please try again");
+            }
+        }
+    }
 
 
 }
