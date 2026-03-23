@@ -11,7 +11,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class ServerFacade {
     int port;
@@ -19,12 +21,14 @@ public class ServerFacade {
     Gson gson;
     String authToken;
     State state;
+    List<GameData> games;
 
     public ServerFacade(int port, State state) {
         this.port = port;
         client = HttpClient.newHttpClient();
         gson = new Gson();
         this.state = state;
+        games = null;
     }
 
     public void request(String... args) {
@@ -46,8 +50,11 @@ public class ServerFacade {
     }
 
     private void loginHandler(String... args) {
-        if (state != State.PRE_LOGIN) {
+        if (state == State.POST_LOGIN) {
             ClientDraw.printError("You are already logged in, please logout before trying to login again");
+            return;
+        } else if (state == State.OBSERVE) {
+            ClientDraw.printError("You cannot login while observing, please leave the game and logout before trying to login");
             return;
         }
 
@@ -78,8 +85,11 @@ public class ServerFacade {
     }
 
     private void registerHandler(String... args) {
-        if (state != State.PRE_LOGIN) {
+        if (state == State.POST_LOGIN) {
             ClientDraw.printError("You are already logged in, please logout before trying to register");
+            return;
+        } else if (state == State.OBSERVE) {
+            ClientDraw.printError("You cannot register while observing, please leave the game and logout before trying to register");
             return;
         }
 
@@ -112,8 +122,11 @@ public class ServerFacade {
     }
 
     private void listHandler(String... args) {
-        if (state != State.POST_LOGIN) {
+        if (state == State.PRE_LOGIN) {
             ClientDraw.printError("You must be logged in to list games");
+            return;
+        } else if (state == State.OBSERVE) {
+            ClientDraw.printError("You cannot list games while observing, please leave the game you are observing before trying to list");
             return;
         }
 
@@ -138,6 +151,7 @@ public class ServerFacade {
                                 + ", Black: " + (game.blackUsername() != null ? game.blackUsername() : "open");
                         index++;
                     }
+                    this.games = new ArrayList<>(games);
                     ClientDraw.draw(args[0], state, gameList);
                 } else {
                     ClientDraw.printError("List games failed due to " + gson.fromJson(response.body(), Message.class).message());
@@ -151,8 +165,11 @@ public class ServerFacade {
     private void joinHandler(String... args) {}
 
     private void createHandler(String... args) {
-        if (state != State.POST_LOGIN) {
+        if (state == State.PRE_LOGIN) {
             ClientDraw.printError("You must be logged in to create a game");
+            return;
+        } else if (state == State.OBSERVE) {
+            ClientDraw.printError("You cannot create a game while observing, please leave the game you are observing before trying to create");
             return;
         }
 
@@ -179,7 +196,49 @@ public class ServerFacade {
         }
     }
 
-    private void observeHandler(String... args) {}
+    private void observeHandler(String... args) {
+        if (state == State.PRE_LOGIN) {
+            ClientDraw.printError("You must be logged in to observe a game");
+            return;
+        } else if (state == State.OBSERVE) {
+            ClientDraw.printError("You are already observing a game, please leave the game you are currently observing before trying to observe another");
+            return;
+        }
+
+        if (args.length != 2) {
+            ClientDraw.printError("Usage: observe <game_id>");
+        } else if (games == null) {
+            ClientDraw.printError("You must list games before trying to observe!");
+        } else {
+            Integer gameID;
+            Integer givenGameID;
+            try {
+                givenGameID = Integer.parseInt(args[1]);
+                gameID = games.get(givenGameID-1).gameID();
+            } catch (NumberFormatException e) {
+                ClientDraw.printError("Game ID must be an integer");
+                return;
+            }
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + port + "/observe"))
+                    .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"}"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", authToken)
+                    .build();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    ClientDraw.draw(args[0], state, String.valueOf(givenGameID));
+                    state = State.OBSERVE;
+                } else {
+                    ClientDraw.printError("Observe game failed due to " + gson.fromJson(response.body(), Message.class).message());
+                }
+            } catch (Exception e) {
+                ClientDraw.printError("Error: failed to connect to server, please try again");
+            }
+        }
+    }
 
     private void logoutHandler(String... args) {
         if (state != State.POST_LOGIN) {

@@ -49,6 +49,7 @@ public class ClientDraw {
             case "list" -> listHandler(args);
             case "create" -> System.out.println("Successfully created game: " + args[0]);
             case "logout" -> System.out.println("Successfully logged out.");
+            case "observe" -> System.out.println("Now observing game with ID: " + args[0]);
         }
     }
 
