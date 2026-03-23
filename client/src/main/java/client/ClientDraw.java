@@ -46,6 +46,7 @@ public class ClientDraw {
     private static void postLoginHandler(String command, String[] args) {
         switch (command.toLowerCase()) {
             case "help" -> postLoginHelp();
+            case "list" -> listHandler(args);
         }
     }
 
@@ -57,6 +58,13 @@ public class ClientDraw {
         System.out.println("- observe <id>: Observe a game with the specified ID");
         System.out.println("- logout: Logout from your account");
         System.out.println("- help: Lists all commands");
+    }
+
+    private static void listHandler(String[] args) {
+        System.out.println("Games:");
+        for (String game : args) {
+            System.out.println(game);
+        }
     }
 
 

@@ -12,8 +12,9 @@ public class ClientMain {
 
         Scanner scanner = new Scanner(System.in);
 
-        ServerFacade serverFacade = new ServerFacade(8080);
         State state = State.PRE_LOGIN;
+        ServerFacade serverFacade = new ServerFacade(8080, state);
+
 
         while (true) {
             String input = scanner.nextLine();
@@ -24,7 +25,7 @@ public class ClientMain {
                 ClientDraw.draw(input, state);
                 break;
             } else {
-                serverFacade.request(state, input.split(" "));
+                serverFacade.request(input.split(" "));
             }
         }
 

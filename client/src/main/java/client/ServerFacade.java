@@ -1,27 +1,33 @@
 package client;
 
 import Responses.Auth;
+import Responses.ListGames;
 import Responses.Message;
 import com.google.gson.Gson;
+import com.sun.net.httpserver.Headers;
+import model.GameData;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Collection;
 
 public class ServerFacade {
     int port;
     HttpClient client;
     Gson gson;
     String authToken;
+    State state;
 
-    public ServerFacade(int port) {
+    public ServerFacade(int port, State state) {
         this.port = port;
         client = HttpClient.newHttpClient();
         gson = new Gson();
+        this.state = state;
     }
 
-    public void request(State state, String... args) {
+    public void request(String... args) {
         if (args.length == 0) {
             ClientDraw.printError("No command provided");
         } else {
@@ -55,12 +61,13 @@ public class ServerFacade {
                 if (response.statusCode() == 200) {
                     Auth authResponse = gson.fromJson(response.body(), Auth.class);
                     authToken = authResponse.authToken();
-                    ClientDraw.draw(args[0], State.PRE_LOGIN, args[1]);
+                    ClientDraw.draw(args[0], state, args[1]);
+                    state = State.POST_LOGIN;
                 } else {
                     ClientDraw.printError("Login failed: " + gson.fromJson(response.body(), Message.class).message());
                 }
             } catch (Exception e) {
-                ClientDraw.printError("Failed to connect to server, please try again");
+                ClientDraw.printError("Error: failed to connect to server, please try again");
             }
         }
     }
@@ -83,16 +90,47 @@ public class ServerFacade {
                 if (response.statusCode() == 200) {
                     Auth authResponse = gson.fromJson(response.body(), Auth.class);
                     authToken = authResponse.authToken();
-                    ClientDraw.draw(args[0], State.PRE_LOGIN, args[1]);
+                    ClientDraw.draw(args[0], state, args[1]);
+                    state = State.POST_LOGIN;
                 } else {
                     ClientDraw.printError("Register failed due to " + gson.fromJson(response.body(), Message.class).message());
                 }
             } catch (Exception e) {
-                ClientDraw.printError("Failed to connect to server, please try again");
+                ClientDraw.printError("Error: failed to connect to server, please try again");
             }
         }
     }
-    private void listHandler(String... args) {}
+
+    private void listHandler(String... args) {
+        if (args.length != 1) {
+            ClientDraw.printError("Usage: list");
+        } else {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + port + "/game"))
+                    .GET()
+                    .header("Content-Type", "application/json")
+                    .header("authToken", authToken)
+                    .build();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    Collection<GameData> games = gson.fromJson(response.body(), ListGames.class).games();
+                    int index = 1;
+                    String[] gameList = new String[games.size()];
+                    for (GameData game : games) {
+                        gameList[index-1] = "- " + index + ": " + game.gameName() + ", White: "
+                                + (game.whiteUsername() != null ? game.whiteUsername() : "open")
+                                + ", Black: " + (game.blackUsername() != null ? game.blackUsername() : "open");
+                    }
+                    ClientDraw.draw(args[0], state, gameList);
+                } else {
+                    ClientDraw.printError("List games failed due to " + gson.fromJson(response.body(), Message.class).message());
+                }
+            } catch (Exception e) {
+                ClientDraw.printError("Error: failed to connect to server, please try again");
+            }
+        }
+    }
     private void joinHandler(String... args) {}
     private void createHandler(String... args) {}
     private void observeHandler(String... args) {}
