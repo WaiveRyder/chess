@@ -208,11 +208,11 @@ public class Server {
 
     private void handleJoinGame(Context context, JoinGameRequest request) {
         if (request.gameID() == null || request.playerColor() == null || request.authToken() == null) {
-            context.result(serializer.toJson(new GenericResponse("Error: No Null Elements Allowed")));
+            context.result(serializer.toJson(new ReturnGameResponse(null,"Error: No Null Elements Allowed")));
             context.status(400);
         } else {
 
-            GenericResponse response = gameService.joinGame(request);
+            ReturnGameResponse response = gameService.joinGame(request);
             context.result(serializer.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);

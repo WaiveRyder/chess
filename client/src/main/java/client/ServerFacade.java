@@ -26,6 +26,7 @@ public class ServerFacade {
     public State state;
     private List<GameData> games;
     private Integer gameID;
+    private ChessBoard board;
 
     public ServerFacade(int port, State state) {
         this.port = port;
@@ -33,6 +34,7 @@ public class ServerFacade {
         gson = new Gson();
         this.state = state;
         games = null;
+        board = null;
     }
 
     public void request(String... args) {
@@ -45,6 +47,7 @@ public class ServerFacade {
                 case "register" -> registerHandler(args);
                 case "list" -> listHandler(args);
                 case "join" -> joinHandler(args);
+                case "exit" -> exitHandler(args);
                 case "create" -> createHandler(args);
                 case "observe" -> observeHandler(args);
                 case "logout" -> logoutHandler(args);
@@ -60,6 +63,9 @@ public class ServerFacade {
             return;
         } else if (state == State.OBSERVE) {
             ClientDraw.printError("You cannot login while observing, please leave the game and logout before trying to login");
+            return;
+        } else if (state == State.GAMEPLAY) {
+            ClientDraw.printError("You cannot login while playing a game, please leave the game and logout before trying to login");
             return;
         }
 
@@ -95,6 +101,9 @@ public class ServerFacade {
             return;
         } else if (state == State.OBSERVE) {
             ClientDraw.printError("You cannot register while observing, please leave the game and logout before trying to register");
+            return;
+        } else if (state == State.GAMEPLAY) {
+            ClientDraw.printError("You cannot register while playing a game, please leave the game and logout before trying to register");
             return;
         }
 
@@ -133,6 +142,9 @@ public class ServerFacade {
         } else if (state == State.OBSERVE) {
             ClientDraw.printError("You cannot list games while observing, please leave the game you are observing before trying to list");
             return;
+        } else if (state == State.GAMEPLAY) {
+            ClientDraw.printError("You cannot list games while playing, please leave the game you are playing before trying to list");
+            return;
         }
 
         if (args.length != 1) {
@@ -167,7 +179,85 @@ public class ServerFacade {
         }
     }
 
-    private void joinHandler(String... args) {}
+    private void joinHandler(String... args) {
+        if (state == State.PRE_LOGIN) {
+            ClientDraw.printError("You must be logged in to join a game");
+            return;
+        } else if (state == State.OBSERVE) {
+            ClientDraw.printError("You cannot observe a game while playing one, please leave the game you are playing before trying to observe");
+            return;
+        } else if (state == State.GAMEPLAY) {
+            ClientDraw.printError("You cannot join a game while playing one, please leave the game you are playing before trying to join");
+            return;
+        }
+
+        if (args.length != 3) {
+            ClientDraw.printError("Usage: join <game_id> [WHITE|BLACK]");
+        } else if (games == null) {
+            ClientDraw.printError("You must list games before trying to join!");
+        } else {
+            Integer givenGameID;
+            try {
+                givenGameID = Integer.parseInt(args[1]);
+                if (givenGameID < 1 || givenGameID > games.size()) {
+                    ClientDraw.printError("Game ID must be between 1 and " + games.size());
+                    return;
+                } else {
+                    gameID = games.get(givenGameID-1).gameID();
+                }
+            } catch (NumberFormatException e) {
+                ClientDraw.printError("Game ID must be an integer");
+                return;
+            }
+
+            ChessGame.TeamColor color;
+            if (args[2].equalsIgnoreCase("white")) {
+                color = ChessGame.TeamColor.WHITE;
+            } else {
+                color = ChessGame.TeamColor.BLACK;
+            }
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + port + "/game"))
+                    .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\", \"playerColor\":\"" + color + "\"}"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", authToken)
+                    .build();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    ClientDraw.draw(args[0], state, String.valueOf(givenGameID), color.toString());
+                    state = State.GAMEPLAY;
+                    ChessBoard board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
+                    ClientDraw.drawBoard(board, color);
+                } else {
+                    ClientDraw.printError("Join game failed due to " + gson.fromJson(response.body(), Message.class).message());
+                }
+            } catch (Exception e) {
+                ClientDraw.printError("Error: failed to connect to server, please try again");
+            }
+        }
+    }
+
+    private void exitHandler(String... args) {
+        if (state == State.PRE_LOGIN) {
+            ClientDraw.printError("You must be logged in to exit a game");
+            return;
+        } else if (state == State.OBSERVE) {
+            ClientDraw.printError("You cannot exit a game while observing, please leave the game you are observing");
+            return;
+        } else if (state == State.POST_LOGIN) {
+            ClientDraw.printError("You cannot exit a game while not playing one, please join a game before trying to exit");
+            return;
+        }
+
+        if (args.length != 1) {
+            ClientDraw.printError("Usage: exit");
+        } else {
+            ClientDraw.draw(args[0], state);
+            state = State.POST_LOGIN;
+        }
+    }
 
     private void createHandler(String... args) {
         if (state == State.PRE_LOGIN) {
@@ -175,6 +265,9 @@ public class ServerFacade {
             return;
         } else if (state == State.OBSERVE) {
             ClientDraw.printError("You cannot create a game while observing, please leave the game you are observing before trying to create");
+            return;
+        } else if (state == State.GAMEPLAY) {
+            ClientDraw.printError("You cannot create a game while playing one, please leave the game you are playing before trying to create");
             return;
         }
 
@@ -207,6 +300,9 @@ public class ServerFacade {
             return;
         } else if (state == State.OBSERVE) {
             ClientDraw.printError("You are already observing a game, please leave the game you are currently observing before trying to observe another");
+            return;
+        } else if (state == State.GAMEPLAY) {
+            ClientDraw.printError("You cannot observe a game while playing one, please exit the game you are playing before trying to observe");
             return;
         }
 
@@ -287,6 +383,9 @@ public class ServerFacade {
             return;
         } else if (state == State.POST_LOGIN) {
             ClientDraw.printError("You must be observing a game to leave a game");
+            return;
+        } else if (state == State.GAMEPLAY) {
+            ClientDraw.printError("You cannot leave observing a game while playing one, please exit to leave the game");
             return;
         }
 

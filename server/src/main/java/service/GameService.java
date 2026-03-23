@@ -46,13 +46,13 @@ public class GameService {
         }
     }
 
-    public GenericResponse joinGame(JoinGameRequest request) {
+    public ReturnGameResponse joinGame(JoinGameRequest request) {
         try {
             AuthData auth = authenticate(request.authToken());
             GameData game = gameDAO.joinGame(request.gameID(), auth.username(), request.playerColor());
-            return new GenericResponse("");
+            return new ReturnGameResponse(game, "");
         } catch (DataAccessException e) {
-            return new GenericResponse(e.getMessage());
+            return new ReturnGameResponse(null, e.getMessage());
         }
     }
 

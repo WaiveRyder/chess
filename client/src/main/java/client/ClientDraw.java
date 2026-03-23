@@ -17,6 +17,7 @@ public class ClientDraw {
             case PRE_LOGIN -> preLoginHandler(command, args);
             case POST_LOGIN -> postLoginHandler(command, args);
             case OBSERVE -> observeHandler(command);
+            case GAMEPLAY -> gameplayHandler(command, args);
         }
     }
 
@@ -59,6 +60,7 @@ public class ClientDraw {
             case "help" -> postLoginHelp();
             case "list" -> listHandler(args);
             case "create" -> System.out.println("Successfully created game: " + args[0]);
+            case "join" -> System.out.println("Successfully joined game with ID: " + args[0] + " as " + args[1]);
             case "logout" -> System.out.println("Successfully logged out.");
             case "observe" -> System.out.println("Now observing game with ID: " + args[0]);
             case "quit" -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED+"Hold up: You must be logout first!"+EscapeSequences.RESET_TEXT_COLOR);
@@ -96,6 +98,22 @@ public class ClientDraw {
     private static void observeHelp() {
         System.out.println("Commands:");
         System.out.println("- leave: Stop observing the game");
+        System.out.println("- help: Lists all commands");
+    }
+
+
+
+    // All gameplay commands are handled here ---------------------------------------
+    private static void gameplayHandler(String command, String[] args) {
+        switch (command.toLowerCase()) {
+            case "help" -> gamePlayHelp();
+            case "exit" -> System.out.println("Exited game and returned to menu.");
+        }
+    }
+
+    private static void gamePlayHelp() {
+        System.out.println("Commands:");
+        System.out.println("- exit: return to the menu");
         System.out.println("- help: Lists all commands");
     }
 
