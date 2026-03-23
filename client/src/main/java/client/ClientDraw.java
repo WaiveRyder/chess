@@ -23,7 +23,11 @@ public class ClientDraw {
 
 
     public static void printError(String message) {
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Hold up: " + message + EscapeSequences.RESET_TEXT_COLOR);
+        if (message.contains("Error:")) {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + message + EscapeSequences.RESET_TEXT_COLOR);
+        } else {
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + message + EscapeSequences.RESET_TEXT_COLOR);
+        }
         System.out.println("Type 'help' for a list of commands.");
     }
 
