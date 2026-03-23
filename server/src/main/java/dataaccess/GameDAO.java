@@ -133,6 +133,59 @@ public class GameDAO {
         }
     }
 
+    public GameData observeGame(int id, String token) throws DataAccessException {
+        if (useMap) {
+            //Implement observe game for map if we have time
+        }
+
+        var statement = "SELECT * FROM game WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setInt(1, id);
+            GameData gameData = null;
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int gameID = rs.getInt("gameID");
+                    String whiteUsername = rs.getString("whiteUsername");
+                    String blackUsername = rs.getString("blackUsername");
+                    String gameName = rs.getString("gameName");
+                    ChessGame chessGame = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+                    gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
+                } else {
+                    throw new DataAccessException("Error: Game ID not valid: " + id);
+                }
+            }
+
+            String username = null;
+            statement = "SELECT username FROM auth WHERE token = ?";
+            try (PreparedStatement npstmt = conn.prepareStatement(statement)) {
+                npstmt.setString(1, token);
+                try (ResultSet rs = npstmt.executeQuery()) {
+                    if (rs.next()) {
+                        username = rs.getString("username");
+                    } else {
+                        throw new DataAccessException("Error: Invalid auth token");
+                    }
+                }
+            }
+
+            statement = "INSERT INTO observers (gameID, username) VALUES (?, ?)";
+            try (PreparedStatement nnpstmt = conn.prepareStatement(statement)) {
+                nnpstmt.setInt(1, id);
+                nnpstmt.setString(2, username);
+                int rows = nnpstmt.executeUpdate();
+                if (rows == 0) {
+                    throw new DataAccessException("Error: Could not add observer to game");
+                } else {
+                    return gameData;
+                }
+
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: could not connect to database");
+        }
+    }
+
     public void clear() throws DataAccessException {
         if (useMap) {
             gameDAOMap.clear();
