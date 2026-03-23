@@ -218,7 +218,12 @@ public class ServerFacade {
             Integer givenGameID;
             try {
                 givenGameID = Integer.parseInt(args[1]);
-                gameID = games.get(givenGameID-1).gameID();
+                if (givenGameID < 1 || givenGameID > games.size()) {
+                    ClientDraw.printError("Game ID must be between 1 and " + games.size());
+                    return;
+                } else {
+                    gameID = games.get(givenGameID-1).gameID();
+                }
             } catch (NumberFormatException e) {
                 ClientDraw.printError("Game ID must be an integer");
                 return;
