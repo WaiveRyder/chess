@@ -24,7 +24,7 @@ public class ClientMain {
                 ClientDraw.draw(input, state);
                 break;
             } else {
-                serverFacade.request(input.split(" "));
+                serverFacade.request(state, input.split(" "));
             }
         }
 

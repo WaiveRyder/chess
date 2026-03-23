@@ -5,11 +5,11 @@ import ui.EscapeSequences;
 public class ClientDraw {
 
     // Main draw method that routes commands based on state
-    public static void draw(String command, State state) {
+    public static void draw(String command, State state, String... args) {
         switch (state) {
-            case PRE_LOGIN -> preLoginHandler(command);
-            case POST_LOGIN -> postLoginHandler(command);
-            case OBSERVE -> observeHandler(command);
+            case PRE_LOGIN -> preLoginHandler(command, args);
+            case POST_LOGIN -> postLoginHandler(command, args);
+            case OBSERVE -> observeHandler(command, args);
         }
     }
 
@@ -23,11 +23,12 @@ public class ClientDraw {
 
 
     // All pre-login commands are handled here ---------------------------------------
-    private static void preLoginHandler(String command) {
+    private static void preLoginHandler(String command, String[] args) {
         switch (command.toLowerCase()) {
             case "help" -> preLoginHelp();
             case "quit" -> System.out.println("Thanks for playing! Catch you next time.");
-            case "login" -> System.out.println("Successfully logged in. Welcome back!");
+            case "login" -> System.out.println("Successfully logged in. Welcome back " + args[0] + "!");
+            case "register" -> System.out.println("Successfully registered! Welcome " + args[0] + "!");
         }
     }
 
@@ -42,7 +43,7 @@ public class ClientDraw {
 
 
     // All post-login commands are handled here ---------------------------------------
-    private static void postLoginHandler(String command) {
+    private static void postLoginHandler(String command, String[] args) {
         switch (command.toLowerCase()) {
             case "help" -> postLoginHelp();
         }
@@ -61,7 +62,7 @@ public class ClientDraw {
 
 
     // All observe commands are handled here ---------------------------------------
-    private static void observeHandler(String command) {
+    private static void observeHandler(String command, String[] args) {
         switch (command.toLowerCase()) {
             case "help" -> observeHelp();
         }

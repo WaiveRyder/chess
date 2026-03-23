@@ -1,5 +1,7 @@
 package client;
 
+import Responses.Auth;
+import Responses.Message;
 import com.google.gson.Gson;
 
 import java.net.URI;
@@ -11,6 +13,7 @@ public class ServerFacade {
     int port;
     HttpClient client;
     Gson gson;
+    String authToken;
 
     public ServerFacade(int port) {
         this.port = port;
@@ -18,7 +21,7 @@ public class ServerFacade {
         gson = new Gson();
     }
 
-    public void request(String... args) {
+    public void request(State state, String... args) {
         if (args.length == 0) {
             ClientDraw.printError("No command provided");
         } else {
@@ -50,7 +53,9 @@ public class ServerFacade {
             try {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == 200) {
-                    ClientDraw.draw(args[0], State.PRE_LOGIN);
+                    Auth authResponse = gson.fromJson(response.body(), Auth.class);
+                    authToken = authResponse.authToken();
+                    ClientDraw.draw(args[0], State.PRE_LOGIN, args[1]);
                 } else {
                     ClientDraw.printError("Login failed: " + gson.fromJson(response.body(), Message.class).message());
                 }
@@ -60,7 +65,33 @@ public class ServerFacade {
         }
     }
 
-    private void registerHandler(String... args) {}
+    private void registerHandler(String... args) {
+        if (args.length != 4) {
+            ClientDraw.printError("Usage: register <username> <password> <email>");
+        } else {
+            String username = args[1];
+            String password = args[2];
+            String email = args[3];
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + port + "/user"))
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"username\":\"" + username + "\", \"password\":\""
+                            + password + "\", \"email\":\"" + email + "\"}"))
+                    .header("Content-Type", "application/json")
+                    .build();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    Auth authResponse = gson.fromJson(response.body(), Auth.class);
+                    authToken = authResponse.authToken();
+                    ClientDraw.draw(args[0], State.PRE_LOGIN, args[1]);
+                } else {
+                    ClientDraw.printError("Register failed due to " + gson.fromJson(response.body(), Message.class).message());
+                }
+            } catch (Exception e) {
+                ClientDraw.printError("Failed to connect to server, please try again");
+            }
+        }
+    }
     private void listHandler(String... args) {}
     private void joinHandler(String... args) {}
     private void createHandler(String... args) {}
