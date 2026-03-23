@@ -59,9 +59,19 @@ public class DatabaseManager {
                 )
                 """;
 
+        var createObserversStatement = """
+                CREATE TABLE IF NOT EXISTS observers (
+                gameID int NOT NULL,
+                username VARCHAR(255) NOT NULL,
+                FOREIGN KEY (gameID) REFERENCES game(gameID),
+                FOREIGN KEY (username) REFERENCES users(username)
+                )
+                """;
+
         initTablesCall(createUserStatement);
         initTablesCall(createAuthStatement);
         initTablesCall(createGameStatement);
+        initTablesCall(createObserversStatement);
     }
 
     static private void initTablesCall(String statement) throws DataAccessException {
