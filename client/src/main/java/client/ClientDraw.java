@@ -2,6 +2,8 @@ package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.GameData;
 import ui.EscapeSequences;
 
@@ -97,11 +99,40 @@ public class ClientDraw {
 
     // Oh boy this is the big one
     public static void drawBoard(ChessBoard board, ChessGame.TeamColor playerColor) {
-        assembleBoard(playerColor);
-
+        String[][] drawnBoard = assembleBoard(playerColor);
+        ChessBoard newBoard = new ChessBoard();
+        newBoard.resetBoard();
+        String[][] placedPiecesBoard = placePieces(newBoard, drawnBoard, playerColor);
+        print2D(placedPiecesBoard);
     }
 
-    public static void assembleBoard(ChessGame.TeamColor playerColor) {
+    private static String[][] placePieces(ChessBoard board, String[][] drawnBoard, ChessGame.TeamColor playerColor) {
+        String loadColor;
+
+        for (int row = 1; row <= 8; row++) {
+            for (int col = 1; col <= 8; col++) {
+                ChessPiece piece;
+                if (playerColor == ChessGame.TeamColor.BLACK) {
+                    piece = board.getPiece(new ChessPosition(9 - row, 9 - col));
+                    loadColor = EscapeSequences.SET_TEXT_COLOR_BLACK;
+                } else {
+                    piece = board.getPiece(new ChessPosition(row, col));
+                    loadColor = EscapeSequences.SET_TEXT_COLOR_WHITE;
+                }
+                String currentBox = drawnBoard[row][col];
+                if (piece != null && currentBox.contains("15")) {
+                    String fullPiece = loadColor + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                    drawnBoard[row][col] = chessSquareWhite(fullPiece);
+                } else if (piece != null) {
+                    String fullPiece = loadColor + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                    drawnBoard[row][col] = chessSquareBlack(fullPiece);
+                }
+            }
+        }
+        return drawnBoard;
+    }
+
+    private static String[][] assembleBoard(ChessGame.TeamColor playerColor) {
         String[][] board = new String[10][10];
         board[0] = createBoarderRow(playerColor);
         board[9] = createBoarderRow(playerColor);
@@ -110,7 +141,7 @@ public class ClientDraw {
             board[i] = createSquareRows(i, playerColor);
         }
 
-        print2D(board);
+        return board;
     }
 
     private static String[] createSquareRows(int rowNum, ChessGame.TeamColor playerColor) {
@@ -126,15 +157,15 @@ public class ClientDraw {
         for (int i = 1; i <= 8; i++) {
             if (rowNum % 2 == 0) {
                 if (i % 2 == 0) {
-                    row[i] = chessSquareWhite();
+                    row[i] = chessSquareWhite(" ");
                 } else {
-                    row[i] = chessSquareBlack();
+                    row[i] = chessSquareBlack(" ");
                 }
             } else {
                 if (i % 2 == 0) {
-                    row[i] = chessSquareBlack();
+                    row[i] = chessSquareBlack(" ");
                 } else {
-                    row[i] = chessSquareWhite();
+                    row[i] = chessSquareWhite(" ");
                 }
             }
         }
@@ -176,15 +207,15 @@ public class ClientDraw {
                 + EscapeSequences.RESET_TEXT_COLOR;
     }
 
-    private static String chessSquareWhite() {
+    private static String chessSquareWhite(String piece) {
         return EscapeSequences.SET_BG_COLOR_WHITE
-                + "   "
+                + " " + piece + " "
                 + EscapeSequences.RESET_BG_COLOR;
     }
 
-    private static String chessSquareBlack() {
+    private static String chessSquareBlack(String piece) {
         return EscapeSequences.SET_BG_COLOR_BLACK
-                + "   "
+                + " " + piece + " "
                 + EscapeSequences.RESET_BG_COLOR;
     }
 }

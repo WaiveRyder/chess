@@ -96,4 +96,15 @@ public class ChessPiece {
     public String toString() {
         return pieceType.toString();
     }
+
+    public String toUnicode() {
+        return switch (pieceType) {
+            case PAWN -> "P";
+            case KING -> "K";
+            case ROOK -> "R";
+            case KNIGHT -> "N";
+            case BISHOP -> "B";
+            case QUEEN -> "Q";
+        };
+    }
 }
