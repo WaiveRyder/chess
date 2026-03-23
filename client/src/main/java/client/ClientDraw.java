@@ -47,6 +47,7 @@ public class ClientDraw {
         switch (command.toLowerCase()) {
             case "help" -> postLoginHelp();
             case "list" -> listHandler(args);
+            case "logout" -> System.out.println("Successfully logged out.");
         }
     }
 

@@ -109,7 +109,7 @@ public class ServerFacade {
                     .uri(URI.create("http://localhost:" + port + "/game"))
                     .GET()
                     .header("Content-Type", "application/json")
-                    .header("authToken", authToken)
+                    .header("Authorization", authToken)
                     .build();
             try {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -131,10 +131,44 @@ public class ServerFacade {
             }
         }
     }
+
     private void joinHandler(String... args) {}
-    private void createHandler(String... args) {}
+
+    private void createHandler(String... args) {
+
+    }
+
     private void observeHandler(String... args) {}
-    private void logoutHandler(String... args) {}
+
+    private void logoutHandler(String... args) {
+        if (state != State.POST_LOGIN) {
+            ClientDraw.printError("You must be logged in to logout");
+            return;
+        }
+
+        if (args.length != 1) {
+            ClientDraw.printError("Usage: logout");
+        } else {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + port + "/session"))
+                    .DELETE()
+                    .header("Authorization", authToken)
+                    .header("Content-Type", "application/json")
+                    .build();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    ClientDraw.draw(args[0], state);
+                    state = State.PRE_LOGIN;
+                } else {
+                    ClientDraw.printError("Logout failed due to " + gson.fromJson(response.body(), Message.class).message());
+                }
+            } catch (Exception e) {
+                ClientDraw.printError("Error: failed to connect to server, please try again");
+            }
+        }
+    }
+
     private void leaveHandler(String... args) {}
 
 
