@@ -186,6 +186,45 @@ public class GameDAO {
         }
     }
 
+    public void leaveObserveGame(int id, String token) throws DataAccessException {
+        var statement = "SELECT username FROM auth WHERE token = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            String username = null;
+            pstmt.setString(1, token);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    username = rs.getString("username");
+                } else {
+                    throw new DataAccessException("Error: Invalid auth token");
+                }
+            }
+
+            statement = "SELECT username FROM observers WHERE gameID = ? AND username = ?";
+            try (PreparedStatement npstmt = conn.prepareStatement(statement)) {
+                npstmt.setInt(1, id);
+                npstmt.setString(2, username);
+                try (ResultSet rs = npstmt.executeQuery()) {
+                    if (rs.next()) {
+                        statement = "DELETE FROM observers WHERE gameID = ? AND username = ?";
+                        try (PreparedStatement nnpstmt = conn.prepareStatement(statement)) {
+                            nnpstmt.setInt(1, id);
+                            nnpstmt.setString(2, username);
+                            int rows = nnpstmt.executeUpdate();
+                            if (rows == 0) {
+                                throw new DataAccessException("Error: Could not remove observer from game");
+                            }
+                        }
+                    } else {
+                        throw new DataAccessException("Error: User is not an observer of this game");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: could not connect to database");
+        }
+    }
+
     public void clear() throws DataAccessException {
         if (useMap) {
             gameDAOMap.clear();
