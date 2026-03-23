@@ -47,6 +47,7 @@ public class ClientDraw {
         switch (command.toLowerCase()) {
             case "help" -> postLoginHelp();
             case "list" -> listHandler(args);
+            case "create" -> System.out.println("Successfully created game: " + args[0]);
             case "logout" -> System.out.println("Successfully logged out.");
         }
     }

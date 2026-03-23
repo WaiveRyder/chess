@@ -46,6 +46,11 @@ public class ServerFacade {
     }
 
     private void loginHandler(String... args) {
+        if (state != State.PRE_LOGIN) {
+            ClientDraw.printError("You are already logged in, please logout before trying to login again");
+            return;
+        }
+
         if (args.length != 3) {
             ClientDraw.printError("Usage: login <username> <password>");
         } else {
@@ -73,6 +78,11 @@ public class ServerFacade {
     }
 
     private void registerHandler(String... args) {
+        if (state != State.PRE_LOGIN) {
+            ClientDraw.printError("You are already logged in, please logout before trying to register");
+            return;
+        }
+
         if (args.length != 4) {
             ClientDraw.printError("Usage: register <username> <password> <email>");
         } else {
@@ -102,6 +112,11 @@ public class ServerFacade {
     }
 
     private void listHandler(String... args) {
+        if (state != State.POST_LOGIN) {
+            ClientDraw.printError("You must be logged in to list games");
+            return;
+        }
+
         if (args.length != 1) {
             ClientDraw.printError("Usage: list");
         } else {
@@ -121,6 +136,7 @@ public class ServerFacade {
                         gameList[index-1] = "- " + index + ": " + game.gameName() + ", White: "
                                 + (game.whiteUsername() != null ? game.whiteUsername() : "open")
                                 + ", Black: " + (game.blackUsername() != null ? game.blackUsername() : "open");
+                        index++;
                     }
                     ClientDraw.draw(args[0], state, gameList);
                 } else {
@@ -135,7 +151,32 @@ public class ServerFacade {
     private void joinHandler(String... args) {}
 
     private void createHandler(String... args) {
+        if (state != State.POST_LOGIN) {
+            ClientDraw.printError("You must be logged in to create a game");
+            return;
+        }
 
+        if (args.length != 2) {
+            ClientDraw.printError("Usage: create <game_name> (no spaces allowed in name)");
+        } else {
+            String gameName = args[1];
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + port + "/game"))
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"gameName\":\"" + gameName + "\"}"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", authToken)
+                    .build();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    ClientDraw.draw(args[0], state, gameName);
+                } else {
+                    ClientDraw.printError("Create game failed due to " + gson.fromJson(response.body(), Message.class).message());
+                }
+            } catch (Exception e) {
+                ClientDraw.printError("Error: failed to connect to server, please try again");
+            }
+        }
     }
 
     private void observeHandler(String... args) {}
