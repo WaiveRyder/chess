@@ -8,9 +8,11 @@ import model.GameData;
 import service.requests.AuthRequest;
 import service.requests.CreateGameRequest;
 import service.requests.JoinGameRequest;
+import service.requests.ObserveGameRequest;
 import service.responses.CreateGameResponse;
 import service.responses.GenericResponse;
 import service.responses.ListGamesResponse;
+import service.responses.ReturnGameResponse;
 
 public class GameService {
     private AuthDAO authDAO;
@@ -60,6 +62,21 @@ public class GameService {
             return new ListGamesResponse(gameDAO.listGames(), "");
         } catch (DataAccessException e) {
             return new ListGamesResponse(null, e.getMessage());
+        }
+    }
+
+    public ReturnGameResponse observeGame(ObserveGameRequest request) {
+        try {
+            AuthData auth = authenticate(request.token());
+            if (request.leave()) {
+                gameDAO.leaveObserveGame(request.gameID(), auth.username());
+                return new ReturnGameResponse(null, "");
+            } else {
+                GameData game = gameDAO.observeGame(request.gameID(), auth.username());
+                return new ReturnGameResponse(game, "");
+            }
+        } catch (DataAccessException e) {
+            return new ReturnGameResponse(null,  e.getMessage());
         }
     }
 }
