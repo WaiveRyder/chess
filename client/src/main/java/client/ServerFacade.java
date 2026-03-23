@@ -1,8 +1,11 @@
 package client;
 
 import Responses.Auth;
+import Responses.Game;
 import Responses.ListGames;
 import Responses.Message;
+import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.Headers;
 import model.GameData;
@@ -233,6 +236,8 @@ public class ServerFacade {
                 if (response.statusCode() == 200) {
                     ClientDraw.draw(args[0], state, String.valueOf(givenGameID));
                     state = State.OBSERVE;
+                    ChessBoard board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
+                    ClientDraw.drawBoard(board, ChessGame.TeamColor.WHITE);
                 } else {
                     ClientDraw.printError("Observe game failed due to " + gson.fromJson(response.body(), Message.class).message());
                 }
