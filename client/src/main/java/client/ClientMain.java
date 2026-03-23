@@ -19,7 +19,12 @@ public class ClientMain {
         while (true) {
             String input = scanner.nextLine();
 
-            serverFacade.request(input.split(" "));
+            if(input.equalsIgnoreCase("draw")) {
+
+                ClientDraw.drawBoard(new ChessBoard(), ChessGame.TeamColor.BLACK);
+            } else {
+                serverFacade.request(input.split(" "));
+            }
             if (input.equalsIgnoreCase("quit") && serverFacade.state == State.PRE_LOGIN) {
                 break;
             }

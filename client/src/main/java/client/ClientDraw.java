@@ -1,6 +1,11 @@
 package client;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import model.GameData;
 import ui.EscapeSequences;
+
+import java.util.Arrays;
 
 public class ClientDraw {
 
@@ -86,5 +91,100 @@ public class ClientDraw {
         System.out.println("Commands:");
         System.out.println("- leave: Stop observing the game");
         System.out.println("- help: Lists all commands");
+    }
+
+
+
+    // Oh boy this is the big one
+    public static void drawBoard(ChessBoard board, ChessGame.TeamColor playerColor) {
+        assembleBoard(playerColor);
+
+    }
+
+    public static void assembleBoard(ChessGame.TeamColor playerColor) {
+        String[][] board = new String[10][10];
+        board[0] = createBoarderRow(playerColor);
+        board[9] = createBoarderRow(playerColor);
+
+        for (int i = 1; i <= 8; i++) {
+            board[i] = createSquareRows(i, playerColor);
+        }
+
+        print2D(board);
+    }
+
+    private static String[] createSquareRows(int rowNum, ChessGame.TeamColor playerColor) {
+        String[] row = new String[10];
+        if (playerColor == ChessGame.TeamColor.BLACK) {
+            row[0] = boarderBox(String.valueOf(rowNum));
+            row[9] = boarderBox(String.valueOf(rowNum));
+        } else {
+            row[0] = boarderBox(String.valueOf(9 - rowNum));
+            row[9] = boarderBox(String.valueOf(9 - rowNum));
+        }
+
+        for (int i = 1; i <= 8; i++) {
+            if (rowNum % 2 == 0) {
+                if (i % 2 == 0) {
+                    row[i] = chessSquareWhite();
+                } else {
+                    row[i] = chessSquareBlack();
+                }
+            } else {
+                if (i % 2 == 0) {
+                    row[i] = chessSquareBlack();
+                } else {
+                    row[i] = chessSquareWhite();
+                }
+            }
+        }
+        return row;
+    }
+
+    private static String[] createBoarderRow(ChessGame.TeamColor playerColor) {
+        String[] boarder = new String[10];
+        String[] boarderChars = {" ", "a", "b", "c", "d", "e", "f", "g", "h", " "};
+
+        if (playerColor == ChessGame.TeamColor.BLACK) {
+            boarderChars = new String[]{" ", "h", "g", "f", "e", "d", "c", "b", "a", " "};
+        }
+        for (int i = 0; i < 10; i++) {
+            String singleBox = boarderBox(boarderChars[i]);
+            boarder[i] = singleBox;
+        }
+        return boarder;
+    }
+
+    private static void print1D(String[] array) {
+        for (String s: array) {
+            System.out.print(s);
+        }
+        System.out.println();
+    }
+
+    private static void print2D(String[][] array) {
+        for (String[] s: array) {
+            print1D(s);
+        }
+    }
+
+    private static String boarderBox(String boxChar) {
+        return EscapeSequences.SET_BG_COLOR_LIGHT_GREY
+                + EscapeSequences.SET_TEXT_COLOR_BLACK
+                + " " + boxChar + " "
+                + EscapeSequences.RESET_BG_COLOR
+                + EscapeSequences.RESET_TEXT_COLOR;
+    }
+
+    private static String chessSquareWhite() {
+        return EscapeSequences.SET_BG_COLOR_WHITE
+                + "   "
+                + EscapeSequences.RESET_BG_COLOR;
+    }
+
+    private static String chessSquareBlack() {
+        return EscapeSequences.SET_BG_COLOR_BLACK
+                + "   "
+                + EscapeSequences.RESET_BG_COLOR;
     }
 }
