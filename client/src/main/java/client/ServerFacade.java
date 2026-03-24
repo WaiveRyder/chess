@@ -212,7 +212,11 @@ public class ServerFacade {
             try {
                 givenGameID = Integer.parseInt(args[1]);
                 if (givenGameID < 1 || givenGameID > games.size()) {
-                    ClientDraw.printError("Game ID must be between 1 and " + games.size());
+                    if (games.isEmpty()) {
+                        ClientDraw.printError("There are no games to join, please create a game before trying to join");
+                    } else {
+                        ClientDraw.printError("Game ID must be between 1 and " + games.size());
+                    }
                     return;
                 } else {
                     gameID = games.get(givenGameID-1).gameID();
