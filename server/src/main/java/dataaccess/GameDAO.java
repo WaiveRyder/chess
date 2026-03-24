@@ -207,7 +207,7 @@ public class GameDAO {
         if (useMap) {
             gameDAOMap.clear();
         } else {
-            var statement = "TRUNCATE TABLE game";
+            var statement = "DELETE FROM game";
             try (Connection conn = DatabaseManager.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
                 pstmt.executeUpdate();
