@@ -69,12 +69,14 @@ public class ChessBoard {
      * @param color The color of which team gets reset
      */
     private void resetBackRow(ChessGame.TeamColor color){
-        int row = 1;
-        if(color == ChessGame.TeamColor.WHITE){
-            row = 8;
+        int row = 8;
+        if(color == ChessGame.TeamColor.BLACK){
+            row = 1;
         }
+
         for(int i = 1; i < 9; i++){
-            this.addPiece(new ChessPosition(row, i), new ChessPiece(color, backRow[i]));
+            ChessPosition newPos = translateCoords(row, i);
+            this.addPiece(newPos, new ChessPiece(color, backRow[i]));
         }
     }
 
@@ -85,7 +87,8 @@ public class ChessBoard {
         ChessGame.TeamColor color = ChessGame.TeamColor.BLACK;
         for (int i = 2; i < 8; i++){
             for (int j = 1; j < 9; j++){
-                this.addPiece(new ChessPosition(i, j), new ChessPiece(color, ChessPiece.PieceType.PAWN));
+                ChessPosition newPos = translateCoords(i, j);
+                this.addPiece(newPos, new ChessPiece(color, ChessPiece.PieceType.PAWN));
                 if (i == 2 && j == 8) { i = 6; color = ChessGame.TeamColor.WHITE; }
             }
         }
@@ -107,8 +110,9 @@ public class ChessBoard {
         StringBuilder builder = new StringBuilder();
 
         for(int i = 1; i <= 8; i++){
-            for(int j = 1; j < 9; j++){
-                ChessPiece piece = boardArray[i][j];
+            for(int j = 1; j <= 8; j++){
+                ChessPosition newPos = translateCoords(i, j);
+                ChessPiece piece = boardArray[newPos.getRow()][newPos.getColumn()];
                 ChessGame.TeamColor color;
                 ChessPiece.PieceType pieceType;
                 if(piece != null){
@@ -143,6 +147,11 @@ public class ChessBoard {
             }
         }
         return builder.toString();
+    }
+
+    private ChessPosition translateCoords(int row, int col) {
+        row = 9 - row;
+        return new ChessPosition(row, col);
     }
 
     @Override

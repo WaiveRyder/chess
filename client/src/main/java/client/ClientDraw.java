@@ -137,9 +137,9 @@ public class ClientDraw {
             for (int col = 1; col <= 8; col++) {
                 ChessPiece piece;
                 if (playerColor == ChessGame.TeamColor.BLACK) {
-                    piece = board.getPiece(new ChessPosition(9 - row, 9 - col));
+                    piece = board.getPiece(new ChessPosition(row, 9 - col));
                 } else {
-                    piece = board.getPiece(new ChessPosition(row, col));
+                    piece = board.getPiece(new ChessPosition(9 - row, col));
                 }
                 String currentBox = drawnBoard[row][col];
                 if (piece != null && currentBox.contains("12m")) {
