@@ -207,12 +207,25 @@ public class GameDAO {
         if (useMap) {
             gameDAOMap.clear();
         } else {
-            var statement = "DELETE FROM observers";
+            var statement = "DROP TABLE observers";
             try (Connection conn = DatabaseManager.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
                 pstmt.executeUpdate();
-                try (PreparedStatement npstmt = conn.prepareStatement("DELETE FROM game")) {
+                try (PreparedStatement npstmt = conn.prepareStatement("TRUNCATE TABLE game")) {
                     npstmt.executeUpdate();
+                }
+
+                var createObserversStatement = """
+                CREATE TABLE IF NOT EXISTS observers (
+                gameID int NOT NULL,
+                username VARCHAR(255) NOT NULL,
+                FOREIGN KEY (gameID) REFERENCES game(gameID),
+                FOREIGN KEY (username) REFERENCES users(username)
+                )
+                """;
+
+                try (PreparedStatement p = conn.prepareStatement(createObserversStatement)) {
+                    p.executeUpdate();
                 }
             } catch (SQLException e) {
                 throw new DataAccessException("Error: could not connect to the database. Please try again later.");

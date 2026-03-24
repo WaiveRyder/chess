@@ -138,14 +138,21 @@ public class GameDAOTests {
 
     @Test
     public void listGamesInvalidInfo() {
-        var statement = "DROP TABLE game";
+        var statement = "DROP TABLE observers";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(statement)) {
             pstmt.executeUpdate();
+
+            var statement2 = "DROP TABLE game";
+            try (PreparedStatement pstmt2 = conn.prepareStatement(statement2)) {
+                pstmt2.executeUpdate();
+            }
+
             gameDAO.listGames();
             Assertions.fail("Expected an error to be thrown here, game table DNE");
         } catch (SQLException | DataAccessException e) {
-            Assertions.assertEquals("Error: could not connect to database", e.getMessage());
+            Assertions.assertEquals("Error: could not connect to the database. Please try again later."
+                    , e.getMessage());
         }
     }
 
@@ -186,7 +193,7 @@ public class GameDAOTests {
             gameDAO.joinGame(2, "John", ChessGame.TeamColor.WHITE);
             Assertions.fail("Expected an error to be thrown here, game with id 2 doesn't exist");
         } catch (DataAccessException e) {
-            Assertions.assertEquals("Error: Game ID not valid: 2", e.getMessage());
+            Assertions.assertEquals("Error: Game ID not valid. Please refresh and try again.", e.getMessage());
         }
 
         var statement = "SELECT * FROM game WHERE gameID = ?";
