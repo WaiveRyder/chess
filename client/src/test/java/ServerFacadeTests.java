@@ -272,7 +272,7 @@ public class ServerFacadeTests {
 
     @Test
     public void clear() {
-        String expected = "Successfully cleared all games!" + System.lineSeparator();
+        String expected = "Cleared Databases" + System.lineSeparator();
 
         serverFacade.clear();
         Assertions.assertEquals(expected, outputStreamCaptor.toString());

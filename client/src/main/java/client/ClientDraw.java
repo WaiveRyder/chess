@@ -11,7 +11,7 @@ public class ClientDraw {
     // Main draw method that routes commands based on state
     public static void draw(String command, State state, String... args) {
         if (command.equalsIgnoreCase("clear")) {
-            System.out.println("Cleared Databases.");
+            System.out.println("Cleared Databases");
         }
 
         switch (state) {
