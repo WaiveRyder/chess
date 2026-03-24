@@ -103,10 +103,14 @@ public class GameDAO {
                     ChessGame chessGame = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
                     gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
                     var newStatement = "";
-                    if(teamColor == ChessGame.TeamColor.WHITE && whiteUsername != null) {
-                        throw new DataAccessException("Error: "+teamColor + "is taken by: " + whiteUsername);
-                    } else if(teamColor == ChessGame.TeamColor.BLACK && blackUsername != null) {
-                        throw new DataAccessException("Error: "+teamColor + "is taken by: " + blackUsername);
+                    if(teamColor == ChessGame.TeamColor.WHITE
+                            && !Objects.equals(whiteUsername, username)
+                            && whiteUsername != null) {
+                        throw new DataAccessException("Error: "+teamColor + " is taken by: " + whiteUsername);
+                    } else if(teamColor == ChessGame.TeamColor.BLACK
+                            && !Objects.equals(blackUsername, username)
+                            && blackUsername != null) {
+                        throw new DataAccessException("Error: "+teamColor + " is taken by: " + blackUsername);
                     } else if (teamColor == ChessGame.TeamColor.WHITE) {
                         gameData = gameData.setWhitePlayer(username);
                         newStatement = "UPDATE game SET whiteUsername = ? WHERE gameID = " + gameID;

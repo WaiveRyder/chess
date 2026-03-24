@@ -213,8 +213,11 @@ public class ServerFacade {
             ChessGame.TeamColor color;
             if (args[2].equalsIgnoreCase("white")) {
                 color = ChessGame.TeamColor.WHITE;
-            } else {
+            } else if (args[2].equalsIgnoreCase("black")) {
                 color = ChessGame.TeamColor.BLACK;
+            } else {
+                ClientDraw.printError("Color must be either WHITE or BLACK");
+                return;
             }
 
             HttpRequest request = HttpRequest.newBuilder()
