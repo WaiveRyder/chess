@@ -428,5 +428,17 @@ public class ServerFacade {
         }
     }
 
+    public void clear() {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:" + port + "/db"))
+                .DELETE()
+                .header("Content-Type", "application/json")
+                .build();
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            System.out.println("Error: failed to connect to server, please try again");
+        }
+    }
 
 }

@@ -37,7 +37,7 @@ public class UserDAO {
 
                 try (ResultSet rs = check.executeQuery()) {
                     if (rs.next()) {
-                        throw new DataAccessException("Error: Username not recognized: " + username);
+                        throw new DataAccessException("Error: Username already in use: " + username);
                     }
                     statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
                     try (PreparedStatement insert = conn.prepareStatement(statement) ) {
