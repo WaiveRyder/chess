@@ -245,7 +245,30 @@ public class ServerFacadeTests {
         Assertions.assertEquals(expected, outputStreamCaptor.toString());
     }
 
-    
+    @Test
+    public void leave() {
+        String expected = "Stopped observing game." + System.lineSeparator();
+
+        serverFacade.request("login", "user", "user");
+        serverFacade.request("create", "testgame");
+        serverFacade.request("list");
+        serverFacade.request("observe", "1");
+        outputStreamCaptor.reset();
+        serverFacade.request("leave");
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+    @Test
+    public void leaveInvalid() {
+        String expected = "\u001B[38;5;160mError: You must be observing a game to leave a game\u001B[39m"
+                + System.lineSeparator()
+                + "Type 'help' for a list of commands." + System.lineSeparator();
+
+        serverFacade.request("login", "user", "user");
+        outputStreamCaptor.reset();
+        serverFacade.request("leave");
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
 
 
 
