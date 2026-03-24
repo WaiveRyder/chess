@@ -178,25 +178,15 @@ public class GameDAO {
     }
 
     public void leaveObserveGame(int id, String username) throws DataAccessException {
-        var statement = "SELECT username FROM observers WHERE gameID = ? AND username = ?";
+        var statement = "DELETE FROM observers WHERE gameID = ? AND username = ?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(statement)) {
             pstmt.setInt(1, id);
             pstmt.setString(2, username);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    statement = "DELETE FROM observers WHERE gameID = ? AND username = ?";
-                    try (PreparedStatement nnpstmt = conn.prepareStatement(statement)) {
-                        nnpstmt.setInt(1, id);
-                        nnpstmt.setString(2, username);
-                        int rows = nnpstmt.executeUpdate();
-                        if (rows == 0) {
-                            throw new DataAccessException("Error: Could not remove observer from game. Try again.");
-                        }
-                    }
-                } else {
-                    throw new DataAccessException("Error: User is not an observer of this game.");
-                }
+            int rows = pstmt.executeUpdate();
+
+            if (rows == 0) {
+                throw new DataAccessException("Error: Could not remove observer from game. Try again.");
             }
         } catch (SQLException e) {
             throw new DataAccessException("Error: could not connect to the database. Please try again later.");

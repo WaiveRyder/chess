@@ -1,11 +1,11 @@
-import client.ServerFacade;
+package client;
+
 import org.junit.jupiter.api.*;
 import server.Server;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 
 public class ServerFacadeTests {

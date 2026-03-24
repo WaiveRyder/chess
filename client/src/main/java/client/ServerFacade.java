@@ -1,13 +1,12 @@
 package client;
 
-import Responses.Auth;
-import Responses.Game;
-import Responses.ListGames;
-import Responses.Message;
+import responses.Auth;
+import responses.Game;
+import responses.ListGames;
+import responses.Message;
 import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
-import com.sun.net.httpserver.Headers;
 import model.GameData;
 
 import java.net.URI;
@@ -97,10 +96,8 @@ public class ServerFacade {
             try {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == 200) {
-                    Auth authResponse = gson.fromJson(response.body(), Auth.class);
-                    authToken = authResponse.authToken();
-                    ClientDraw.draw(args[0], state, args[1]);
-                    state = State.POST_LOGIN;
+                    authResponse(gson.fromJson(response.body(), Auth.class), args[0], args[1]);
+
                 } else {
                     ClientDraw.printError("Login failed: " + gson.fromJson(response.body(), Message.class).message());
                 }
@@ -108,6 +105,12 @@ public class ServerFacade {
                 ClientDraw.printError("Error: failed to connect to server, please try again");
             }
         }
+    }
+
+    private void authResponse(Auth authResponse, String command, String username) {
+        authToken = authResponse.authToken();
+        ClientDraw.draw(command, state, username);
+        state = State.POST_LOGIN;
     }
 
     private void registerHandler(String... args) {
@@ -139,10 +142,7 @@ public class ServerFacade {
             try {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == 200) {
-                    Auth authResponse = gson.fromJson(response.body(), Auth.class);
-                    authToken = authResponse.authToken();
-                    ClientDraw.draw(args[0], state, args[1]);
-                    state = State.POST_LOGIN;
+                    authResponse(gson.fromJson(response.body(), Auth.class), args[0], args[1]);
                 } else {
                     ClientDraw.printError("Register failed due to "
                             + gson.fromJson(response.body(), Message.class).message());
