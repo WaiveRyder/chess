@@ -59,6 +59,16 @@ public class ServerFacade {
         }
     }
 
+    private void handleHelpAndQuit(String... args) {
+        if (args.length != 1) {
+            ClientDraw.printError("Usage: " + args[0]);
+            return;
+        }
+        switch (args[0].toLowerCase()) {
+            case "help", "quit" -> ClientDraw.draw(args[0], state);
+        }
+    }
+
     private void loginHandler(String... args) {
         if (state == State.POST_LOGIN) {
             ClientDraw.printError("You are already logged in, please logout before trying to login again");
