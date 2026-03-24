@@ -271,6 +271,24 @@ public class ServerFacadeTests {
     }
 
     @Test
+    public void login() {
+        String expected = "Successfully logged in. Welcome back user!" + System.lineSeparator();
+
+        serverFacade.request("login", "user", "user");
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+    @Test
+    public void loginInvalid() {
+        String expected = "\u001B[38;5;160mLogin failed: Error: Password is incorrect\u001B[39m"
+                + System.lineSeparator()
+                + "Type 'help' for a list of commands." + System.lineSeparator();
+
+        serverFacade.request("login", "user", "wrongpassword");
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+    @Test
     public void clear() {
         String expected = "Cleared Databases" + System.lineSeparator();
 
