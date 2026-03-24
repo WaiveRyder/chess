@@ -270,6 +270,14 @@ public class ServerFacadeTests {
         Assertions.assertEquals(expected, outputStreamCaptor.toString());
     }
 
+    @Test
+    public void clear() {
+        String expected = "Successfully cleared all games!" + System.lineSeparator();
+
+        serverFacade.clear();
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
 
 
     private static String setGameString() {

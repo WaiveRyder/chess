@@ -440,6 +440,7 @@ public class ServerFacade {
                 .build();
         try {
             client.send(request, HttpResponse.BodyHandlers.ofString());
+            ClientDraw.draw("clear", state);
         } catch (Exception e) {
             System.out.println("Error: failed to connect to server, please try again");
         }
