@@ -167,7 +167,17 @@ public class ServerFacadeTests {
 
     @Test
     public void joinInvalid() {
+        String expected = "\u001B[38;5;160mError: You must list games before" +
+                " trying to join!\u001B[39m" + System.lineSeparator()
+                 + "Type 'help' for a list of commands." +System.lineSeparator();
 
+        serverFacade.request("login", "user", "user");
+        serverFacade.request("create", "testgame");
+        outputStreamCaptor.reset();
+
+        serverFacade.request("join", "1", "WHITE");
+
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
     }
 
 }
