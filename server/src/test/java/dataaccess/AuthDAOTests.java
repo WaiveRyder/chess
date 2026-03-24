@@ -86,7 +86,7 @@ public class AuthDAOTests {
                 throw new RuntimeException(e);
             }
         } catch (DataAccessException e) {
-            Assertions.assertEquals("Error: Database does not contain a user called: Sarah", e.getMessage());
+            Assertions.assertEquals("Error: Username not recognized: Sarah.", e.getMessage());
         }
     }
 
@@ -124,7 +124,8 @@ public class AuthDAOTests {
             Assertions.fail("Expected an error to be thrown here, no auth in system");
 
         } catch (DataAccessException e) {
-            Assertions.assertEquals("Error: Given token is not valid", e.getMessage());
+            Assertions.assertEquals("Error: Authorization token is not valid. Please login again."
+                    , e.getMessage());
         }
 
         var statement = "SELECT * FROM auth WHERE token = 'ThisIsAValidAuthTokenTrustMe'";
@@ -171,7 +172,8 @@ public class AuthDAOTests {
                 }
             }
         } catch (SQLException | DataAccessException e) {
-            Assertions.assertEquals("Error: Given token is not valid", e.getMessage());
+            Assertions.assertEquals("Error: Authorization token is not valid. Please login again."
+                    , e.getMessage());
         }
     }
 

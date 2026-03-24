@@ -67,7 +67,7 @@ public class UserDAOTests {
             userDAO.createUser("John", "password", "different");
             Assertions.fail("Expected an error to be thrown here, user already exists");
         } catch (DataAccessException e) {
-            Assertions.assertEquals("Error: Database already contains username: John", e.getMessage());
+            Assertions.assertEquals("Error: Username already in use: John", e.getMessage());
         }
 
         var statement = "SELECT * FROM users WHERE username = ?";
@@ -117,7 +117,7 @@ public class UserDAOTests {
             userDAO.getUser("John");
             Assertions.fail("Expected an error to be thrown here, no user in system");
         } catch (DataAccessException e) {
-            Assertions.assertEquals("Error: Database does not contain a user called: John", e.getMessage());
+            Assertions.assertEquals("Error: Username not recognized: John", e.getMessage());
         }
 
         var statement = "SELECT * FROM users WHERE username = ?";

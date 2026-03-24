@@ -14,6 +14,7 @@ public class ServerFacadeTests {
     private static String game;
 
     ServerFacade serverFacade;
+    static int portNum;
 
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
@@ -21,14 +22,15 @@ public class ServerFacadeTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(8080);
+        var port = server.run(0);
+        portNum = port;
         System.out.println("Started test HTTP server on " + port);
         game = setGameString();
     }
 
     @BeforeEach
     public void setup() {
-        serverFacade = new ServerFacade(8080);
+        serverFacade = new ServerFacade(portNum);
         serverFacade.clear();
 
         serverFacade.request("register", "user", "user", "user");
