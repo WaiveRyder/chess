@@ -102,7 +102,7 @@ public class ServerFacadeTests {
     @Test
     public void listInvalid() {
         String expected = "\u001B[38;5;160mError: Usage: list\u001B[39m" + System.lineSeparator()
-                 + "Type 'help' for a list of commands." + System.lineSeparator();
+                + "Type 'help' for a list of commands." + System.lineSeparator();
 
         serverFacade.request("login", "user", "user");
         outputStreamCaptor.reset();
@@ -130,7 +130,7 @@ public class ServerFacadeTests {
     public void joinInvalid() {
         String expected = "\u001B[38;5;160mError: You must list games before" +
                 " trying to join!\u001B[39m" + System.lineSeparator()
-                 + "Type 'help' for a list of commands." +System.lineSeparator();
+                + "Type 'help' for a list of commands." + System.lineSeparator();
 
         serverFacade.request("login", "user", "user");
         serverFacade.request("create", "testgame");
@@ -160,7 +160,7 @@ public class ServerFacadeTests {
     public void exitInvalid() {
         String expected = "\u001B[38;5;160mError: You cannot exit a game while not playing one, " +
                 "please join a game before trying to exit\u001B[39m" + System.lineSeparator()
-                 + "Type 'help' for a list of commands." + System.lineSeparator();
+                + "Type 'help' for a list of commands." + System.lineSeparator();
 
         serverFacade.request("login", "user", "user");
         serverFacade.request("create", "testgame");
@@ -211,6 +211,23 @@ public class ServerFacadeTests {
 
         Assertions.assertEquals(expected, outputStreamCaptor.toString());
     }
+
+    @Test
+    public void observeInvalid() {
+        String expected = "\u001B[38;5;160mError: You must list games before" +
+                " trying to observe!\u001B[39m" + System.lineSeparator()
+                + "Type 'help' for a list of commands." + System.lineSeparator();
+
+        serverFacade.request("login", "user", "user");
+        serverFacade.request("create", "testgame");
+        outputStreamCaptor.reset();
+
+        serverFacade.request("observe", "1");
+
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+
 
     private static String setGameString() {
         String game = "[48;5;242m[38;5;0m   [49m[39m[48;5;242m[38;5;0m a [49m[39m[48;5;242m" +
