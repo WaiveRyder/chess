@@ -16,6 +16,7 @@ import service.requests.JoinGameRequest;
 import service.responses.CreateGameResponse;
 import service.responses.GenericResponse;
 import service.responses.ListGamesResponse;
+import service.responses.ReturnGameResponse;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -87,27 +88,27 @@ public class GameServiceTests {
 
     @Test
     public void joinGameValidId() {
-        GenericResponse actual = gameService.joinGame(
+        ReturnGameResponse actual = gameService.joinGame(
                 new JoinGameRequest(mockUser.authToken(), ChessGame.TeamColor.WHITE, 1)
         );
 
-        GenericResponse expected = new GenericResponse("");
+        GameData gameData = new GameData(1, mockUser.username(), "john", "First Game", game);
+        ReturnGameResponse expected = new ReturnGameResponse(gameData, "");
 
-        GameData expectedGame = new GameData(1, mockUser.username(), "john", "First Game", game);
         GameData actualGame = gameMap.get(1);
 
         Assertions.assertEquals(expected, actual);
-        Assertions.assertEquals(expectedGame, actualGame);
+        Assertions.assertEquals(gameData, actualGame);
     }
 
     @Test
     public void joinGameColorFull() {
-        GenericResponse actual = gameService.joinGame(
+        ReturnGameResponse actual = gameService.joinGame(
                 new JoinGameRequest(mockUserN.authToken(), ChessGame.TeamColor.BLACK, 1)
         );
 
 
-        GenericResponse expected = new GenericResponse("Error: Cannot join game because BLACK is taken. Game id: 1");
+        ReturnGameResponse expected = new ReturnGameResponse(null,"Error: Cannot join game because BLACK is taken. Game id: 1");
 
         GameData expectedGame = new GameData(1, null, "john", "First Game", game);
         GameData actualGame = gameMap.get(1);
