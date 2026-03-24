@@ -22,7 +22,6 @@ public class Server {
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
-        // Register your endpoints and exception handlers here.
         try {
             DatabaseManager.createDatabase();
             DatabaseManager.initTables();
@@ -35,7 +34,6 @@ public class Server {
         gameService = new GameService(authDAO, gameDAO);
         userService = new UserService(userDAO, authDAO);
         serializer = new Gson();
-        //Register a user
         javalin.post("/user", new Handler() {
             public void handle(@NotNull Context context) {
                 RegisterRequest request = serializer.fromJson(context.body(), RegisterRequest.class);
@@ -43,7 +41,6 @@ public class Server {
                 handleRegister(context, request);
             }
         });
-        //Login a user
         javalin.post("/session", new Handler() {
             public void handle(@NotNull Context context) {
                 LoginRequest request = serializer.fromJson(context.body(), LoginRequest.class);
@@ -51,7 +48,6 @@ public class Server {
                 handleLogin(context, request);
             }
         });
-        //Logout a user
         javalin.delete("/session", new Handler() {
             public void handle(@NotNull Context context) {
                 AuthRequest request = new AuthRequest(context.header("Authorization"));
@@ -67,7 +63,6 @@ public class Server {
                 }
             }
         });
-        //List all games
         javalin.get("/game", new Handler() {
             public void handle(@NotNull Context context) {
                 AuthRequest request = new AuthRequest(context.header("Authorization"));
@@ -83,7 +78,6 @@ public class Server {
                 }
             }
         });
-        //Create new game
         javalin.post("/game", new Handler() {
             public void handle(@NotNull Context context) {
                 CreateGameRequest body = serializer.fromJson(context.body(), CreateGameRequest.class);
@@ -92,7 +86,6 @@ public class Server {
                 handleCreateGame(context, request);
             }
         });
-        //Join a game
         javalin.put("/game", new Handler() {
             public void handle(@NotNull Context context) {
                 JoinGameRequest body = serializer.fromJson(context.body(), JoinGameRequest.class);
@@ -105,7 +98,6 @@ public class Server {
                 handleJoinGame(context, request);
             }
         });
-        //Observe a game
         javalin.get("/observe", new Handler() {
             public void handle(@NotNull Context context) {
                 ObserveGameRequest request = new ObserveGameRequest(Integer.parseInt(Objects.requireNonNull(context.header("gameID"))),
@@ -114,7 +106,6 @@ public class Server {
                 handleObserveGame(context, request);
             }
         });
-        //Leave observing a game
         javalin.delete("/observe", new Handler() {
             public void handle(@NotNull Context context) {
                 ObserveGameRequest request = new ObserveGameRequest(Integer.parseInt(Objects.requireNonNull(context.header("gameID"))),
@@ -123,12 +114,10 @@ public class Server {
                 handleObserveGame(context, request);
             }
         });
-        //Clear
         javalin.delete("/db", new Handler() {
             public void handle(@NotNull Context context) {
                 handleClear(context);
-            }
-        });
+            }});
     }
 
     public int run(int desiredPort) {
