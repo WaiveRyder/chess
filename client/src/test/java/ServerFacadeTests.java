@@ -180,4 +180,61 @@ public class ServerFacadeTests {
         Assertions.assertEquals(expected, outputStreamCaptor.toString());
     }
 
+    @Test
+    public void exit() {
+        String expected = "Exited game and returned to menu." + System.lineSeparator();
+
+        serverFacade.request("login", "user", "user");
+        serverFacade.request("create", "testgame");
+        serverFacade.request("list");
+        serverFacade.request("join", "1", "WHITE");
+        outputStreamCaptor.reset();
+
+        serverFacade.request("exit");
+
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+    @Test
+    public void exitInvalid() {
+        String expected = "\u001B[38;5;160mError: You cannot exit a game while not playing one, " +
+                "please join a game before trying to exit\u001B[39m" + System.lineSeparator()
+                 + "Type 'help' for a list of commands." + System.lineSeparator();
+
+        serverFacade.request("login", "user", "user");
+        serverFacade.request("create", "testgame");
+        serverFacade.request("list");
+        outputStreamCaptor.reset();
+
+        serverFacade.request("exit");
+
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+    @Test
+    public void create() {
+        String expected = "Successfully created game: testgame" + System.lineSeparator();
+
+        serverFacade.request("login", "user", "user");
+        outputStreamCaptor.reset();
+
+        serverFacade.request("create", "testgame");
+
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+    @Test
+    public void createInvalid() {
+        String expected = "\u001B[38;5;160mError: Usage: create <game_name>" +
+                " (no spaces allowed in name)\u001B[39m" + System.lineSeparator()
+                + "Type 'help' for a list of commands." + System.lineSeparator();
+
+        serverFacade.request("login", "user", "user");
+        outputStreamCaptor.reset();
+
+        serverFacade.request("create", "a", "game");
+
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
 }
