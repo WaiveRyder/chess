@@ -28,7 +28,8 @@ public class ClientDraw {
         if (message.contains("Error:")) {
             System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + message + EscapeSequences.RESET_TEXT_COLOR);
         } else {
-            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + message + EscapeSequences.RESET_TEXT_COLOR);
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + "Error: " + message
+                    + EscapeSequences.RESET_TEXT_COLOR);
         }
         System.out.println("Type 'help' for a list of commands.");
     }
@@ -64,7 +65,8 @@ public class ClientDraw {
             case "join" -> System.out.println("Successfully joined game with ID: " + args[0] + " as " + args[1]);
             case "logout" -> System.out.println("Successfully logged out.");
             case "observe" -> System.out.println("Now observing game with ID: " + args[0]);
-            case "quit" -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED+"Hold up: You must be logout first!"+EscapeSequences.RESET_TEXT_COLOR);
+            case "quit" -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED+"Hold up: You must be logout first!"
+                    +EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
@@ -92,7 +94,8 @@ public class ClientDraw {
         switch (command.toLowerCase()) {
             case "help" -> observeHelp();
             case "leave" -> System.out.println("Stopped observing game.");
-            case "quit" -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED+"Hold up: You must be logout first!"+EscapeSequences.RESET_TEXT_COLOR);
+            case "quit" -> System.out.println(EscapeSequences.SET_TEXT_COLOR_RED+"Hold up: You must be logout first!"
+                    +EscapeSequences.RESET_TEXT_COLOR);
         }
     }
 
@@ -141,16 +144,20 @@ public class ClientDraw {
                 String currentBox = drawnBoard[row][col];
                 if (piece != null && currentBox.contains("12m")) {
                     if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_WHITE + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_WHITE + piece.toUnicode()
+                                + EscapeSequences.RESET_TEXT_COLOR;
                     } else {
-                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_BLACK + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_BLACK + piece.toUnicode()
+                                + EscapeSequences.RESET_TEXT_COLOR;
                     }
                     drawnBoard[row][col] = chessSquareWhite(coloredPiece);
                 } else if (piece != null) {
                     if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_WHITE + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_WHITE + piece.toUnicode()
+                                + EscapeSequences.RESET_TEXT_COLOR;
                     } else {
-                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_BLACK + piece.toUnicode() + EscapeSequences.RESET_TEXT_COLOR;
+                        coloredPiece = EscapeSequences.SET_TEXT_COLOR_BLACK + piece.toUnicode()
+                                + EscapeSequences.RESET_TEXT_COLOR;
                     }
                     drawnBoard[row][col] = chessSquareBlack(coloredPiece);
                 }

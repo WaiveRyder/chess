@@ -74,10 +74,12 @@ public class ServerFacade {
             ClientDraw.printError("You are already logged in, please logout before trying to login again");
             return;
         } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot login while observing, please leave the game and logout before trying to login");
+            ClientDraw.printError("You cannot login while observing, please leave the game and logout before" +
+                    " trying to login");
             return;
         } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot login while playing a game, please leave the game and logout before trying to login");
+            ClientDraw.printError("You cannot login while playing a game, please leave the game and logout before" +
+                    " trying to login");
             return;
         }
 
@@ -88,7 +90,8 @@ public class ServerFacade {
             String password = args[2];
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/session"))
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"username\":\"" + username + "\", \"password\":\"" + password + "\"}"))
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"username\":\"" + username + "\"," +
+                            " \"password\":\"" + password + "\"}"))
                     .header("Content-Type", "application/json")
                     .build();
             try {
@@ -112,10 +115,12 @@ public class ServerFacade {
             ClientDraw.printError("You are already logged in, please logout before trying to register");
             return;
         } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot register while observing, please leave the game and logout before trying to register");
+            ClientDraw.printError("You cannot register while observing, please leave the game and logout before" +
+                    " trying to register");
             return;
         } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot register while playing a game, please leave the game and logout before trying to register");
+            ClientDraw.printError("You cannot register while playing a game, please leave the game and logout before" +
+                    " trying to register");
             return;
         }
 
@@ -127,8 +132,8 @@ public class ServerFacade {
             String email = args[3];
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/user"))
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"username\":\"" + username + "\", \"password\":\""
-                            + password + "\", \"email\":\"" + email + "\"}"))
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"username\":\"" + username + "\", " +
+                            "\"password\":\"" + password + "\", \"email\":\"" + email + "\"}"))
                     .header("Content-Type", "application/json")
                     .build();
             try {
@@ -139,7 +144,8 @@ public class ServerFacade {
                     ClientDraw.draw(args[0], state, args[1]);
                     state = State.POST_LOGIN;
                 } else {
-                    ClientDraw.printError("Register failed due to " + gson.fromJson(response.body(), Message.class).message());
+                    ClientDraw.printError("Register failed due to "
+                            + gson.fromJson(response.body(), Message.class).message());
                 }
             } catch (Exception e) {
                 ClientDraw.printError("Error: failed to connect to server, please try again");
@@ -152,10 +158,12 @@ public class ServerFacade {
             ClientDraw.printError("You must be logged in to list games");
             return;
         } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot list games while observing, please leave the game you are observing before trying to list");
+            ClientDraw.printError("You cannot list games while observing, please leave the game you are " +
+                    "observing before trying to list");
             return;
         } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot list games while playing, please leave the game you are playing before trying to list");
+            ClientDraw.printError("You cannot list games while playing, please leave the game you are " +
+                    "playing before trying to list");
             return;
         }
 
@@ -183,7 +191,8 @@ public class ServerFacade {
                     this.games = new ArrayList<>(games);
                     ClientDraw.draw(args[0], state, gameList);
                 } else {
-                    ClientDraw.printError("List games failed due to " + gson.fromJson(response.body(), Message.class).message());
+                    ClientDraw.printError("List games failed due to "
+                            + gson.fromJson(response.body(), Message.class).message());
                 }
             } catch (Exception e) {
                 ClientDraw.printError("Error: failed to connect to server, please try again");
@@ -196,10 +205,12 @@ public class ServerFacade {
             ClientDraw.printError("You must be logged in to join a game");
             return;
         } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot observe a game while playing one, please leave the game you are playing before trying to observe");
+            ClientDraw.printError("You cannot observe a game while playing one, please leave the game you are" +
+                    " playing before trying to observe");
             return;
         } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot join a game while playing one, please leave the game you are playing before trying to join");
+            ClientDraw.printError("You cannot join a game while playing one, please leave the game you are" +
+                    " playing before trying to join");
             return;
         }
 
@@ -213,7 +224,8 @@ public class ServerFacade {
                 givenGameID = Integer.parseInt(args[1]);
                 if (givenGameID < 1 || givenGameID > games.size()) {
                     if (games.isEmpty()) {
-                        ClientDraw.printError("There are no games to join, please create a game before trying to join");
+                        ClientDraw.printError("There are no games to join, please create a game" +
+                                " before trying to join");
                     } else {
                         ClientDraw.printError("Game ID must be between 1 and " + games.size());
                     }
@@ -238,7 +250,8 @@ public class ServerFacade {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/game"))
-                    .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\", \"playerColor\":\"" + color + "\"}"))
+                    .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"," +
+                            " \"playerColor\":\"" + color + "\"}"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", authToken)
                     .build();
@@ -250,7 +263,8 @@ public class ServerFacade {
                     ChessBoard board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
                     ClientDraw.drawBoard(board, color);
                 } else {
-                    ClientDraw.printError("Join game failed due to " + gson.fromJson(response.body(), Message.class).message());
+                    ClientDraw.printError("Join game failed due to "
+                            + gson.fromJson(response.body(), Message.class).message());
                 }
             } catch (Exception e) {
                 ClientDraw.printError("Error: failed to connect to server, please try again");
@@ -263,10 +277,12 @@ public class ServerFacade {
             ClientDraw.printError("You must be logged in to exit a game");
             return;
         } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot exit a game while observing, please leave the game you are observing");
+            ClientDraw.printError("You cannot exit a game while observing, please leave the game you are" +
+                    " observing");
             return;
         } else if (state == State.POST_LOGIN) {
-            ClientDraw.printError("You cannot exit a game while not playing one, please join a game before trying to exit");
+            ClientDraw.printError("You cannot exit a game while not playing one, please join a game before" +
+                    " trying to exit");
             return;
         }
 
@@ -283,10 +299,12 @@ public class ServerFacade {
             ClientDraw.printError("You must be logged in to create a game");
             return;
         } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot create a game while observing, please leave the game you are observing before trying to create");
+            ClientDraw.printError("You cannot create a game while observing, please leave the game you are" +
+                    " observing before trying to create");
             return;
         } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot create a game while playing one, please leave the game you are playing before trying to create");
+            ClientDraw.printError("You cannot create a game while playing one, please leave the game you are" +
+                    " playing before trying to create");
             return;
         }
 
@@ -305,7 +323,8 @@ public class ServerFacade {
                 if (response.statusCode() == 200) {
                     ClientDraw.draw(args[0], state, gameName);
                 } else {
-                    ClientDraw.printError("Create game failed due to " + gson.fromJson(response.body(), Message.class).message());
+                    ClientDraw.printError("Create game failed due to "
+                            + gson.fromJson(response.body(), Message.class).message());
                 }
             } catch (Exception e) {
                 ClientDraw.printError("Error: failed to connect to server, please try again");
@@ -318,10 +337,12 @@ public class ServerFacade {
             ClientDraw.printError("You must be logged in to observe a game");
             return;
         } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You are already observing a game, please leave the game you are currently observing before trying to observe another");
+            ClientDraw.printError("You are already observing a game, please leave the game you are " +
+                    "currently observing before trying to observe another");
             return;
         } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot observe a game while playing one, please exit the game you are playing before trying to observe");
+            ClientDraw.printError("You cannot observe a game while playing one, please exit the " +
+                    "game you are playing before trying to observe");
             return;
         }
 
@@ -359,7 +380,8 @@ public class ServerFacade {
                     ChessBoard board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
                     ClientDraw.drawBoard(board, ChessGame.TeamColor.WHITE);
                 } else {
-                    ClientDraw.printError("Observe game failed due to " + gson.fromJson(response.body(), Message.class).message());
+                    ClientDraw.printError("Observe game failed due to "
+                            + gson.fromJson(response.body(), Message.class).message());
                 }
             } catch (Exception e) {
                 ClientDraw.printError("Error: failed to connect to server, please try again");
@@ -388,7 +410,8 @@ public class ServerFacade {
                     ClientDraw.draw(args[0], state);
                     state = PRE_LOGIN;
                 } else {
-                    ClientDraw.printError("Logout failed due to " + gson.fromJson(response.body(), Message.class).message());
+                    ClientDraw.printError("Logout failed due to "
+                            + gson.fromJson(response.body(), Message.class).message());
                 }
             } catch (Exception e) {
                 ClientDraw.printError("Error: failed to connect to server, please try again");
@@ -404,7 +427,8 @@ public class ServerFacade {
             ClientDraw.printError("You must be observing a game to leave a game");
             return;
         } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot leave observing a game while playing one, please exit to leave the game");
+            ClientDraw.printError("You cannot leave observing a game while playing one, " +
+                    "please exit to leave the game");
             return;
         }
 
@@ -424,7 +448,8 @@ public class ServerFacade {
                     ClientDraw.draw(args[0], state);
                     state = State.POST_LOGIN;
                 } else {
-                    ClientDraw.printError("Leaving game failed due to " + gson.fromJson(response.body(), Message.class).message());
+                    ClientDraw.printError("Leaving game failed due to "
+                            + gson.fromJson(response.body(), Message.class).message());
                 }
             } catch (Exception e) {
                 ClientDraw.printError("Error: failed to connect to server, please try again");

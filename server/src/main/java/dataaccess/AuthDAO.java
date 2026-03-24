@@ -50,7 +50,8 @@ public class AuthDAO {
             }
             return new AuthData(token, user.username());
         } catch (SQLException e) {
-            throw new DataAccessException("Error: could not connect to the database. Please try again later.. Please try again later.");
+            throw new DataAccessException("Error: could not connect to the database. " +
+                    "Please try again later.. Please try again later.");
         }
     }
 
