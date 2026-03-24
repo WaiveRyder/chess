@@ -44,7 +44,7 @@ public class ServerFacade {
             ClientDraw.printError("No command provided");
         } else {
             switch (args[0].toLowerCase()) {
-                case "help", "quit" -> ClientDraw.draw(args[0], state);
+                case "help", "quit" -> handleHelpAndQuit(args);
                 case "login" -> loginHandler(args);
                 case "register" -> registerHandler(args);
                 case "list" -> listHandler(args);
