@@ -207,10 +207,13 @@ public class GameDAO {
         if (useMap) {
             gameDAOMap.clear();
         } else {
-            var statement = "DELETE FROM game";
+            var statement = "DELETE FROM observers";
             try (Connection conn = DatabaseManager.getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(statement)) {
                 pstmt.executeUpdate();
+                try (PreparedStatement npstmt = conn.prepareStatement("DELETE FROM game")) {
+                    npstmt.executeUpdate();
+                }
             } catch (SQLException e) {
                 throw new DataAccessException("Error: could not connect to the database. Please try again later.");
             }
