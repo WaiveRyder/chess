@@ -18,6 +18,19 @@ public class ClientMain {
 
         while (true) {
             String input = scanner.nextLine();
+
+            if (input.equals("draw white")) {
+                ChessBoard board = new ChessBoard();
+                board.resetBoard();
+                ClientDraw.drawBoard(board, ChessGame.TeamColor.WHITE);
+                continue;
+            } else if (input.equals("draw black")) {
+                ChessBoard board = new ChessBoard();
+                board.resetBoard();
+                ClientDraw.drawBoard(board, ChessGame.TeamColor.BLACK);
+                System.out.println(board);
+                continue;
+            }
             serverFacade.request(input.split(" "));
 
             if (input.equalsIgnoreCase("quit") && serverFacade.state == State.PRE_LOGIN) {

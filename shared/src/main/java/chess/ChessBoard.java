@@ -70,7 +70,7 @@ public class ChessBoard {
      */
     private void resetBackRow(ChessGame.TeamColor color){
         int row = 1;
-        if(color == ChessGame.TeamColor.BLACK){
+        if(color == ChessGame.TeamColor.WHITE){
             row = 8;
         }
         for(int i = 1; i < 9; i++){
@@ -82,11 +82,11 @@ public class ChessBoard {
      * Resets both colors pawns
      */
     private void resetPawns(){
-        ChessGame.TeamColor color = ChessGame.TeamColor.WHITE;
+        ChessGame.TeamColor color = ChessGame.TeamColor.BLACK;
         for (int i = 2; i < 8; i++){
             for (int j = 1; j < 9; j++){
                 this.addPiece(new ChessPosition(i, j), new ChessPiece(color, ChessPiece.PieceType.PAWN));
-                if (i == 2 && j == 8) { i = 6; color = ChessGame.TeamColor.BLACK; }
+                if (i == 2 && j == 8) { i = 6; color = ChessGame.TeamColor.WHITE; }
             }
         }
     }
@@ -106,7 +106,7 @@ public class ChessBoard {
     public String toString(){
         StringBuilder builder = new StringBuilder();
 
-        for(int i = 8; i >= 1; i--){
+        for(int i = 1; i <= 8; i++){
             for(int j = 1; j < 9; j++){
                 ChessPiece piece = boardArray[i][j];
                 ChessGame.TeamColor color;
@@ -136,7 +136,7 @@ public class ChessBoard {
                 builder.append("|").append(nextPiece);
                 if(j == 8){
                     builder.append("|");
-                    if(i != 1){
+                    if(i != 8){
                         builder.append("\n");
                     }
                 }
