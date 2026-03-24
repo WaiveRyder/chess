@@ -227,6 +227,26 @@ public class ServerFacadeTests {
         Assertions.assertEquals(expected, outputStreamCaptor.toString());
     }
 
+    @Test
+    public void logout() {
+        String expected = "Successfully logged out." + System.lineSeparator();
+
+        serverFacade.request("login", "user", "user");
+        outputStreamCaptor.reset();
+        serverFacade.request("logout");
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+    @Test public void logoutInvalid() {
+        String expected = "\u001B[38;5;160mError: You must be logged in to logout\u001B[39m" + System.lineSeparator()
+                + "Type 'help' for a list of commands." + System.lineSeparator();
+
+        serverFacade.request("logout");
+        Assertions.assertEquals(expected, outputStreamCaptor.toString());
+    }
+
+    
+
 
 
     private static String setGameString() {
