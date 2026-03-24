@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static client.State.PRE_LOGIN;
+
 public class ServerFacade {
     private final int port;
     private final HttpClient client;
@@ -28,11 +30,11 @@ public class ServerFacade {
     private Integer gameID;
     private ChessBoard board;
 
-    public ServerFacade(int port, State state) {
+    public ServerFacade(int port) {
         this.port = port;
         client = HttpClient.newHttpClient();
         gson = new Gson();
-        this.state = state;
+        state = PRE_LOGIN;
         games = null;
         board = null;
     }
@@ -136,7 +138,7 @@ public class ServerFacade {
     }
 
     private void listHandler(String... args) {
-        if (state == State.PRE_LOGIN) {
+        if (state == PRE_LOGIN) {
             ClientDraw.printError("You must be logged in to list games");
             return;
         } else if (state == State.OBSERVE) {
@@ -180,7 +182,7 @@ public class ServerFacade {
     }
 
     private void joinHandler(String... args) {
-        if (state == State.PRE_LOGIN) {
+        if (state == PRE_LOGIN) {
             ClientDraw.printError("You must be logged in to join a game");
             return;
         } else if (state == State.OBSERVE) {
@@ -243,7 +245,7 @@ public class ServerFacade {
     }
 
     private void exitHandler(String... args) {
-        if (state == State.PRE_LOGIN) {
+        if (state == PRE_LOGIN) {
             ClientDraw.printError("You must be logged in to exit a game");
             return;
         } else if (state == State.OBSERVE) {
@@ -263,7 +265,7 @@ public class ServerFacade {
     }
 
     private void createHandler(String... args) {
-        if (state == State.PRE_LOGIN) {
+        if (state == PRE_LOGIN) {
             ClientDraw.printError("You must be logged in to create a game");
             return;
         } else if (state == State.OBSERVE) {
@@ -298,7 +300,7 @@ public class ServerFacade {
     }
 
     private void observeHandler(String... args) {
-        if (state == State.PRE_LOGIN) {
+        if (state == PRE_LOGIN) {
             ClientDraw.printError("You must be logged in to observe a game");
             return;
         } else if (state == State.OBSERVE) {
@@ -370,7 +372,7 @@ public class ServerFacade {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() == 200) {
                     ClientDraw.draw(args[0], state);
-                    state = State.PRE_LOGIN;
+                    state = PRE_LOGIN;
                 } else {
                     ClientDraw.printError("Logout failed due to " + gson.fromJson(response.body(), Message.class).message());
                 }
@@ -381,7 +383,7 @@ public class ServerFacade {
     }
 
     private void leaveHandler(String... args) {
-        if (state == State.PRE_LOGIN) {
+        if (state == PRE_LOGIN) {
             ClientDraw.printError("You must be logged in to leave a game");
             return;
         } else if (state == State.POST_LOGIN) {

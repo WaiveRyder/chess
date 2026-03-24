@@ -13,7 +13,7 @@ public class ClientMain {
         Scanner scanner = new Scanner(System.in);
 
         State state = State.PRE_LOGIN;
-        ServerFacade serverFacade = new ServerFacade(8080, state);
+        ServerFacade serverFacade = new ServerFacade(8080);
 
 
         while (true) {
