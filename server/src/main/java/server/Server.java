@@ -5,6 +5,7 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import io.javalin.websocket.WsMessageContext;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.UserService;
@@ -118,6 +119,14 @@ public class Server {
             public void handle(@NotNull Context context) {
                 handleClear(context);
             }});
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(ctx -> {
+                ctx.enableAutomaticPings();
+                System.out.println("WebSocket Connected: " + ctx);
+            });
+            ws.onMessage(this::handleWebsocket);
+            ws.onClose(ctx -> System.out.println("WebSocket Closed: " + ctx));
+        });
     }
 
     public int run(int desiredPort) {
@@ -255,5 +264,9 @@ public class Server {
             context.status(200);
             context.result(serializer.toJson(new GenericResponse("")));
         }
+    }
+
+    private void handleWebsocket(WsMessageContext ctx) {
+
     }
 }
