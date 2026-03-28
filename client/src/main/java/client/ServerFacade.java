@@ -8,6 +8,7 @@ import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
+import ui.ClientDraw;
 
 import java.net.URI;
 import java.net.http.HttpClient;
