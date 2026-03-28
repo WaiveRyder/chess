@@ -267,6 +267,6 @@ public class Server {
     }
 
     private void handleWebsocket(WsMessageContext ctx) {
-
+        ctx.send("Hey I heard " + ctx.message());
     }
 }
