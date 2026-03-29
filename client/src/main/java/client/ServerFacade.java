@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static client.State.PRE_LOGIN;
+import static client.State.*;
 
 public class ServerFacade {
     private final int port;
@@ -47,46 +47,78 @@ public class ServerFacade {
         if (args.length == 0) {
             ClientDraw.printError("No command provided");
         } else {
-            switch (args[0].toLowerCase()) {
-                case "help", "quit" -> handleHelpAndQuit(args);
-                case "login" -> loginHandler(args);
-                case "register" -> registerHandler(args);
-                case "list" -> listHandler(args);
-                case "join" -> joinHandler(args);
-                case "exit" -> exitHandler(args);
-                case "create" -> createHandler(args);
-                case "observe" -> observeHandler(args);
-                case "logout" -> logoutHandler(args);
-                case "leave" -> leaveHandler(args);
-                default -> ClientDraw.printError("Unknown command: " + args[0]);
+            String command = args[0].toLowerCase();
+            if (command.equals("help")) {
+                helpHandler(args);
+                return;
+            } else if (command.equals("quit")) {
+                quitHandler(args);
+                return;
+            }
+
+            if (state == PRE_LOGIN) {
+                switch (command) {
+                    case "login" -> loginHandler(args);
+                    case "register" -> registerHandler(args);
+                    default -> ClientDraw.printError("Unknown command: " + args[0]);
+                }
+            } else if (state == POST_LOGIN) {
+                switch (command) {
+                    case "list" -> listHandler(args);
+                    case "create" -> createHandler(args);
+                    case "join" -> joinHandler(args);
+                    case "observe" -> observeHandler(args);
+                    case "logout" -> logoutHandler(args);
+                    default -> ClientDraw.printError("Unknown command: " + args[0]);
+                }
+            } else if (state == OBSERVE) {
+                switch (command) {
+                    case "leave" -> leaveHandler(args);
+                    case "redraw" -> System.out.println("Not implemented yet");
+                    default -> ClientDraw.printError("Unknown command: " + args[0]);
+                }
+            } else if (state == GAMEPLAY) {
+                switch (command) {
+                    case "redraw" -> System.out.println("Not implemented yet");
+                    case "move" -> System.out.println("Not implemented yet1");
+                    case "highlight" -> System.out.println("Not implemented yet2");
+                    case "leave" -> System.out.println("Not implemented yet3");
+                    case "resign" -> System.out.println("Not implemented yet4");
+                    default -> ClientDraw.printError("Unknown command: " + args[0]);
+                }
             }
         }
     }
 
-    private void handleHelpAndQuit(String... args) {
+    private void helpHandler(String... args) {
         if (args.length != 1) {
-            ClientDraw.printError("Usage: " + args[0]);
-            return;
+            ClientDraw.printError("Usage: help");
+        } else {
+            ClientDraw.draw(args[0], state);
         }
-        switch (args[0].toLowerCase()) {
-            case "help", "quit" -> ClientDraw.draw(args[0], state);
+    }
+
+    private void quitHandler(String... args) {
+        if (args.length != 1) {
+            ClientDraw.printError("Usage: quit");
+        } else {
+            if (state == PRE_LOGIN) {
+                ClientDraw.draw(args[0], state);
+                System.exit(0);
+            } else if (state == POST_LOGIN) {
+                logoutHandler("logout");
+                ClientDraw.draw(args[0], state);
+                System.exit(0);
+            } else if (state == OBSERVE || state == GAMEPLAY) {
+                leaveHandler("leave");
+                logoutHandler("logout");
+                ClientDraw.draw(args[0], state);
+                System.exit(0);
+            }
         }
     }
 
     private void loginHandler(String... args) {
-        if (state == State.POST_LOGIN) {
-            ClientDraw.printError("You are already logged in, please logout before trying to login again");
-            return;
-        } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot login while observing, please leave the game and logout before" +
-                    " trying to login");
-            return;
-        } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot login while playing a game, please leave the game and logout before" +
-                    " trying to login");
-            return;
-        }
-
         if (args.length != 3) {
             ClientDraw.printError("Usage: login <username> <password>");
         } else {
@@ -119,19 +151,6 @@ public class ServerFacade {
     }
 
     private void registerHandler(String... args) {
-        if (state == State.POST_LOGIN) {
-            ClientDraw.printError("You are already logged in, please logout before trying to register");
-            return;
-        } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot register while observing, please leave the game and logout before" +
-                    " trying to register");
-            return;
-        } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot register while playing a game, please leave the game and logout before" +
-                    " trying to register");
-            return;
-        }
-
         if (args.length != 4) {
             ClientDraw.printError("Usage: register <username> <password> <email>");
         } else {
@@ -159,19 +178,6 @@ public class ServerFacade {
     }
 
     private void listHandler(String... args) {
-        if (state == PRE_LOGIN) {
-            ClientDraw.printError("You must be logged in to list games");
-            return;
-        } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot list games while observing, please leave the game you are " +
-                    "observing before trying to list");
-            return;
-        } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot list games while playing, please leave the game you are " +
-                    "playing before trying to list");
-            return;
-        }
-
         if (args.length != 1) {
             ClientDraw.printError("Usage: list");
         } else {
@@ -206,19 +212,6 @@ public class ServerFacade {
     }
 
     private void joinHandler(String... args) {
-        if (state == PRE_LOGIN) {
-            ClientDraw.printError("You must be logged in to join a game");
-            return;
-        } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot observe a game while playing one, please leave the game you are" +
-                    " playing before trying to observe");
-            return;
-        } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot join a game while playing one, please leave the game you are" +
-                    " playing before trying to join");
-            return;
-        }
-
         if (args.length != 3) {
             ClientDraw.printError("Usage: join <game_id> [WHITE|BLACK]");
         } else if (games == null) {
@@ -278,42 +271,7 @@ public class ServerFacade {
         }
     }
 
-    private void exitHandler(String... args) {
-        if (state == PRE_LOGIN) {
-            ClientDraw.printError("You must be logged in to exit a game");
-            return;
-        } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot exit a game while observing, please leave the game you are" +
-                    " observing");
-            return;
-        } else if (state == State.POST_LOGIN) {
-            ClientDraw.printError("You cannot exit a game while not playing one, please join a game before" +
-                    " trying to exit");
-            return;
-        }
-
-        if (args.length != 1) {
-            ClientDraw.printError("Usage: exit");
-        } else {
-            ClientDraw.draw(args[0], state);
-            state = State.POST_LOGIN;
-        }
-    }
-
     private void createHandler(String... args) {
-        if (state == PRE_LOGIN) {
-            ClientDraw.printError("You must be logged in to create a game");
-            return;
-        } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You cannot create a game while observing, please leave the game you are" +
-                    " observing before trying to create");
-            return;
-        } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot create a game while playing one, please leave the game you are" +
-                    " playing before trying to create");
-            return;
-        }
-
         if (args.length != 2) {
             ClientDraw.printError("Usage: create <game_name> (no spaces allowed in name)");
         } else {
@@ -339,19 +297,6 @@ public class ServerFacade {
     }
 
     private void observeHandler(String... args) {
-        if (state == PRE_LOGIN) {
-            ClientDraw.printError("You must be logged in to observe a game");
-            return;
-        } else if (state == State.OBSERVE) {
-            ClientDraw.printError("You are already observing a game, please leave the game you are " +
-                    "currently observing before trying to observe another");
-            return;
-        } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot observe a game while playing one, please exit the " +
-                    "game you are playing before trying to observe");
-            return;
-        }
-
         if (args.length != 2) {
             ClientDraw.printError("Usage: observe <game_id>");
         } else if (games == null) {
@@ -397,11 +342,6 @@ public class ServerFacade {
     }
 
     private void logoutHandler(String... args) {
-        if (state != State.POST_LOGIN) {
-            ClientDraw.printError("You must be logged in to logout");
-            return;
-        }
-
         if (args.length != 1) {
             ClientDraw.printError("Usage: logout");
         } else {
@@ -427,18 +367,6 @@ public class ServerFacade {
     }
 
     private void leaveHandler(String... args) {
-        if (state == PRE_LOGIN) {
-            ClientDraw.printError("You must be logged in to leave a game");
-            return;
-        } else if (state == State.POST_LOGIN) {
-            ClientDraw.printError("You must be observing a game to leave a game");
-            return;
-        } else if (state == State.GAMEPLAY) {
-            ClientDraw.printError("You cannot leave observing a game while playing one, " +
-                    "please exit to leave the game");
-            return;
-        }
-
         if (args.length != 1) {
             ClientDraw.printError("Usage: leave");
         } else {
