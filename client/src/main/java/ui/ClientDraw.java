@@ -98,8 +98,9 @@ public class ClientDraw {
 
     private static void observeHelp() {
         System.out.println("Commands:");
-        System.out.println("- leave: Stop observing the game");
+        System.out.println("- redraw: redraws the board");
         System.out.println("- quit: Exit the application");
+        System.out.println("- leave: Stop observing the game");
         System.out.println("- help: Lists all commands");
     }
 
@@ -115,6 +116,7 @@ public class ClientDraw {
 
     private static void gamePlayHelp() {
         System.out.println("Commands:");
+        System.out.println("- redraw: redraws the board");
         System.out.println("- leave: leave the current game");
         System.out.println("- quit: Exit the application");
         System.out.println("- help: Lists all commands");

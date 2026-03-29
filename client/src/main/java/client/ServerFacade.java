@@ -75,7 +75,7 @@ public class ServerFacade {
             } else if (state == OBSERVE) {
                 switch (command) {
                     case "leave" -> leaveHandler(args);
-                    case "redraw" -> System.out.println("Not implemented yet");
+                    case "redraw" -> ClientDraw.drawBoard(board, playerColor);
                     default -> ClientDraw.printError("Unknown command: " + args[0]);
                 }
             } else if (state == GAMEPLAY) {
