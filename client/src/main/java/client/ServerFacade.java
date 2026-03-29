@@ -23,9 +23,12 @@ import static client.State.PRE_LOGIN;
 public class ServerFacade {
     private final int port;
     private final HttpClient client;
+    private ClientWS ws;
+
     private final Gson gson;
     private String authToken;
     public State state;
+
     private List<GameData> games;
     private Integer gameID;
     private ChessBoard board;
@@ -37,6 +40,7 @@ public class ServerFacade {
         state = PRE_LOGIN;
         games = null;
         board = null;
+        ws = null;
     }
 
     public void request(String... args) {
@@ -220,6 +224,7 @@ public class ServerFacade {
         } else if (games == null) {
             ClientDraw.printError("You must list games before trying to join!");
         } else {
+            ws = new ClientWS(port);
             Integer givenGameID;
             try {
                 givenGameID = Integer.parseInt(args[1]);
@@ -352,6 +357,7 @@ public class ServerFacade {
         } else if (games == null) {
             ClientDraw.printError("You must list games before trying to observe!");
         } else {
+            ws = new ClientWS(port);
             Integer givenGameID;
             try {
                 givenGameID = Integer.parseInt(args[1]);

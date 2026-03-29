@@ -13,14 +13,11 @@ public class ClientMain {
         Scanner scanner = new Scanner(System.in);
 
         ServerFacade serverFacade = new ServerFacade(8080);
-        ClientWS ws = new ClientWS(8080);
-
 
         while (true) {
             String input = scanner.nextLine();
 
-            //serverFacade.request(input.split(" "));
-            ws.sendMessage(input);
+            serverFacade.request(input.split(" "));
 
             if (input.equalsIgnoreCase("quit") && serverFacade.state == State.PRE_LOGIN) {
                 break;
