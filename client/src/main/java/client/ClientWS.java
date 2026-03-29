@@ -36,4 +36,14 @@ public class ClientWS {
             System.out.println("Error: Websocket is not open. Cannot send message.");
         }
     }
+
+    public void close() {
+        if (session != null) {
+            try {
+                session.close();
+            } catch (Exception e) {
+                System.out.println("Error: Couldn't close websocket: " + e.getMessage());
+            }
+        }
+    }
 }
