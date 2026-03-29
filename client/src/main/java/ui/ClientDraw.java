@@ -116,7 +116,10 @@ public class ClientDraw {
 
     private static void gamePlayHelp() {
         System.out.println("Commands:");
-        System.out.println("- redraw: redraws the board");
+        System.out.println("- move <start> <end>: Move piece from start to end position (e.g. move e2 e4)");
+        System.out.println("- highlight <position>: Highlights the piece at position and all valid moves (e.g. highlight e2)");
+        System.out.println("- redraw: Redraws the board");
+        System.out.println("- resign: Admit defeat and end the game");
         System.out.println("- leave: leave the current game");
         System.out.println("- quit: Exit the application");
         System.out.println("- help: Lists all commands");
