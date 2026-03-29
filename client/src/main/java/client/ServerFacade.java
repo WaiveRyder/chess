@@ -261,7 +261,7 @@ public class ServerFacade {
                 if (response.statusCode() == 200) {
                     ClientDraw.draw(args[0], state, String.valueOf(givenGameID), color.toString());
                     state = State.GAMEPLAY;
-                    ChessBoard board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
+                    board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
                     ClientDraw.drawBoard(board, color);
                 } else {
                     ClientDraw.printError("Join game failed due to "
@@ -378,7 +378,7 @@ public class ServerFacade {
                 if (response.statusCode() == 200) {
                     ClientDraw.draw(args[0], state, String.valueOf(givenGameID));
                     state = State.OBSERVE;
-                    ChessBoard board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
+                    board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
                     ClientDraw.drawBoard(board, ChessGame.TeamColor.WHITE);
                 } else {
                     ClientDraw.printError("Observe game failed due to "

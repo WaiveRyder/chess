@@ -2,6 +2,11 @@ package server;
 
 import chess.*;
 
+// Windows -> services
+// MySQL84, start the service
+// Windows -> MySQL
+// \connect root@localhost:3306
+
 public class ServerMain {
     public static void main(String[] args) {
         Server server = new Server();
