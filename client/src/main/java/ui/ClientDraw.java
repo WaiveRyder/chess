@@ -115,7 +115,7 @@ public class ClientDraw {
 
     private static void gamePlayHelp() {
         System.out.println("Commands:");
-        System.out.println("- leave: return to the menu");
+        System.out.println("- leave: leave the current game");
         System.out.println("- quit: Exit the application");
         System.out.println("- help: Lists all commands");
     }
