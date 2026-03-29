@@ -32,6 +32,7 @@ public class ServerFacade {
     private List<GameData> games;
     private Integer gameID;
     private ChessBoard board;
+    private ChessGame.TeamColor playerColor;
 
     public ServerFacade(int port) {
         this.port = port;
@@ -79,7 +80,7 @@ public class ServerFacade {
                 }
             } else if (state == GAMEPLAY) {
                 switch (command) {
-                    case "redraw" -> System.out.println("Not implemented yet");
+                    case "redraw" -> ClientDraw.drawBoard(board, playerColor);
                     case "move" -> System.out.println("Not implemented yet1");
                     case "highlight" -> System.out.println("Not implemented yet2");
                     case "leave" -> leaveHandler(args);
@@ -217,7 +218,6 @@ public class ServerFacade {
         } else if (games == null) {
             ClientDraw.printError("You must list games before trying to join!");
         } else {
-            ws = new ClientWS(port);
             Integer givenGameID;
             try {
                 givenGameID = Integer.parseInt(args[1]);
@@ -260,6 +260,8 @@ public class ServerFacade {
                     ClientDraw.draw(args[0], state, String.valueOf(givenGameID), color.toString());
                     state = State.GAMEPLAY;
                     board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
+                    ws = new ClientWS(port);
+                    playerColor = color;
                     ClientDraw.drawBoard(board, color);
                 } else {
                     ClientDraw.printError("Join game failed due to "
@@ -330,6 +332,7 @@ public class ServerFacade {
                     ClientDraw.draw(args[0], state, String.valueOf(givenGameID));
                     state = State.OBSERVE;
                     board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
+                    playerColor = ChessGame.TeamColor.WHITE;
                     ClientDraw.drawBoard(board, ChessGame.TeamColor.WHITE);
                 } else {
                     ClientDraw.printError("Observe game failed due to "
