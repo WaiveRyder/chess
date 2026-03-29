@@ -75,6 +75,7 @@ public class ClientDraw {
         System.out.println("- create <name>: Creates a new game with the specified name");
         System.out.println("- observe <id>: Observe a game with the specified ID");
         System.out.println("- logout: Logout from your account");
+        System.out.println("- quit: Exit the application");
         System.out.println("- help: Lists all commands");
     }
 
@@ -98,6 +99,7 @@ public class ClientDraw {
     private static void observeHelp() {
         System.out.println("Commands:");
         System.out.println("- leave: Stop observing the game");
+        System.out.println("- quit: Exit the application");
         System.out.println("- help: Lists all commands");
     }
 
@@ -107,13 +109,14 @@ public class ClientDraw {
     private static void gameplayHandler(String command, String[] args) {
         switch (command.toLowerCase()) {
             case "help" -> gamePlayHelp();
-            case "exit" -> System.out.println("Exited game and returned to menu.");
+            case "leave" -> System.out.println("Left game and returned to menu.");
         }
     }
 
     private static void gamePlayHelp() {
         System.out.println("Commands:");
-        System.out.println("- exit: return to the menu");
+        System.out.println("- leave: return to the menu");
+        System.out.println("- quit: Exit the application");
         System.out.println("- help: Lists all commands");
     }
 

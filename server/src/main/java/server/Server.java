@@ -87,7 +87,7 @@ public class Server {
                 handleCreateGame(context, request);
             }
         });
-        javalin.put("/game", new Handler() {
+        javalin.put("/game/join", new Handler() {
             public void handle(@NotNull Context context) {
                 JoinGameRequest body = serializer.fromJson(context.body(), JoinGameRequest.class);
                 JoinGameRequest request = new JoinGameRequest(
@@ -97,6 +97,18 @@ public class Server {
                 );
                 context.contentType("application/json");
                 handleJoinGame(context, request);
+            }
+        });
+        javalin.put("/game/leave", new Handler() {
+            public void handle(@NotNull Context context) {
+                JoinGameRequest body = serializer.fromJson(context.body(), JoinGameRequest.class);
+                JoinGameRequest request = new JoinGameRequest(
+                        context.header("Authorization"),
+                        body.playerColor(),
+                        body.gameID()
+                );
+                context.contentType("application/json");
+                handleLeaveGame(context, request);
             }
         });
         javalin.get("/observe", new Handler() {
@@ -211,6 +223,28 @@ public class Server {
         } else {
 
             ReturnGameResponse response = gameService.joinGame(request);
+            context.result(serializer.toJson(response));
+            if (Objects.equals(response.message(), "")) {
+                context.status(200);
+            } else if (response.message().contains("taken")) {
+                context.status(403);
+            } else if (response.message().contains("token")) {
+                context.status(401);
+            } else if (response.message().contains("connect")) {
+                context.status(500);
+            } else {
+                context.status(400);
+            }
+        }
+    }
+
+    private void handleLeaveGame(Context context, JoinGameRequest request) {
+        if (request.gameID() == null || request.playerColor() == null || request.authToken() == null) {
+            context.result(serializer.toJson(new GenericResponse("Error: No Null Elements Allowed")));
+            context.status(400);
+        } else {
+
+            GenericResponse response = gameService.leaveGame(request);
             context.result(serializer.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);

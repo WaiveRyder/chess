@@ -82,7 +82,7 @@ public class ServerFacade {
                     case "redraw" -> System.out.println("Not implemented yet");
                     case "move" -> System.out.println("Not implemented yet1");
                     case "highlight" -> System.out.println("Not implemented yet2");
-                    case "leave" -> System.out.println("Not implemented yet3");
+                    case "leave" -> leaveHandler(args);
                     case "resign" -> System.out.println("Not implemented yet4");
                     default -> ClientDraw.printError("Unknown command: " + args[0]);
                 }
@@ -248,7 +248,7 @@ public class ServerFacade {
             }
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/game"))
+                    .uri(URI.create("http://localhost:" + port + "/game/join"))
                     .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"," +
                             " \"playerColor\":\"" + color + "\"}"))
                     .header("Content-Type", "application/json")
@@ -277,7 +277,7 @@ public class ServerFacade {
         } else {
             String gameName = args[1];
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/game"))
+                    .uri(URI.create("http://localhost:" + port + "/game/join"))
                     .POST(HttpRequest.BodyPublishers.ofString("{\"gameName\":\"" + gameName + "\"}"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", authToken)
@@ -370,25 +370,50 @@ public class ServerFacade {
         if (args.length != 1) {
             ClientDraw.printError("Usage: leave");
         } else {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/observe"))
-                    .DELETE()
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", authToken)
-                    .header("gameID", String.valueOf(gameID))
-                    .build();
-            try {
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() == 200) {
-                    ClientDraw.draw(args[0], state);
-                    state = State.POST_LOGIN;
-                } else {
-                    ClientDraw.printError("Leaving game failed due to "
-                            + gson.fromJson(response.body(), Message.class).message());
+            if (state == OBSERVE) {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:" + port + "/observe"))
+                        .DELETE()
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", authToken)
+                        .header("gameID", String.valueOf(gameID))
+                        .build();
+                try {
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    if (response.statusCode() == 200) {
+                        ClientDraw.draw(args[0], state);
+                        state = State.POST_LOGIN;
+                    } else {
+                        ClientDraw.printError("Leaving game failed due to "
+                                + gson.fromJson(response.body(), Message.class).message());
+                    }
+                } catch (Exception e) {
+                    ClientDraw.printError("Error: failed to connect to server, please try again");
                 }
-            } catch (Exception e) {
-                ClientDraw.printError("Error: failed to connect to server, please try again");
+            } else if (state == GAMEPLAY) {
+                ChessGame.TeamColor holder = ChessGame.TeamColor.WHITE;
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:" + port + "/game/leave"))
+                        .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"," +
+                                " \"playerColor\":\"" + holder + "\"}"))
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", authToken)
+                        .build();
+                try {
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    if (response.statusCode() == 200) {
+                        ClientDraw.draw(args[0], state);
+                        state = POST_LOGIN;
+                        board = null;
+                    } else {
+                        ClientDraw.printError("Leaving game failed due to "
+                                + gson.fromJson(response.body(), Message.class).message());
+                    }
+                } catch (Exception e) {
+                    ClientDraw.printError("Error: failed to connect to server, please try again");
+                }
             }
+
         }
     }
 

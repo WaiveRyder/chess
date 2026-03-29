@@ -137,6 +137,28 @@ public class GameDAO {
         }
     }
 
+    public void leaveGame(int id, ChessGame.TeamColor teamColor) throws DataAccessException {
+        if (useMap) {
+            //Not implemented
+            return;
+        }
+        var statement = "";
+        if (teamColor == ChessGame.TeamColor.WHITE) {
+            statement = "UPDATE game SET whiteUsername = null WHERE gameID = ?";
+        } else {
+            statement = "UPDATE game SET blackUsername = null WHERE gameID = ?";
+        }
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setInt(1, id);
+            if (pstmt.executeUpdate() == 0) {
+                throw new DataAccessException("Error: Could not update game. Please try again later.");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: could not connect to the database. Please try again later.");
+        }
+    }
+
     public GameData observeGame(int id, String username) throws DataAccessException {
         if (useMap) {
             //Implement observe game for map if we have time

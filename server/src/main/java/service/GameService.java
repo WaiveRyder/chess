@@ -56,6 +56,16 @@ public class GameService {
         }
     }
 
+    public GenericResponse leaveGame(JoinGameRequest request) {
+        try {
+            AuthData auth = authenticate(request.authToken());
+            gameDAO.leaveGame(request.gameID(), request.playerColor());
+            return new GenericResponse("");
+        } catch (DataAccessException e) {
+            return new GenericResponse(e.getMessage());
+        }
+    }
+
     public ListGamesResponse listGames(AuthRequest request) {
         try {
             AuthData auth = authenticate(request.authToken());
