@@ -5,10 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
-import service.requests.AuthRequest;
-import service.requests.CreateGameRequest;
-import service.requests.JoinGameRequest;
-import service.requests.ObserveGameRequest;
+import service.requests.*;
 import service.responses.CreateGameResponse;
 import service.responses.GenericResponse;
 import service.responses.ListGamesResponse;
@@ -87,6 +84,16 @@ public class GameService {
             }
         } catch (DataAccessException e) {
             return new ReturnGameResponse(null,  e.getMessage());
+        }
+    }
+
+    public ReturnGameResponse makeMove(MakeMoveRequest request) {
+        try {
+            AuthData auth = authenticate(request.authToken());
+            GameData game = gameDAO.makeMove(request.gameID(), auth.username(), request.move());
+            return new ReturnGameResponse(game, "");
+        } catch (DataAccessException e) {
+            return new ReturnGameResponse(null, e.getMessage());
         }
     }
 }
