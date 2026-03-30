@@ -37,6 +37,10 @@ public class ServerMessage {
 
     public String getMessage() {return this.message;}
 
+    public ChessGame getGame() {
+        return this.game;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
