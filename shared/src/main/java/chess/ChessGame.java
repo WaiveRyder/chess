@@ -11,7 +11,7 @@ import java.util.Vector;
  * signature of the existing methods.
  */
 public class ChessGame {
-    boolean gameOver;
+    public boolean gameOver;
 
     ChessBoard board;
     TeamColor teamTurn;
