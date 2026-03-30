@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import model.GameData;
 import ui.ClientDraw;
 
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -261,6 +262,7 @@ public class ServerFacade {
                     state = State.GAMEPLAY;
                     board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
                     ws = new ClientWS(port);
+                    ws.connect(authToken, gameID);
                     playerColor = color;
                     ClientDraw.drawBoard(board, color);
                 } else {
@@ -304,7 +306,6 @@ public class ServerFacade {
         } else if (games == null) {
             ClientDraw.printError("You must list games before trying to observe!");
         } else {
-            ws = new ClientWS(port);
             Integer givenGameID;
             try {
                 givenGameID = Integer.parseInt(args[1]);
@@ -333,6 +334,8 @@ public class ServerFacade {
                     state = State.OBSERVE;
                     board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
                     playerColor = ChessGame.TeamColor.WHITE;
+                    ws = new ClientWS(port);
+                    ws.connect(authToken, gameID);
                     ClientDraw.drawBoard(board, ChessGame.TeamColor.WHITE);
                 } else {
                     ClientDraw.printError("Observe game failed due to "
@@ -407,15 +410,29 @@ public class ServerFacade {
                     if (response.statusCode() == 200) {
                         ClientDraw.draw(args[0], state);
                         state = POST_LOGIN;
+                        ws.leave(authToken, gameID);
                         board = null;
+                        gameID = null;
                     } else {
                         ClientDraw.printError("Leaving game failed due to "
                                 + gson.fromJson(response.body(), Message.class).message());
                     }
                 } catch (Exception e) {
-                    ClientDraw.printError("Error: failed to connect to server, please try again");
+                    if (e.getClass() == ConnectException.class) {
+                        ClientDraw.printError("Error: Could not send message to others," +
+                                " but command completed successfully.");
+                    } else {
+                        ClientDraw.printError("Error: failed to connect to server, please try again");
+                    }
                 }
             }
+        }
+    }
+
+    private void moveHandler(String... args) {
+        if (args.length != 3) {
+            ClientDraw.printError("Usage: move <start> <end>");
+        } else {
 
         }
     }
