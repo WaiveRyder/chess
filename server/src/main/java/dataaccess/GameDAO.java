@@ -309,4 +309,20 @@ public class GameDAO {
             }
         }
     }
+
+    public ChessGame getGame(int gameID) throws DataAccessException {
+        var statement = "SELECT * FROM game WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setInt(1, gameID);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+            } else {
+                throw new DataAccessException("Error: Game ID not valid. Please refresh and try again.");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: could not connect to the database. Please try again later.");
+        }
+    }
 }
