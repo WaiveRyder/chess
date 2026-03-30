@@ -83,7 +83,7 @@ public class ServerFacade {
             } else if (state == GAMEPLAY) {
                 switch (command) {
                     case "redraw" -> ClientDraw.drawBoard(game.getBoard(), playerColor);
-                    case "move" -> System.out.println("Not implemented yet1");
+                    case "move" -> moveHandler(args);
                     case "highlight" -> highlightHandler(args);
                     case "leave" -> leaveHandler(args);
                     case "resign" -> System.out.println("Not implemented yet4");
@@ -96,18 +96,28 @@ public class ServerFacade {
     private void highlightHandler(String... args) {
         if (args.length != 2) {
             ClientDraw.printError("Usage: highlight <position>");
-        } else if (args[1].length() != 2) {
-            ClientDraw.printError("Position must be in format <a-h><1-8>");
-        } else if (!Character.isDigit(args[1].charAt(1))) {
-            ClientDraw.printError("Position must be in format <a-h><1-8>");
         } else {
-            int row = Character.getNumericValue(args[1].charAt(1));
-            int col = args[1].charAt(0) - 'a' + 1;
-            if (col < 1 || col > 8 || row < 1 || row > 8) {
+            ChessPosition pos = checkMoveFormat(args[1]);
+            if (pos == null) {
                 ClientDraw.printError("Position must be in format <a-h><1-8>");
             } else {
-                ChessPosition pos = new ChessPosition(row, col);
                 ClientDraw.highlightMoves(game, playerColor, pos);
+            }
+        }
+    }
+
+    private ChessPosition checkMoveFormat(String move) {
+        if (move.length() != 2) {
+            return null;
+        } else if (!Character.isDigit(move.charAt(1))) {
+            return null;
+        } else {
+            int row = Character.getNumericValue(move.charAt(1));
+            int col = move.charAt(0) - 'a' + 1;
+            if (col < 1 || col > 8 || row < 1 || row > 8) {
+                return null;
+            } else {
+                return new ChessPosition(row, col);
             }
         }
     }
@@ -450,10 +460,31 @@ public class ServerFacade {
     }
 
     private void moveHandler(String... args) {
-        if (args.length != 3) {
-            ClientDraw.printError("Usage: move <start> <end>");
+        if (args.length != 3 && args.length != 4) {
+            ClientDraw.printError("Usage: move <start> <end> [promotion_piece]");
         } else {
+            ChessPosition startPos = checkMoveFormat(args[1]);
+            ChessPosition endPos = checkMoveFormat(args[2]);
+            if (startPos == null || endPos == null) {
+                ClientDraw.printError("Start position must be in format <a-h><1-8>");
+            } else {
+                if (args.length == 4 && checkPromotionFormat(args[3]) == null) {
+                    ClientDraw.printError("Promotion piece must be either a pawn, " +
+                            "rook, knight, bishop, queen, or king");
+                } else if (args.length == 4) {
 
+                } else {
+
+                }
+            }
+        }
+    }
+
+    private String checkPromotionFormat(String promotion) {
+        promotion = promotion.toLowerCase();
+        switch (promotion) {
+            case "pawn", "rook", "knight", "bishop", "queen", "king" -> {return promotion;}
+            default -> {return null;}
         }
     }
 
