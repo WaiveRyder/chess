@@ -498,7 +498,7 @@ public class ServerFacade {
                         game = gson.fromJson(response.body(), Game.class).gameData().game();
                         ClientDraw.drawBoard(game.getBoard(), playerColor);
                     } else {
-                        ClientDraw.printError("Logout failed due to "
+                        ClientDraw.printError("Make move failed due to "
                                 + gson.fromJson(response.body(), Message.class).message());
                     }
                 } catch (Exception e) {
