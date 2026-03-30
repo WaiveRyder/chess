@@ -11,6 +11,7 @@ import java.util.Vector;
  * signature of the existing methods.
  */
 public class ChessGame {
+    boolean gameOver;
 
     ChessBoard board;
     TeamColor teamTurn;
@@ -27,6 +28,7 @@ public class ChessGame {
     int[] gridColN;
 
     public ChessGame() {
+        gameOver = false;
         board = new ChessBoard();
         board.resetBoard();
         teamTurn = TeamColor.WHITE;
@@ -99,6 +101,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (gameOver) {
+            throw new InvalidMoveException("Game is over, no moves can be made");
+        }
+
         ChessPosition startPosition = move.getStartPosition();
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece piece = board.getPiece(startPosition);
@@ -256,6 +262,7 @@ public class ChessGame {
             }
         }
 
+        gameOver = true;
         return true;
     }
 
