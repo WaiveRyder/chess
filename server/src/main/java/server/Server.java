@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
+import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
+
 public class Server {
     private final Gson gson;
 
@@ -305,6 +307,7 @@ public class Server {
         switch (command.getCommandType()) {
             case CONNECT -> handleWSConnect(command, ctx.session);
             case LEAVE -> handleWSLeave(command, ctx.session);
+            case MAKE_MOVE -> handleWSMove(command, ctx.session);
         }
     }
 
@@ -343,6 +346,12 @@ public class Server {
         } catch (DataAccessException e) {
             //Implement
         }
+    }
+
+    private void handleWSMove(UserGameCommand command, Session session) {
+        Vector<Session> sessions = wsSessions.get(command.getGameID());
+        ServerMessage msg = new ServerMessage(LOAD_GAME, command.getMessage());
+        sendWSMessage(sessions, session,msg);
     }
 
     private void sendWSMessage(Vector<Session> sessions, Session session, ServerMessage msg) {
