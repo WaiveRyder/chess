@@ -262,7 +262,7 @@ public class ServerFacade {
                     state = State.GAMEPLAY;
                     board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
                     ws = new ClientWS(port);
-                    ws.connect(authToken, gameID);
+                    ws.connect(authToken, gameID, " as " + color);
                     playerColor = color;
                     ClientDraw.drawBoard(board, color);
                 } else {
@@ -335,7 +335,7 @@ public class ServerFacade {
                     board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
                     playerColor = ChessGame.TeamColor.WHITE;
                     ws = new ClientWS(port);
-                    ws.connect(authToken, gameID);
+                    ws.connect(authToken, gameID, " as observer");
                     ClientDraw.drawBoard(board, ChessGame.TeamColor.WHITE);
                 } else {
                     ClientDraw.printError("Observe game failed due to "
