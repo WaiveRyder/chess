@@ -388,6 +388,8 @@ public class ServerFacade {
                     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                     if (response.statusCode() == 200) {
                         ClientDraw.draw(args[0], state);
+                        ws.leave(authToken, gameID);
+                        ws.close();
                         state = State.POST_LOGIN;
                     } else {
                         ClientDraw.printError("Leaving game failed due to "
@@ -410,6 +412,7 @@ public class ServerFacade {
                         ClientDraw.draw(args[0], state);
                         state = POST_LOGIN;
                         ws.leave(authToken, gameID);
+                        ws.close();
                         board = null;
                         gameID = null;
                     } else {
