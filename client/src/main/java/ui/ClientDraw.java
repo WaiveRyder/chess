@@ -141,33 +141,20 @@ public class ClientDraw {
             int row = move.getEndPosition().getRow();
             int col = move.getEndPosition().getColumn();
             ChessPiece piece = game.getBoard().getPiece(move.getEndPosition());
-            if (playerColor == ChessGame.TeamColor.BLACK) {
-                placedPiecesBoard[row][col] = EscapeSequences.SET_BG_COLOR_RED
-                        + EscapeSequences.SET_TEXT_COLOR_BLACK
-                        + " " + (piece == null ? " " : piece.toUnicode().toLowerCase()) + " "
-                        + EscapeSequences.RESET_TEXT_COLOR
-                        + EscapeSequences.RESET_BG_COLOR;
-            } else {
-                placedPiecesBoard[row][col] = EscapeSequences.SET_BG_COLOR_RED
-                        + EscapeSequences.SET_TEXT_COLOR_WHITE
-                        + " " + (piece == null ? " " : piece.toUnicode().toLowerCase()) + " "
-                        + EscapeSequences.RESET_TEXT_COLOR
-                        + EscapeSequences.RESET_BG_COLOR;
-            }
+            placedPiecesBoard[9-row][col] = EscapeSequences.SET_BG_COLOR_RED
+                    + EscapeSequences.SET_TEXT_COLOR_MAGENTA
+                    + " " + (piece == null ? " " : piece.toUnicode()) + " "
+                    + EscapeSequences.RESET_TEXT_COLOR
+                    + EscapeSequences.RESET_BG_COLOR;
         }
 
-        ChessPiece piece = game.getBoard().getPiece(pos);
-        String pieceS;
+        String piece = game.getBoard().getPiece(pos).toUnicode();
         int row = pos.getRow();
         int col = pos.getColumn();
-        if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
-            pieceS = piece.toUnicode().toLowerCase();
-        } else {
-            pieceS = piece.toUnicode();
-        }
 
-        placedPiecesBoard[row][col] = EscapeSequences.SET_BG_COLOR_YELLOW
-                + " " + pieceS + " " + EscapeSequences.RESET_BG_COLOR;
+        placedPiecesBoard[9-row][col] = EscapeSequences.SET_BG_COLOR_YELLOW
+                + EscapeSequences.SET_TEXT_COLOR_MAGENTA
+                + " " + piece + " " + EscapeSequences.RESET_BG_COLOR;
         print2D(placedPiecesBoard);
     }
 

@@ -106,7 +106,7 @@ public class ServerFacade {
             if (col < 1 || col > 8 || row < 1 || row > 8) {
                 ClientDraw.printError("Position must be in format <a-h><1-8>");
             } else {
-                ChessPosition pos = new ChessPosition(9 - row, col);
+                ChessPosition pos = new ChessPosition(row, col);
                 ClientDraw.highlightMoves(game, playerColor, pos);
             }
         }
