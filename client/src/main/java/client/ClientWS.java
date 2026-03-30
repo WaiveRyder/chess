@@ -44,7 +44,7 @@ public class ClientWS {
             String message
     ) throws ConnectException {
         if (session != null && session.isOpen()) {
-            UserGameCommand command= new UserGameCommand(type, authToken, gameID);
+            UserGameCommand command= new UserGameCommand(type, authToken, gameID, message);
             session.getAsyncRemote().sendText(gson.toJson(command));
         } else {
             throw new ConnectException("Error: Websocket session is not open.");
