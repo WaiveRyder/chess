@@ -1,7 +1,9 @@
 package client;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
+import ui.ClientDraw;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.net.ConnectException;
 import java.net.URI;
@@ -25,13 +27,14 @@ public class ClientWS {
 
     @OnOpen
     public void onOpen(Session session) {
-        System.out.println("Connected to websocket");
+        ClientDraw.draw("message", State.POST_LOGIN, "Connected to server");
         this.session = session;
     }
 
     @OnMessage
     public void onMessage(String message) {
-        System.out.println("Received message: " + message);
+        ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
+        ClientDraw.draw("message", State.POST_LOGIN, serverMessage.getMessage());
     }
 
     private void sendMessage(
