@@ -1,6 +1,9 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.offline.GameDAOMap;
 import model.GameData;
@@ -241,6 +244,64 @@ public class GameDAO {
                 }
             } catch (SQLException e) {
                 throw new DataAccessException("Error: could not connect to the database. Please try again later.");
+            }
+        }
+    }
+
+    public GameData makeMove(int gameID, String username, ChessMove move) throws DataAccessException {
+        if (useMap) {
+            //Implement
+            return null;
+        }
+        var statement = "SELECT * FROM game WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setInt(1, gameID);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                ChessGame gameData = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+                ChessGame.TeamColor color;
+                String whiteUsername = rs.getString("whiteUsername");
+                String blackUsername = rs.getString("blackUsername");
+
+                if (whiteUsername.equals(username)) {
+                    color = ChessGame.TeamColor.WHITE;
+                } else if (blackUsername.equals(username)) {
+                    color = ChessGame.TeamColor.BLACK;
+                } else {
+                    throw new DataAccessException("Error: User is not a player in this game");
+                }
+
+                ChessPiece piece = gameData.getBoard().getPiece(move.getStartPosition());
+                if (piece != null && piece.getTeamColor() != color) {
+                    throw new DataAccessException("Error: Cannot move opponent's piece");
+                }
+
+                if (gameData.gameOver) {
+                    throw new DataAccessException("Error: Game is over. No more moves allowed");
+                }
+
+                gameData.makeMove(move);
+                var updateStatement = "UPDATE game SET chessGame = ? WHERE gameID = ?";
+                PreparedStatement updatePstmt = conn.prepareStatement(updateStatement);
+                String serialize = gson.toJson(gameData);
+                updatePstmt.setString(1, serialize);
+                updatePstmt.setInt(2, gameID);
+                int rows = updatePstmt.executeUpdate();
+                if (rows == 0) {
+                    throw new DataAccessException("Error: Could not update game. Please try again later.");
+                } else {
+                    return new GameData(gameID,whiteUsername, blackUsername, rs.getString("gameName"), gameData);
+                }
+
+            } else {
+                throw new DataAccessException("Error: Game ID not valid. Please refresh and try again.");
+            }
+        } catch (SQLException | InvalidMoveException e) {
+            if (e instanceof SQLException) {
+                throw new DataAccessException("Error: could not connect to the database. Please try again later.");
+            } else {
+                throw new DataAccessException(e.getMessage());
             }
         }
     }
