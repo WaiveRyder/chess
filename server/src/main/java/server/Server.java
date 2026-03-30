@@ -99,9 +99,7 @@ public class Server {
             public void handle(@NotNull Context context) {handleJoinGame(context);}
         });
         javalin.put("/game/move", new Handler() {
-            public void handle(@NotNull Context context) {
-
-            }
+            public void handle(@NotNull Context context) {handleMakeMove(context);}
         });
         javalin.put("/game/leave", new Handler() {
             public void handle(@NotNull Context context) {handleLeaveGame(context);}
@@ -360,6 +358,29 @@ public class Server {
 
             } else if (!s.isOpen()) {
                 sessionIterator.remove();
+            }
+        }
+    }
+
+    private void handleMakeMove(Context context) {
+        UserGameCommand request = gson.fromJson(context.body(), UserGameCommand.class);
+        context.contentType("application/json");
+        if (request.getAuthToken() == null || request.getGameID() == null || request.getMessage() == null) {
+            context.result(gson.toJson(new GenericResponse("Error: No Null Elements Allowed")));
+            context.status(400);
+        } else {
+            MakeMoveRequest requestMove = new MakeMoveRequest(
+                    request.getAuthToken(), request.getGameID(), request.getMessage());
+            ReturnGameResponse response = gameService.makeMove(requestMove);
+            context.result(gson.toJson(response));
+            if (Objects.equals(response.message(), "")) {
+                context.status(200);
+            } else if (response.message().contains("token")) {
+                context.status(401);
+            } else if (response.message().contains("connect")) {
+                context.status(500);
+            } else {
+                context.status(400);
             }
         }
     }
