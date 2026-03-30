@@ -134,14 +134,25 @@ public class ClientDraw {
             return;
         }
 
+        int flipper = 0;
+        if (playerColor == ChessGame.TeamColor.BLACK) {
+            flipper = 9;
+        }
+
         String[][] drawnBoard = assembleBoard(playerColor);
         String[][] placedPiecesBoard = placePieces(game.getBoard(), drawnBoard, playerColor);
         Collection<ChessMove> validMoves = game.validMoves(pos);
         for (ChessMove move : validMoves) {
-            int row = move.getEndPosition().getRow();
-            int col = move.getEndPosition().getColumn();
+            int row = Math.abs(flipper - move.getEndPosition().getRow());
+            int col = Math.abs(flipper - move.getEndPosition().getColumn());
             ChessPiece piece = game.getBoard().getPiece(move.getEndPosition());
-            placedPiecesBoard[9-row][col] = EscapeSequences.SET_BG_COLOR_RED
+            String bgColor;
+            if (placedPiecesBoard[9-row][col].contains("22m")) {
+                bgColor = EscapeSequences.SET_BG_COLOR_DARK_GREY;
+            } else {
+                bgColor = EscapeSequences.SET_BG_COLOR_WHITE;
+            }
+            placedPiecesBoard[9-row][col] = bgColor
                     + EscapeSequences.SET_TEXT_COLOR_MAGENTA
                     + " " + (piece == null ? " " : piece.toUnicode()) + " "
                     + EscapeSequences.RESET_TEXT_COLOR
@@ -149,8 +160,8 @@ public class ClientDraw {
         }
 
         String piece = game.getBoard().getPiece(pos).toUnicode();
-        int row = pos.getRow();
-        int col = pos.getColumn();
+        int row = Math.abs(flipper - pos.getRow());
+        int col = Math.abs(flipper - pos.getColumn());
 
         placedPiecesBoard[9-row][col] = EscapeSequences.SET_BG_COLOR_YELLOW
                 + EscapeSequences.SET_TEXT_COLOR_MAGENTA
