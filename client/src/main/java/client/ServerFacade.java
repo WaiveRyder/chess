@@ -397,11 +397,10 @@ public class ServerFacade {
                     ClientDraw.printError("Error: failed to connect to server, please try again");
                 }
             } else if (state == GAMEPLAY) {
-                ChessGame.TeamColor holder = ChessGame.TeamColor.WHITE;
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create("http://localhost:" + port + "/game/leave"))
                         .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"," +
-                                " \"playerColor\":\"" + holder + "\"}"))
+                                " \"playerColor\":\"" + playerColor + "\"}"))
                         .header("Content-Type", "application/json")
                         .header("Authorization", authToken)
                         .build();
