@@ -295,6 +295,7 @@ public class ServerFacade {
                     ws = new ClientWS(port);
                     ws.connect(authToken, gameID, " as " + color);
                     playerColor = color;
+                    ws.setColor(color);
                     ClientDraw.drawBoard(game.getBoard(), color);
                 } else {
                     ClientDraw.printError("Join game failed due to "
@@ -367,6 +368,7 @@ public class ServerFacade {
                     playerColor = ChessGame.TeamColor.WHITE;
                     ws = new ClientWS(port);
                     ws.connect(authToken, gameID, " as observer");
+                    ws.setColor(ChessGame.TeamColor.WHITE);
                     ClientDraw.drawBoard(game.getBoard(), ChessGame.TeamColor.WHITE);
                 } else {
                     ClientDraw.printError("Observe game failed due to "

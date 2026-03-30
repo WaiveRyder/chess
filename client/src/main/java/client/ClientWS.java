@@ -1,4 +1,5 @@
 package client;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import ui.ClientDraw;
@@ -11,6 +12,7 @@ import java.net.URI;
 @ClientEndpoint
 public class ClientWS {
     private Session session;
+    ChessGame.TeamColor playerColor;
     Gson gson;
 
     public ClientWS(int port) {
@@ -35,6 +37,14 @@ public class ClientWS {
     public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
         ClientDraw.draw("message", State.POST_LOGIN, serverMessage.getMessage());
+
+        if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            ClientDraw.drawBoard(serverMessage.getGame().getBoard(), playerColor);
+        }
+    }
+
+    public void setColor(ChessGame.TeamColor color) {
+        playerColor = color;
     }
 
     private void sendMessage(
