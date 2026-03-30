@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.*;
 import io.javalin.*;
@@ -7,6 +8,7 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
@@ -320,7 +322,7 @@ public class Server {
             if (sessions != null) {
                 ServerMessage msg = new ServerMessage(
                         ServerMessage.ServerMessageType.NOTIFICATION,
-                        username + " left the game" + command.getMessage());
+                        username + " left the game" + command.getMessage(), null);
                 sendWSMessage(sessions, session, msg);
             }
         } catch (DataAccessException e) {
@@ -338,7 +340,7 @@ public class Server {
                 sessions.add(session);
                 ServerMessage msg = new ServerMessage(
                         ServerMessage.ServerMessageType.NOTIFICATION,
-                        username + " connected to the game" + command.getMessage());
+                        username + " connected to the game" + command.getMessage(), null);
                 sendWSMessage(sessions, session, msg);
             } else {
                 wsSessions.get(gameID).add(session);
@@ -350,8 +352,15 @@ public class Server {
 
     private void handleWSMove(UserGameCommand command, Session session) {
         Vector<Session> sessions = wsSessions.get(command.getGameID());
-        ServerMessage msg = new ServerMessage(LOAD_GAME, command.getMessage());
-        sendWSMessage(sessions, session,msg);
+        try {
+            String username = authDAO.getAuthData(command.getAuthToken()).username();
+
+            ChessGame game = gameDAO.getGame(command.getGameID());
+            ServerMessage msg = new ServerMessage(LOAD_GAME, username+" made move "+command.getMessage(), game);
+            sendWSMessage(sessions, session,msg);
+        } catch (DataAccessException e) {
+            //Implement
+        }
     }
 
     private void sendWSMessage(Vector<Session> sessions, Session session, ServerMessage msg) {
