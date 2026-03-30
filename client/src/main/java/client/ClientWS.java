@@ -40,7 +40,8 @@ public class ClientWS {
     private void sendMessage(
             UserGameCommand.CommandType type,
             String authToken,
-            Integer gameID
+            Integer gameID,
+            String message
     ) throws ConnectException {
         if (session != null && session.isOpen()) {
             UserGameCommand command= new UserGameCommand(type, authToken, gameID);
@@ -50,20 +51,20 @@ public class ClientWS {
         }
     }
 
-    public void connect(String authToken, Integer gameID) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+    public void connect(String authToken, Integer gameID, String message) throws ConnectException {
+        sendMessage(UserGameCommand.CommandType.CONNECT, authToken, gameID, message);
     }
 
-    public void makeMove(String authToken, Integer gameID) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
+    public void makeMove(String authToken, Integer gameID, String message) throws ConnectException {
+        sendMessage(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, message);
     }
 
     public void leave(String authToken, Integer gameID) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+        sendMessage(UserGameCommand.CommandType.LEAVE, authToken, gameID, ".");
     }
 
     public void resign(String authToken, Integer gameID) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.RESIGN, authToken, gameID);
+        sendMessage(UserGameCommand.CommandType.RESIGN, authToken, gameID, ".");
     }
 
     public void close() {

@@ -326,7 +326,7 @@ public class Server {
                 sessions.add(session);
                 ServerMessage msg = new ServerMessage(
                         ServerMessage.ServerMessageType.NOTIFICATION,
-                        username + " connected to the game.");
+                        username + " connected to the game" + command.getMessage());
                 sendWSMessage(sessions, session, msg);
             } else {
                 wsSessions.get(gameID).add(session);
