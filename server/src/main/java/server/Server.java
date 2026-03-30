@@ -5,23 +5,35 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
+import org.eclipse.jetty.websocket.api.Session;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 import service.UserService;
 import service.requests.*;
 import service.responses.*;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Vector;
 
 public class Server {
-    private final Gson serializer;
+    private final Gson gson;
+
+    private final AuthDAO authDAO;
     private final UserService userService;
+    private final GameDAO gameDAO;
     private final GameService gameService;
 
     private final Javalin javalin;
 
+    private static Map<Integer, Vector<Session>> wsSessions;
+
     public Server() {
+        wsSessions = new java.util.concurrent.ConcurrentHashMap<>();
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
         try {
             DatabaseManager.createDatabase();
@@ -30,21 +42,21 @@ public class Server {
             throw new RuntimeException(e);
         }
         UserDAO userDAO = new UserDAO();
-        AuthDAO authDAO = new AuthDAO();
-        GameDAO gameDAO = new GameDAO();
+        authDAO = new AuthDAO();
+        gameDAO = new GameDAO();
         gameService = new GameService(authDAO, gameDAO);
         userService = new UserService(userDAO, authDAO);
-        serializer = new Gson();
+        gson = new Gson();
         javalin.post("/user", new Handler() {
             public void handle(@NotNull Context context) {
-                RegisterRequest request = serializer.fromJson(context.body(), RegisterRequest.class);
+                RegisterRequest request = gson.fromJson(context.body(), RegisterRequest.class);
                 context.contentType("application/json");
                 handleRegister(context, request);
             }
         });
         javalin.post("/session", new Handler() {
             public void handle(@NotNull Context context) {
-                LoginRequest request = serializer.fromJson(context.body(), LoginRequest.class);
+                LoginRequest request = gson.fromJson(context.body(), LoginRequest.class);
                 context.contentType("application/json");
                 handleLogin(context, request);
             }
@@ -54,7 +66,7 @@ public class Server {
                 AuthRequest request = new AuthRequest(context.header("Authorization"));
                 GenericResponse response = userService.logoutUser(request);
                 context.contentType("application/json");
-                context.result(serializer.toJson(response));
+                context.result(gson.toJson(response));
                 if(Objects.equals(response.message(), "")) {
                     context.status(200);
                 } else if (response.message().contains("connect")){
@@ -69,7 +81,7 @@ public class Server {
                 AuthRequest request = new AuthRequest(context.header("Authorization"));
                 ListGamesResponse response = gameService.listGames(request);
                 context.contentType("application/json");
-                context.result(serializer.toJson(response));
+                context.result(gson.toJson(response));
                 if(Objects.equals(response.message(), "")) {
                     context.status(200);
                 } else if (response.message().contains("connect")) {
@@ -81,7 +93,7 @@ public class Server {
         });
         javalin.post("/game", new Handler() {
             public void handle(@NotNull Context context) {
-                CreateGameRequest body = serializer.fromJson(context.body(), CreateGameRequest.class);
+                CreateGameRequest body = gson.fromJson(context.body(), CreateGameRequest.class);
                 CreateGameRequest request = new CreateGameRequest(context.header("Authorization"), body.gameName());
                 context.contentType("application/json");
                 handleCreateGame(context, request);
@@ -89,7 +101,7 @@ public class Server {
         });
         javalin.put("/game/join", new Handler() {
             public void handle(@NotNull Context context) {
-                JoinGameRequest body = serializer.fromJson(context.body(), JoinGameRequest.class);
+                JoinGameRequest body = gson.fromJson(context.body(), JoinGameRequest.class);
                 JoinGameRequest request = new JoinGameRequest(
                         context.header("Authorization"),
                         body.playerColor(),
@@ -101,7 +113,7 @@ public class Server {
         });
         javalin.put("/game/leave", new Handler() {
             public void handle(@NotNull Context context) {
-                JoinGameRequest body = serializer.fromJson(context.body(), JoinGameRequest.class);
+                JoinGameRequest body = gson.fromJson(context.body(), JoinGameRequest.class);
                 JoinGameRequest request = new JoinGameRequest(
                         context.header("Authorization"),
                         body.playerColor(),
@@ -132,12 +144,9 @@ public class Server {
                 handleClear(context);
             }});
         javalin.ws("/ws", ws -> {
-            ws.onConnect(ctx -> {
-                ctx.enableAutomaticPings();
-                System.out.println("WebSocket Connected: " + ctx);
-            });
-            ws.onMessage(this::handleWebsocket);
-            ws.onClose(ctx -> System.out.println("WebSocket Closed: " + ctx));
+            ws.onConnect(WsContext::enableAutomaticPings);
+            ws.onMessage(this::handleWebsocketMessage);
+            ws.onClose(WsContext::closeSession);
         });
     }
 
@@ -152,7 +161,7 @@ public class Server {
 
     private void handleRegister(Context context, RegisterRequest request) {
         if(request.username() == null || request.password() == null || request.email() == null) {
-            context.result(serializer.toJson(new AuthResponse(
+            context.result(gson.toJson(new AuthResponse(
                     null,
                     null,
                     "Error: No Null Elements Allowed"
@@ -162,7 +171,7 @@ public class Server {
 
             AuthResponse response = userService.registerUser(request);
 
-            context.result(serializer.toJson(response));
+            context.result(gson.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);
             } else if (response.message().contains("connect")) {
@@ -175,7 +184,7 @@ public class Server {
 
     private void handleLogin(Context context, LoginRequest request) {
         if (request.username() == null || request.password() == null) {
-            context.result(serializer.toJson(new AuthResponse(
+            context.result(gson.toJson(new AuthResponse(
                     null,
                     null,
                     "Error: No Null Elements Allowed")));
@@ -185,7 +194,7 @@ public class Server {
             AuthResponse response = userService.loginUser(request);
 
 
-            context.result(serializer.toJson(response));
+            context.result(gson.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);
             } else if (response.message().contains("connect")) {
@@ -198,14 +207,14 @@ public class Server {
 
     private void handleCreateGame(Context context, CreateGameRequest request) {
         if (request.authToken() == null || request.gameName() == null) {
-            context.result(serializer.toJson(new CreateGameResponse(
+            context.result(gson.toJson(new CreateGameResponse(
                     null,
                     "Error: No Null Elements Allowed"
             )));
             context.status(400);
         } else {
             CreateGameResponse response = gameService.createGame(request);
-            context.result(serializer.toJson(response));
+            context.result(gson.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);
             } else if (response.message().contains("connect")){
@@ -218,12 +227,12 @@ public class Server {
 
     private void handleJoinGame(Context context, JoinGameRequest request) {
         if (request.gameID() == null || request.playerColor() == null || request.authToken() == null) {
-            context.result(serializer.toJson(new ReturnGameResponse(null,"Error: No Null Elements Allowed")));
+            context.result(gson.toJson(new ReturnGameResponse(null,"Error: No Null Elements Allowed")));
             context.status(400);
         } else {
 
             ReturnGameResponse response = gameService.joinGame(request);
-            context.result(serializer.toJson(response));
+            context.result(gson.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);
             } else if (response.message().contains("taken")) {
@@ -240,12 +249,12 @@ public class Server {
 
     private void handleLeaveGame(Context context, JoinGameRequest request) {
         if (request.gameID() == null || request.playerColor() == null || request.authToken() == null) {
-            context.result(serializer.toJson(new GenericResponse("Error: No Null Elements Allowed")));
+            context.result(gson.toJson(new GenericResponse("Error: No Null Elements Allowed")));
             context.status(400);
         } else {
 
             GenericResponse response = gameService.leaveGame(request);
-            context.result(serializer.toJson(response));
+            context.result(gson.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);
             } else if (response.message().contains("taken")) {
@@ -262,14 +271,14 @@ public class Server {
 
     private void handleObserveGame(Context context, ObserveGameRequest request) {
         if (request.gameID() == null || request.token() == null) {
-            context.result(serializer.toJson(new ReturnGameResponse(
+            context.result(gson.toJson(new ReturnGameResponse(
                     null,
                     "Error: No Null Elements Allowed"
             )));
             context.status(400);
         } else {
             ReturnGameResponse response = gameService.observeGame(request);
-            context.result(serializer.toJson(response));
+            context.result(gson.toJson(response));
             if (Objects.equals(response.message(), "")) {
                 context.status(200);
             } else if (response.message().contains("token")) {
@@ -290,17 +299,52 @@ public class Server {
 
         if (!Objects.equals(userClear.message(), "")) {
             context.status(500);
-            context.result(serializer.toJson(userClear));
+            context.result(gson.toJson(userClear));
         } else if (!Objects.equals(gameClear.message(), "")) {
             context.status(500);
-            context.result(serializer.toJson(gameClear));
+            context.result(gson.toJson(gameClear));
         } else {
             context.status(200);
-            context.result(serializer.toJson(new GenericResponse("")));
+            context.result(gson.toJson(new GenericResponse("")));
         }
     }
 
-    private void handleWebsocket(WsMessageContext ctx) {
-        ctx.send("Hey I heard " + ctx.message());
+    private void handleWebsocketMessage(WsMessageContext ctx) {
+        UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
+        switch (command.getCommandType()) {
+            case CONNECT -> handleWSConnect(command, ctx.session);
+        }
+    }
+
+    private void handleWSConnect(UserGameCommand command, Session session) {
+        try {
+            String username = authDAO.getAuthData(command.getAuthToken()).username();
+            int gameID = command.getGameID();
+            Vector<Session> sessions = wsSessions.putIfAbsent(gameID, new Vector<>());
+            if (sessions != null) {
+                sessions.add(session);
+                ServerMessage msg = new ServerMessage(
+                        ServerMessage.ServerMessageType.NOTIFICATION,
+                        username + " connected to the game.");
+                sendWSMessage(sessions, session, msg);
+            }
+        } catch (DataAccessException e) {
+            //Implement
+        }
+    }
+
+    private void sendWSMessage(Vector<Session> sessions, Session session, ServerMessage msg) {
+        for (Session s: sessions) {
+            if (!s.equals(session) && s.isOpen()) {
+                try {
+                    s.getRemote().sendString(gson.toJson(msg));
+                } catch (Exception e) {
+                    //Implement
+                }
+
+            } else if (!s.isOpen()) {
+                sessions.remove(s);
+            }
+        }
     }
 }
