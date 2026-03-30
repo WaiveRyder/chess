@@ -277,6 +277,10 @@ public class GameDAO {
                     throw new DataAccessException("Error: Cannot move opponent's piece");
                 }
 
+                if (gameData.getTeamTurn() != color) {
+                    throw new DataAccessException("Error: It is not your turn");
+                }
+
                 if (gameData.gameOver) {
                     throw new DataAccessException("Error: Game is over. No more moves allowed");
                 }
