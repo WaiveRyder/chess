@@ -320,6 +320,7 @@ public class Server {
         try {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
             int gameID = command.getGameID();
+
             Vector<Session> sessions = wsSessions.putIfAbsent(gameID, new Vector<>());
             if (sessions != null) {
                 sessions.add(session);
@@ -327,6 +328,8 @@ public class Server {
                         ServerMessage.ServerMessageType.NOTIFICATION,
                         username + " connected to the game.");
                 sendWSMessage(sessions, session, msg);
+            } else {
+                wsSessions.get(gameID).add(session);
             }
         } catch (DataAccessException e) {
             //Implement
