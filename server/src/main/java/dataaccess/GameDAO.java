@@ -264,9 +264,9 @@ public class GameDAO {
                 String whiteUsername = rs.getString("whiteUsername");
                 String blackUsername = rs.getString("blackUsername");
 
-                if (whiteUsername.equals(username)) {
+                if (whiteUsername != null && whiteUsername.equals(username)) {
                     color = ChessGame.TeamColor.WHITE;
-                } else if (blackUsername.equals(username)) {
+                } else if (blackUsername != null && blackUsername.equals(username)) {
                     color = ChessGame.TeamColor.BLACK;
                 } else {
                     throw new DataAccessException("Error: User is not a player in this game");
