@@ -93,57 +93,28 @@ public class Server {
             }
         });
         javalin.post("/game", new Handler() {
-            public void handle(@NotNull Context context) {
-                CreateGameRequest body = gson.fromJson(context.body(), CreateGameRequest.class);
-                CreateGameRequest request = new CreateGameRequest(context.header("Authorization"), body.gameName());
-                context.contentType("application/json");
-                handleCreateGame(context, request);
-            }
+            public void handle(@NotNull Context context) {handleCreateGame(context);}
         });
         javalin.put("/game/join", new Handler() {
+            public void handle(@NotNull Context context) {handleJoinGame(context);}
+        });
+        javalin.put("/game/move", new Handler() {
             public void handle(@NotNull Context context) {
-                JoinGameRequest body = gson.fromJson(context.body(), JoinGameRequest.class);
-                JoinGameRequest request = new JoinGameRequest(
-                        context.header("Authorization"),
-                        body.playerColor(),
-                        body.gameID()
-                );
-                context.contentType("application/json");
-                handleJoinGame(context, request);
+
             }
         });
         javalin.put("/game/leave", new Handler() {
-            public void handle(@NotNull Context context) {
-                JoinGameRequest body = gson.fromJson(context.body(), JoinGameRequest.class);
-                JoinGameRequest request = new JoinGameRequest(
-                        context.header("Authorization"),
-                        body.playerColor(),
-                        body.gameID()
-                );
-                context.contentType("application/json");
-                handleLeaveGame(context, request);
-            }
+            public void handle(@NotNull Context context) {handleLeaveGame(context);}
         });
         javalin.get("/observe", new Handler() {
-            public void handle(@NotNull Context context) {
-                ObserveGameRequest request = new ObserveGameRequest(Integer.parseInt(Objects.requireNonNull(context.header("gameID"))),
-                        context.header("Authorization"), false);
-                context.contentType("application/json");
-                handleObserveGame(context, request);
-            }
+            public void handle(@NotNull Context context) {handleObserveGame(context, false);}
         });
         javalin.delete("/observe", new Handler() {
-            public void handle(@NotNull Context context) {
-                ObserveGameRequest request = new ObserveGameRequest(Integer.parseInt(Objects.requireNonNull(context.header("gameID"))),
-                        context.header("Authorization"), true);
-                context.contentType("application/json");
-                handleObserveGame(context, request);
-            }
+            public void handle(@NotNull Context context) {handleObserveGame(context, true);}
         });
         javalin.delete("/db", new Handler() {
-            public void handle(@NotNull Context context) {
-                handleClear(context);
-            }});
+            public void handle(@NotNull Context context) {handleClear(context);}
+        });
         javalin.ws("/ws", ws -> {
             ws.onConnect(WsContext::enableAutomaticPings);
             ws.onMessage(this::handleWebsocketMessage);
@@ -206,7 +177,10 @@ public class Server {
         }
     }
 
-    private void handleCreateGame(Context context, CreateGameRequest request) {
+    private void handleCreateGame(Context context) {
+        CreateGameRequest body = gson.fromJson(context.body(), CreateGameRequest.class);
+        CreateGameRequest request = new CreateGameRequest(context.header("Authorization"), body.gameName());
+        context.contentType("application/json");
         if (request.authToken() == null || request.gameName() == null) {
             context.result(gson.toJson(new CreateGameResponse(
                     null,
@@ -226,7 +200,15 @@ public class Server {
         }
     }
 
-    private void handleJoinGame(Context context, JoinGameRequest request) {
+    private void handleJoinGame(Context context) {
+        JoinGameRequest body = gson.fromJson(context.body(), JoinGameRequest.class);
+        JoinGameRequest request = new JoinGameRequest(
+                context.header("Authorization"),
+                body.playerColor(),
+                body.gameID()
+        );
+
+        context.contentType("application/json");
         if (request.gameID() == null || request.playerColor() == null || request.authToken() == null) {
             context.result(gson.toJson(new ReturnGameResponse(null,"Error: No Null Elements Allowed")));
             context.status(400);
@@ -248,7 +230,14 @@ public class Server {
         }
     }
 
-    private void handleLeaveGame(Context context, JoinGameRequest request) {
+    private void handleLeaveGame(Context context) {
+        JoinGameRequest body = gson.fromJson(context.body(), JoinGameRequest.class);
+        JoinGameRequest request = new JoinGameRequest(
+                context.header("Authorization"),
+                body.playerColor(),
+                body.gameID()
+        );
+        context.contentType("application/json");
         if (request.gameID() == null || request.playerColor() == null || request.authToken() == null) {
             context.result(gson.toJson(new GenericResponse("Error: No Null Elements Allowed")));
             context.status(400);
@@ -270,7 +259,10 @@ public class Server {
         }
     }
 
-    private void handleObserveGame(Context context, ObserveGameRequest request) {
+    private void handleObserveGame(Context context, boolean leave) {
+        ObserveGameRequest request = new ObserveGameRequest(Integer.parseInt(Objects.requireNonNull(context.header("gameID"))),
+                context.header("Authorization"), leave);
+        context.contentType("application/json");
         if (request.gameID() == null || request.token() == null) {
             context.result(gson.toJson(new ReturnGameResponse(
                     null,
