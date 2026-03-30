@@ -12,13 +12,15 @@ public class ClientDraw {
     public static void draw(String command, State state, String... args) {
         if (command.equalsIgnoreCase("clear")) {
             System.out.println("Cleared Databases");
-        }
-
-        switch (state) {
-            case PRE_LOGIN -> preLoginHandler(command, args);
-            case POST_LOGIN -> postLoginHandler(command, args);
-            case OBSERVE -> observeHandler(command);
-            case GAMEPLAY -> gameplayHandler(command, args);
+        } else if (command.equalsIgnoreCase("message")) {
+            System.out.println(args[0]);
+        } else {
+            switch (state) {
+                case PRE_LOGIN -> preLoginHandler(command, args);
+                case POST_LOGIN -> postLoginHandler(command, args);
+                case OBSERVE -> observeHandler(command);
+                case GAMEPLAY -> gameplayHandler(command, args);
+            }
         }
     }
 
