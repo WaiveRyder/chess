@@ -36,6 +36,15 @@ public class ChessGame {
         initLists();
     }
 
+    public ChessGame(boolean gameOver, ChessBoard board, TeamColor teamTurn) {
+        this.gameOver = gameOver;
+        this.board = board;
+        this.teamTurn = teamTurn;
+        initCoords();
+        initLists();
+
+    }
+
     /**
      * @return Which team's turn it is
      */
