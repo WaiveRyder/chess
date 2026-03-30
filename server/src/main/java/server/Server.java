@@ -16,6 +16,7 @@ import service.responses.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
@@ -313,6 +314,24 @@ public class Server {
         UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
         switch (command.getCommandType()) {
             case CONNECT -> handleWSConnect(command, ctx.session);
+            case LEAVE -> handleWSLeave(command, ctx.session);
+        }
+    }
+
+    private void handleWSLeave(UserGameCommand command, Session session) {
+        try {
+            String username = authDAO.getAuthData(command.getAuthToken()).username();
+            int gameID = command.getGameID();
+
+            Vector<Session> sessions = wsSessions.get(gameID);
+            if (sessions != null) {
+                ServerMessage msg = new ServerMessage(
+                        ServerMessage.ServerMessageType.NOTIFICATION,
+                        username + " left the game" + command.getMessage());
+                sendWSMessage(sessions, session, msg);
+            }
+        } catch (DataAccessException e) {
+            //Implement
         }
     }
 
@@ -337,7 +356,9 @@ public class Server {
     }
 
     private void sendWSMessage(Vector<Session> sessions, Session session, ServerMessage msg) {
-        for (Session s: sessions) {
+        Iterator<Session> sessionIterator = sessions.iterator();
+        while(sessionIterator.hasNext()) {
+            Session s = sessionIterator.next();
             if (!s.equals(session) && s.isOpen()) {
                 try {
                     s.getRemote().sendString(gson.toJson(msg));
@@ -346,7 +367,7 @@ public class Server {
                 }
 
             } else if (!s.isOpen()) {
-                sessions.remove(s);
+                sessionIterator.remove();
             }
         }
     }
