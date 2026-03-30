@@ -10,6 +10,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 import ui.ClientDraw;
+import websocket.commands.UserGameCommand;
 
 import java.net.ConnectException;
 import java.net.URI;
@@ -468,13 +469,40 @@ public class ServerFacade {
             if (startPos == null || endPos == null) {
                 ClientDraw.printError("Start position must be in format <a-h><1-8>");
             } else {
+                UserGameCommand command;
                 if (args.length == 4 && checkPromotionFormat(args[3]) == null) {
                     ClientDraw.printError("Promotion piece must be either a pawn, " +
                             "rook, knight, bishop, queen, or king");
+                    return;
                 } else if (args.length == 4) {
-
+                    String message = startPos.getColumn() + " " + startPos.getRow()
+                            + " " + endPos.getColumn() + " " + endPos.getRow()
+                            + " " + args[3].toLowerCase();
+                    command = new UserGameCommand(
+                            UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, message);
                 } else {
-
+                    String message = startPos.getColumn() + " " + startPos.getRow() + " "
+                            + endPos.getColumn() + " " + endPos.getRow();
+                    command = new UserGameCommand(
+                            UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, message);
+                }
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:" + port + "/game/move"))
+                        .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(command)))
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", authToken)
+                        .build();
+                try {
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    if (response.statusCode() == 200) {
+                        game = gson.fromJson(response.body(), Game.class).gameData().game();
+                        ClientDraw.drawBoard(game.getBoard(), playerColor);
+                    } else {
+                        ClientDraw.printError("Logout failed due to "
+                                + gson.fromJson(response.body(), Message.class).message());
+                    }
+                } catch (Exception e) {
+                    ClientDraw.printError("Error: failed to connect to server, please try again");
                 }
             }
         }
