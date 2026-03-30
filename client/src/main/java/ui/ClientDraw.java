@@ -163,7 +163,7 @@ public class ClientDraw {
         if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
             pieceS = piece.toUnicode().toLowerCase();
         } else {
-            pieceS = piece.toUnicode().toLowerCase();
+            pieceS = piece.toUnicode();
         }
 
         placedPiecesBoard[row][col] = EscapeSequences.SET_BG_COLOR_YELLOW
