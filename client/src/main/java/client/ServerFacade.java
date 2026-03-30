@@ -470,6 +470,10 @@ public class ServerFacade {
                 ClientDraw.printError("Start position must be in format <a-h><1-8>");
             } else {
                 UserGameCommand command;
+                if (playerColor == ChessGame.TeamColor.BLACK) {
+                    startPos = new ChessPosition(9 - startPos.getRow(), 9 - startPos.getColumn());
+                    endPos = new ChessPosition(9 - endPos.getRow(), 9 - endPos.getColumn());
+                }
                 if (args.length == 4 && checkPromotionFormat(args[3]) == null) {
                     ClientDraw.printError("Promotion piece must be either a pawn, " +
                             "rook, knight, bishop, queen, or king");
