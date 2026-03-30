@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessPosition;
 import responses.Auth;
 import responses.Game;
 import responses.ListGames;
@@ -32,7 +33,7 @@ public class ServerFacade {
 
     private List<GameData> games;
     private Integer gameID;
-    private ChessBoard board;
+    private ChessGame game;
     private ChessGame.TeamColor playerColor;
 
     public ServerFacade(int port) {
@@ -41,7 +42,6 @@ public class ServerFacade {
         gson = new Gson();
         state = PRE_LOGIN;
         games = null;
-        board = null;
         ws = null;
     }
 
@@ -76,18 +76,38 @@ public class ServerFacade {
             } else if (state == OBSERVE) {
                 switch (command) {
                     case "leave" -> leaveHandler(args);
-                    case "redraw" -> ClientDraw.drawBoard(board, playerColor);
+                    case "redraw" -> ClientDraw.drawBoard(game.getBoard(), playerColor);
+                    case "highlight" -> highlightHandler(args);
                     default -> ClientDraw.printError("Unknown command: " + args[0]);
                 }
             } else if (state == GAMEPLAY) {
                 switch (command) {
-                    case "redraw" -> ClientDraw.drawBoard(board, playerColor);
+                    case "redraw" -> ClientDraw.drawBoard(game.getBoard(), playerColor);
                     case "move" -> System.out.println("Not implemented yet1");
-                    case "highlight" -> System.out.println("Not implemented yet2");
+                    case "highlight" -> highlightHandler(args);
                     case "leave" -> leaveHandler(args);
                     case "resign" -> System.out.println("Not implemented yet4");
                     default -> ClientDraw.printError("Unknown command: " + args[0]);
                 }
+            }
+        }
+    }
+
+    private void highlightHandler(String... args) {
+        if (args.length != 2) {
+            ClientDraw.printError("Usage: highlight <position>");
+        } else if (args[1].length() != 2) {
+            ClientDraw.printError("Position must be in format <a-h><1-8>");
+        } else if (!Character.isDigit(args[1].charAt(1))) {
+            ClientDraw.printError("Position must be in format <a-h><1-8>");
+        } else {
+            int row = Character.getNumericValue(args[1].charAt(1));
+            int col = args[1].charAt(0) - 'a' + 1;
+            if (col < 1 || col > 8 || row < 1 || row > 8) {
+                ClientDraw.printError("Position must be in format <a-h><1-8>");
+            } else {
+                ChessPosition pos = new ChessPosition(9 - row, col);
+                ClientDraw.highlightMoves(game, playerColor, pos);
             }
         }
     }
@@ -260,11 +280,11 @@ public class ServerFacade {
                 if (response.statusCode() == 200) {
                     ClientDraw.draw(args[0], state, String.valueOf(givenGameID), color.toString());
                     state = State.GAMEPLAY;
-                    board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
+                    game = gson.fromJson(response.body(), Game.class).gameData().game();
                     ws = new ClientWS(port);
                     ws.connect(authToken, gameID, " as " + color);
                     playerColor = color;
-                    ClientDraw.drawBoard(board, color);
+                    ClientDraw.drawBoard(game.getBoard(), color);
                 } else {
                     ClientDraw.printError("Join game failed due to "
                             + gson.fromJson(response.body(), Message.class).message());
@@ -332,11 +352,11 @@ public class ServerFacade {
                 if (response.statusCode() == 200) {
                     ClientDraw.draw(args[0], state, String.valueOf(givenGameID));
                     state = State.OBSERVE;
-                    board = gson.fromJson(response.body(), Game.class).gameData().game().getBoard();
+                    game = gson.fromJson(response.body(), Game.class).gameData().game();
                     playerColor = ChessGame.TeamColor.WHITE;
                     ws = new ClientWS(port);
                     ws.connect(authToken, gameID, " as observer");
-                    ClientDraw.drawBoard(board, ChessGame.TeamColor.WHITE);
+                    ClientDraw.drawBoard(game.getBoard(), ChessGame.TeamColor.WHITE);
                 } else {
                     ClientDraw.printError("Observe game failed due to "
                             + gson.fromJson(response.body(), Message.class).message());
@@ -413,8 +433,6 @@ public class ServerFacade {
                         state = POST_LOGIN;
                         ws.leave(authToken, gameID);
                         ws.close();
-                        board = null;
-                        gameID = null;
                     } else {
                         ClientDraw.printError("Leaving game failed due to "
                                 + gson.fromJson(response.body(), Message.class).message());

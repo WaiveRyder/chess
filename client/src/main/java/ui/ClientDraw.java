@@ -1,10 +1,9 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import client.State;
+
+import java.util.Collection;
 
 public class ClientDraw {
 
@@ -128,6 +127,49 @@ public class ClientDraw {
     }
 
 
+    // New line
+    public static void highlightMoves(ChessGame game, ChessGame.TeamColor playerColor, ChessPosition pos) {
+        if (game.getBoard().getPiece(pos) == null) {
+            printError("Selected position does not contain a piece.");
+            return;
+        }
+
+        String[][] drawnBoard = assembleBoard(playerColor);
+        String[][] placedPiecesBoard = placePieces(game.getBoard(), drawnBoard, playerColor);
+        Collection<ChessMove> validMoves = game.validMoves(pos);
+        for (ChessMove move : validMoves) {
+            int row = move.getEndPosition().getRow();
+            int col = move.getEndPosition().getColumn();
+            ChessPiece piece = game.getBoard().getPiece(move.getEndPosition());
+            if (playerColor == ChessGame.TeamColor.BLACK) {
+                placedPiecesBoard[row][col] = EscapeSequences.SET_BG_COLOR_RED
+                        + EscapeSequences.SET_TEXT_COLOR_BLACK
+                        + " " + (piece == null ? " " : piece.toUnicode().toLowerCase()) + " "
+                        + EscapeSequences.RESET_TEXT_COLOR
+                        + EscapeSequences.RESET_BG_COLOR;
+            } else {
+                placedPiecesBoard[row][col] = EscapeSequences.SET_BG_COLOR_RED
+                        + EscapeSequences.SET_TEXT_COLOR_WHITE
+                        + " " + (piece == null ? " " : piece.toUnicode().toLowerCase()) + " "
+                        + EscapeSequences.RESET_TEXT_COLOR
+                        + EscapeSequences.RESET_BG_COLOR;
+            }
+        }
+
+        ChessPiece piece = game.getBoard().getPiece(pos);
+        String pieceS;
+        int row = pos.getRow();
+        int col = pos.getColumn();
+        if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            pieceS = piece.toUnicode().toLowerCase();
+        } else {
+            pieceS = piece.toUnicode().toLowerCase();
+        }
+
+        placedPiecesBoard[row][col] = EscapeSequences.SET_BG_COLOR_YELLOW
+                + " " + pieceS + " " + EscapeSequences.RESET_BG_COLOR;
+        print2D(placedPiecesBoard);
+    }
 
     // Oh boy this is the big one
     public static void drawBoard(ChessBoard board, ChessGame.TeamColor playerColor) {
