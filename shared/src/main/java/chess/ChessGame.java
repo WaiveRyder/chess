@@ -119,6 +119,9 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
 
         if(piece == null || !validMoves(startPosition).contains(move) || piece.getTeamColor() != teamTurn) {
+            if(piece != null && isInCheck(piece.getTeamColor())) {
+                throw new InvalidMoveException("Warning invalid move, you are in check");
+            }
             String builder = "Warning invalid move on " + (piece != null ? piece : "no piece");
             throw new InvalidMoveException(builder);
         } else {
