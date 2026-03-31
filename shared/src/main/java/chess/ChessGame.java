@@ -110,6 +110,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        isInCheckmate(TeamColor.WHITE);
+        isInCheckmate(TeamColor.BLACK);
+        isInStalemate(TeamColor.WHITE);
+        isInStalemate(TeamColor.BLACK);
         if (gameOver) {
             throw new InvalidMoveException("Game is over, no moves can be made");
         }
@@ -119,15 +123,9 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
 
         if(piece == null || !validMoves(startPosition).contains(move) || piece.getTeamColor() != teamTurn) {
-            if (piece != null && isInStalemate(piece.getTeamColor())) {
-                throw new InvalidMoveException("You are in stalemate. Game is over");
-            } else if (piece != null && isInCheckmate(piece.getTeamColor())) {
-                throw new InvalidMoveException("You are in checkmate. Game is over");
-            } else if (piece != null && isInCheck(piece.getTeamColor())) {
-                throw new InvalidMoveException("Warning invalid move, you are in check");
-            } else if (piece != null && piece.getTeamColor() != teamTurn) {
-                String builder = "Warning it is not your turn ";
-                throw new InvalidMoveException(builder);
+            if (piece != null && piece.getTeamColor() != teamTurn) {
+                String notTurn = "Warning it is not your turn ";
+                throw new InvalidMoveException(notTurn);
             } else {
                 String builder = "Warning invalid move on " + (piece != null ? piece : "no piece");
                 throw new InvalidMoveException(builder);
