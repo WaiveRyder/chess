@@ -144,6 +144,10 @@ public class ChessGame {
         }
     }
 
+    public void resign() {
+        gameOver = true;
+    }
+
     /**
      * Determines if the given team is in check
      *
