@@ -544,6 +544,8 @@ public class ServerFacade {
             return;
         } else if (args[0].equalsIgnoreCase("confirm") && !confirmResign) {
             ClientDraw.printError("Unknown command: " + args[0]);
+        } else {
+            ClientDraw.draw("resign", state);
         }
 
         HttpRequest request = HttpRequest.newBuilder()

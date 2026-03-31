@@ -111,7 +111,11 @@ public class ClientDraw {
     private static void gameplayHandler(String command, String[] args) {
         switch (command.toLowerCase()) {
             case "help" -> gamePlayHelp();
-            case "leave" -> System.out.println("Left game and returned to menu.");
+            case "confirm" -> System.out.println("Are you sure you want to resign? " +
+                    "Type 'confirm' to resign or anything else to cancel");
+            case "deny" -> System.out.println("Resignation cancelled. Continuing game");
+            case "resign" -> System.out.println("Resigning from game");
+            case "leave" -> System.out.println("Left game and returned to menu");
         }
     }
 
