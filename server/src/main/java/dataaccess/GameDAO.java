@@ -322,4 +322,30 @@ public class GameDAO {
             throw new DataAccessException("Error: could not connect to the database. Please try again later.");
         }
     }
+
+    public void resign(int gameID) throws DataAccessException {
+        var statement = "SELECT * FROM game WHERE gameID = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(statement)) {
+            pstmt.setInt(1, gameID);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                ChessGame gameData = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+                gameData.resign();
+                var updateStatement = "UPDATE game SET chessGame = ? WHERE gameID = ?";
+                PreparedStatement updatePstmt = conn.prepareStatement(updateStatement);
+                String serialize = gson.toJson(gameData);
+                updatePstmt.setString(1, serialize);
+                updatePstmt.setInt(2, gameID);
+                int rows = updatePstmt.executeUpdate();
+                if (rows == 0) {
+                    throw new DataAccessException("Error: Could not update game. Please try again later.");
+                }
+            } else {
+                throw new DataAccessException("Error: Game ID not valid. Please refresh and try again.");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error: could not connect to the database. Please try again later.");
+        }
+    }
 }
