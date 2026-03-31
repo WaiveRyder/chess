@@ -109,6 +109,9 @@ public class Server {
         javalin.put("/game/leave", new Handler() {
             public void handle(@NotNull Context context) {handleLeaveGame(context);}
         });
+        javalin.put("/game/resign", new Handler() {
+            public void handle(@NotNull Context context) {handleResign(context);}
+        });
         javalin.get("/observe", new Handler() {
             public void handle(@NotNull Context context) {handleObserveGame(context, false);}
         });
@@ -302,6 +305,27 @@ public class Server {
         } else {
             context.status(200);
             context.result(gson.toJson(new GenericResponse("")));
+        }
+    }
+
+    private void handleResign(Context context) {
+        ResignGameRequest request = gson.fromJson(context.body(), ResignGameRequest.class);
+        context.contentType("application/json");
+        if (request.gameID() == null || request.authToken() == null) {
+            context.result(gson.toJson(new GenericResponse("Error: No Null Elements Allowed")));
+            context.status(400);
+        } else {
+            GenericResponse response = gameService.resignGame(request);
+            context.result(gson.toJson(response));
+            if (Objects.equals(response.message(), "")) {
+                context.status(200);
+            } else if (response.message().contains("token")) {
+                context.status(401);
+            } else if (response.message().contains("connect")) {
+                context.status(500);
+            } else {
+                context.status(400);
+            }
         }
     }
 
