@@ -121,13 +121,17 @@ public class ChessGame {
         if(piece == null || !validMoves(startPosition).contains(move) || piece.getTeamColor() != teamTurn) {
             if (piece != null && isInStalemate(piece.getTeamColor())) {
                 throw new InvalidMoveException("You are in stalemate. Game is over");
-            } else if(piece != null && isInCheckmate(piece.getTeamColor())) {
+            } else if (piece != null && isInCheckmate(piece.getTeamColor())) {
                 throw new InvalidMoveException("You are in checkmate. Game is over");
             } else if (piece != null && isInCheck(piece.getTeamColor())) {
                 throw new InvalidMoveException("Warning invalid move, you are in check");
+            } else if (piece != null && piece.getTeamColor() != teamTurn) {
+                String builder = "Warning it is not your turn ";
+                throw new InvalidMoveException(builder);
+            } else {
+                String builder = "Warning invalid move on " + (piece != null ? piece : "no piece");
+                throw new InvalidMoveException(builder);
             }
-            String builder = "Warning invalid move on " + (piece != null ? piece : "no piece");
-            throw new InvalidMoveException(builder);
         } else {
             if(move.promotionPiece != null){
                 piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece);

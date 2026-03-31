@@ -273,16 +273,10 @@ public class GameDAO {
                 }
 
                 ChessPiece piece = gameData.getBoard().getPiece(move.getStartPosition());
-                if (piece != null && piece.getTeamColor() != color) {
+                if (piece != null && piece.getTeamColor() != color && !gameData.gameOver) {
                     throw new DataAccessException("Error: Cannot move opponent's piece");
-                }
-
-                if (gameData.getTeamTurn() != color) {
-                    throw new DataAccessException("Error: It is not your turn");
-                }
-
-                if (gameData.gameOver) {
-                    throw new DataAccessException("Error: Game is over. No more moves allowed");
+                } else if (gameData.gameOver) {
+                    throw new DataAccessException("Error: Game is over, no moves can be made");
                 }
 
                 gameData.makeMove(move);
