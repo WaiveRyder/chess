@@ -310,6 +310,7 @@ public class Server {
 
     private void handleResign(Context context) {
         ResignGameRequest request = gson.fromJson(context.body(), ResignGameRequest.class);
+        request = new ResignGameRequest(context.header("Authorization"), request.gameID());
         context.contentType("application/json");
         if (request.gameID() == null || request.authToken() == null) {
             context.result(gson.toJson(new GenericResponse("Error: No Null Elements Allowed")));
