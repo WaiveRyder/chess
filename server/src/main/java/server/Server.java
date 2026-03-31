@@ -295,6 +295,16 @@ public class Server {
         GenericResponse gameClear = gameService.clear();
         GenericResponse userClear = userService.clear();
 
+        for (Vector<Session> sessions : wsSessions.values()) {
+            for (Session s : sessions) {
+                if (s.isOpen()) {
+                    s.close();
+                }
+            }
+        }
+
+        wsSessions.clear();
+
         context.contentType("application/jason");
 
         if (!Objects.equals(userClear.message(), "")) {
