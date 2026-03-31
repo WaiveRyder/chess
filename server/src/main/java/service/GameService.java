@@ -124,4 +124,14 @@ public class GameService {
             return new ReturnGameResponse(null, e.getMessage());
         }
     }
+
+    public GenericResponse resignGame(ResignGameRequest request) {
+        try {
+            String username = authDAO.getAuthData(request.authToken()).username();
+            gameDAO.resign(request.gameID(), username);
+            return new GenericResponse("");
+        } catch (DataAccessException e) {
+            return new GenericResponse(e.getMessage());
+        }
+    }
 }

@@ -323,13 +323,17 @@ public class GameDAO {
         }
     }
 
-    public void resign(int gameID) throws DataAccessException {
+    public void resign(int gameID, String username) throws DataAccessException {
         var statement = "SELECT * FROM game WHERE gameID = ?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(statement)) {
             pstmt.setInt(1, gameID);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
+                if (!username.equals(rs.getString("whiteUsername"))
+                        || !username.equals(rs.getString("blackUsername"))) {
+                    throw new DataAccessException("Error: User is not a player in this game");
+                }
                 ChessGame gameData = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
                 gameData.resign();
                 var updateStatement = "UPDATE game SET chessGame = ? WHERE gameID = ?";
