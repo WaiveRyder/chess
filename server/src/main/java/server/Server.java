@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Vector;
 
 import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
+import static websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION;
 
 public class Server {
     private final Gson gson;
@@ -355,9 +356,29 @@ public class Server {
         try {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
 
-            ChessGame game = gameDAO.getGame(command.getGameID());
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            ChessGame game = gameData.game();
             ServerMessage msg = new ServerMessage(LOAD_GAME, username+" made move "+command.getMessage(), game);
             sendWSMessage(sessions, session,msg);
+
+            ServerMessage msg2 = null;
+            if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
+                msg2 = new ServerMessage(NOTIFICATION, gameData.whiteUsername(), null);
+            } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
+                msg2 = new ServerMessage(NOTIFICATION, gameData.blackUsername(), null);
+            } else if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                msg2 = new ServerMessage(NOTIFICATION, gameData.whiteUsername() + " is in checkmate", null);
+            } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                msg2 = new ServerMessage(NOTIFICATION, gameData.blackUsername() + " is in checkmate", null);
+            } else if (game.isInStalemate(ChessGame.TeamColor.WHITE)) {
+                msg2 = new ServerMessage(NOTIFICATION, gameData.whiteUsername() + " is in stalemate", null);
+            } else if (game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+                msg2 = new ServerMessage(NOTIFICATION, gameData.blackUsername() + " is in stalemate", null);
+            }
+
+            if (msg2 != null) {
+                sendWSMessage(sessions, null, msg2);
+            }
         } catch (DataAccessException e) {
             //Implement
         }

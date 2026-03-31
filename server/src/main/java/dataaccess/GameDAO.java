@@ -310,14 +310,17 @@ public class GameDAO {
         }
     }
 
-    public ChessGame getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) throws DataAccessException {
         var statement = "SELECT * FROM game WHERE gameID = ?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(statement)) {
             pstmt.setInt(1, gameID);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                return gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+                ChessGame game = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+                String whiteUsername = rs.getString("whiteUsername");
+                String blackUsername = rs.getString("blackUsername");
+                return new GameData(gameID, whiteUsername, blackUsername, rs.getString("gameName"), game);
             } else {
                 throw new DataAccessException("Error: Game ID not valid. Please refresh and try again.");
             }
