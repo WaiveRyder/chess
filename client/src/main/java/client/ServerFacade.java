@@ -361,28 +361,15 @@ public class ServerFacade {
                 return;
             }
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/observe"))
-                    .GET()
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", authToken)
-                    .header("gameID", String.valueOf(gameID))
-                    .build();
             try {
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() == 200) {
-                    ClientDraw.draw(args[0], state, String.valueOf(givenGameID));
-                    state = State.OBSERVE;
-                    game = gson.fromJson(response.body(), Game.class).gameData().game();
-                    playerColor = ChessGame.TeamColor.WHITE;
-                    ws = new ClientWS(port);
-                    ws.connect(authToken, gameID, " as observer");
-                    ws.setColor(ChessGame.TeamColor.WHITE);
-                    ClientDraw.drawBoard(game.getBoard(), ChessGame.TeamColor.WHITE);
-                } else {
-                    ClientDraw.printError("Observe game failed due to "
-                            + gson.fromJson(response.body(), Message.class).message());
-                }
+                ClientDraw.draw(args[0], state, String.valueOf(givenGameID));
+
+                playerColor = ChessGame.TeamColor.WHITE;
+                ws = new ClientWS(port);
+                ws.connect(authToken, gameID, " as observer");
+                ws.setColor(ChessGame.TeamColor.WHITE);
+                game = ws.game;
+                state = State.OBSERVE;
             } catch (Exception e) {
                 ClientDraw.printError("Error: failed to connect to server, please try again");
             }
@@ -419,7 +406,8 @@ public class ServerFacade {
             ClientDraw.printError("Usage: leave");
         } else {
             try {
-                ws.leave(authToken, gameID);
+                String msg = state == OBSERVE ? "observe" : playerColor.toString();
+                ws.leave(authToken, gameID, msg);
                 ws.close();
                 ClientDraw.draw(args[0], state);
                 state = State.POST_LOGIN;
@@ -449,6 +437,7 @@ public class ServerFacade {
                 try {
                     String message = args[1] + " " + args[2] + (args.length == 4 ? " " + args[3] : "");
                     ws.makeMove(authToken, gameID, message, move);
+                    game = ws.game;
                 } catch (Exception e) {
                     ClientDraw.printError("Error: failed to connect to server, please try again");
                 }

@@ -117,7 +117,7 @@ public class ServerFacadeTests {
     @Test
     public void join() {
         String expected = "Successfully joined game with ID: 1 as WHITE" + System.lineSeparator()
-                + "Connected to server" + System.lineSeparator() + game;
+                + "Connected to server" + System.lineSeparator();
 
         serverFacade.request("login", "user", "user");
         serverFacade.request("create", "testgame");

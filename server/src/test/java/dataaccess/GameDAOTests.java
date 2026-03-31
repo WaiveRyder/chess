@@ -138,15 +138,10 @@ public class GameDAOTests {
 
     @Test
     public void listGamesInvalidInfo() {
-        var statement = "DROP TABLE observers";
+        var statement = "DROP TABLE game";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(statement)) {
             pstmt.executeUpdate();
-
-            var statement2 = "DROP TABLE game";
-            try (PreparedStatement pstmt2 = conn.prepareStatement(statement2)) {
-                pstmt2.executeUpdate();
-            }
 
             gameDAO.listGames();
             Assertions.fail("Expected an error to be thrown here, game table DNE");

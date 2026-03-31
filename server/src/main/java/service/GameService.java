@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
@@ -59,7 +60,15 @@ public class GameService {
     public GenericResponse leaveGame(JoinGameRequest request) {
         try {
             AuthData auth = authenticate(request.authToken());
-            gameDAO.leaveGame(request.gameID(), request.playerColor());
+            GameData gameData = gameDAO.getGame(request.gameID());
+
+            ChessGame.TeamColor color = null;
+            if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(auth.username())) {
+                color = ChessGame.TeamColor.WHITE;
+            } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(auth.username())) {
+                color = ChessGame.TeamColor.BLACK;
+            }
+            gameDAO.leaveGame(request.gameID(), color);
             return new GenericResponse("");
         } catch (DataAccessException e) {
             return new GenericResponse(e.getMessage());

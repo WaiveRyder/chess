@@ -1,4 +1,5 @@
 package client;
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
@@ -16,12 +17,15 @@ public class ClientWS {
     ChessGame.TeamColor playerColor;
     Gson gson;
 
+    ChessGame game;
+
     public ClientWS(int port) {
         try {
             URI uri = new URI("ws://localhost:" + port + "/ws");
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             session = container.connectToServer(this, uri);
             gson = new Gson();
+            game = new ChessGame();
         } catch (Exception e) {
             System.out.println("Error creating URI: " + e.getMessage());
         }
@@ -40,7 +44,8 @@ public class ClientWS {
         ClientDraw.draw("message", State.POST_LOGIN, serverMessage.getMessage());
 
         if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-            ClientDraw.drawBoard(serverMessage.getGame().getBoard(), playerColor);
+            game = serverMessage.getGame();
+            ClientDraw.drawBoard(game.getBoard(), playerColor);
         } else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
             ClientDraw.printError(serverMessage.getErrorMessage());
         }
@@ -73,12 +78,12 @@ public class ClientWS {
         sendMessage(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, message, move);
     }
 
-    public void leave(String authToken, Integer gameID) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.LEAVE, authToken, gameID, null, null);
+    public void leave(String authToken, Integer gameID, String color) throws ConnectException {
+        sendMessage(UserGameCommand.CommandType.LEAVE, authToken, gameID, color, null);
     }
 
     public void resign(String authToken, Integer gameID) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.RESIGN, authToken, gameID, null, null);
+        sendMessage(UserGameCommand.CommandType.RESIGN, authToken, gameID, "", null);
     }
 
     public void close() {

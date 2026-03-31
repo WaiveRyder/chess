@@ -113,12 +113,6 @@ public class Server {
         javalin.put("/game/resign", new Handler() {
             public void handle(@NotNull Context context) {handleResign(context);}
         });
-        javalin.get("/observe", new Handler() {
-            public void handle(@NotNull Context context) {handleObserveGame(context, false);}
-        });
-        javalin.delete("/observe", new Handler() {
-            public void handle(@NotNull Context context) {handleObserveGame(context, true);}
-        });
         javalin.delete("/db", new Handler() {
             public void handle(@NotNull Context context) {handleClear(context);}
         });
@@ -266,31 +260,6 @@ public class Server {
         }
     }
 
-    private void handleObserveGame(Context context, boolean leave) {
-        ObserveGameRequest request = new ObserveGameRequest(Integer.parseInt(Objects.requireNonNull(context.header("gameID"))),
-                context.header("Authorization"), leave);
-        context.contentType("application/json");
-        if (request.gameID() == null || request.token() == null) {
-            context.result(gson.toJson(new ReturnGameResponse(
-                    null,
-                    "Error: No Null Elements Allowed"
-            )));
-            context.status(400);
-        } else {
-            ReturnGameResponse response = gameService.observeGame(request);
-            context.result(gson.toJson(response));
-            if (Objects.equals(response.message(), "")) {
-                context.status(200);
-            } else if (response.message().contains("token")) {
-                context.status(401);
-            } else if (response.message().contains("connect")) {
-                context.status(500);
-            } else {
-                context.status(400);
-            }
-        }
-    }
-
     private void handleClear(Context context) {
         GenericResponse gameClear = gameService.clear();
         GenericResponse userClear = userService.clear();
@@ -383,25 +352,16 @@ public class Server {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
             int gameID = command.getGameID();
 
-            ChessGame.TeamColor color = null;
-            if (command.getMessage().equalsIgnoreCase("white")) {
-                color = ChessGame.TeamColor.WHITE;
-            } else if (command.getMessage().equalsIgnoreCase("black")) {
-                color = ChessGame.TeamColor.BLACK;
-            }
+            JoinGameRequest req = new JoinGameRequest(command.getAuthToken(), null, command.getGameID());
+            GenericResponse res = gameService.leaveGame(req);
 
-            if (color == null) {
-                JoinGameRequest req = new JoinGameRequest(command.getAuthToken(), color, command.getGameID());
-                GenericResponse res = gameService.leaveGame(req);
-
-                if (!res.message().isEmpty()) {
-                    ServerMessage msg = new ServerMessage(ERROR, res.message());
-                    try {
-                        session.getRemote().sendString(gson.toJson(msg));
-                        return;
-                    } catch (Exception e) {
-                        //Implement
-                    }
+            if (!res.message().isEmpty()) {
+                ServerMessage msg = new ServerMessage(ERROR, res.message());
+                try {
+                    session.getRemote().sendString(gson.toJson(msg));
+                    return;
+                } catch (Exception e) {
+                    //Implement
                 }
             }
 
