@@ -530,22 +530,8 @@ public class ServerFacade {
             confirmResign = false;
         }
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/game/resign"))
-                .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"}"))
-                .header("Content-Type", "application/json")
-                .header("Authorization", authToken)
-                .build();
-
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                ClientDraw.draw("left", state);
-                ws.resign(authToken, gameID);
-            } else {
-                ClientDraw.printError("Failed to resign because of "
-                        + gson.fromJson(response.body(), Message.class).message());
-            }
+            ws.resign(authToken, gameID);
         } catch (Exception e) {
             ClientDraw.printError("Error: failed to connect to server, please try again");
         }

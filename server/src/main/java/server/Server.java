@@ -356,6 +356,19 @@ public class Server {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
             int gameID = command.getGameID();
 
+            GenericResponse r = gameService.resignGame(
+                    new ResignGameRequest(command.getAuthToken(), command.getGameID()));
+
+            if (!r.message().isEmpty()) {
+                try {
+                    ServerMessage msg = new ServerMessage(ERROR, r.message());
+                    session.getRemote().sendString(gson.toJson(msg));
+                    return;
+                } catch (Exception e) {
+                    //Implement
+                }
+            }
+
             ServerMessage msg = new ServerMessage(NOTIFICATION, username+" resigned the game", null);
             Vector<Session> sessions = wsSessions.get(gameID);
             sendWSMessage(sessions, null, msg);
