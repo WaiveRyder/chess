@@ -32,7 +32,6 @@ public class ServerFacade {
 
     private List<GameData> games;
     private Integer gameID;
-    private ChessGame game;
     private ChessGame.TeamColor playerColor;
 
     private boolean confirmResign;
@@ -78,13 +77,13 @@ public class ServerFacade {
             } else if (state == OBSERVE) {
                 switch (command) {
                     case "leave" -> leaveHandler(args);
-                    case "redraw" -> ClientDraw.drawBoard(game.getBoard(), playerColor);
+                    case "redraw" -> ClientDraw.drawBoard(ws.game.getBoard(), playerColor);
                     case "highlight" -> highlightHandler(args);
                     default -> ClientDraw.printError("Unknown command: " + args[0]);
                 }
             } else if (state == GAMEPLAY) {
                 switch (command) {
-                    case "redraw" -> ClientDraw.drawBoard(game.getBoard(), playerColor);
+                    case "redraw" -> ClientDraw.drawBoard(ws.game.getBoard(), playerColor);
                     case "move" -> moveHandler(args);
                     case "highlight" -> highlightHandler(args);
                     case "leave" -> leaveHandler(args);
@@ -111,7 +110,7 @@ public class ServerFacade {
             if (pos == null) {
                 ClientDraw.printError("Position must be in format <a-h><1-8>");
             } else {
-                ClientDraw.highlightMoves(game, playerColor, pos);
+                ClientDraw.highlightMoves(ws.game, playerColor, pos);
             }
         }
     }
@@ -300,7 +299,6 @@ public class ServerFacade {
                 if (response.statusCode() == 200) {
                     ClientDraw.draw(args[0], state, String.valueOf(givenGameID), color.toString());
                     state = State.GAMEPLAY;
-                    game = gson.fromJson(response.body(), Game.class).gameData().game();
                     ws = new ClientWS(port);
                     ws.connect(authToken, gameID, " as " + color);
                     playerColor = color;
@@ -368,7 +366,6 @@ public class ServerFacade {
                 ws = new ClientWS(port);
                 ws.connect(authToken, gameID, " as observer");
                 ws.setColor(ChessGame.TeamColor.WHITE);
-                game = ws.game;
                 state = State.OBSERVE;
             } catch (Exception e) {
                 ClientDraw.printError("Error: failed to connect to server, please try again");
@@ -439,7 +436,6 @@ public class ServerFacade {
                 try {
                     String message = args[1] + " " + args[2] + (args.length == 4 ? " " + args[3] : "");
                     ws.makeMove(authToken, gameID, message, move);
-                    game = ws.game;
                 } catch (Exception e) {
                     ClientDraw.printError("Error: failed to connect to server, please try again");
                 }
