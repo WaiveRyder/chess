@@ -1,3 +1,5 @@
 package service.requests;
 
-public record MakeMoveRequest(String authToken, Integer gameID, String move) {}
+import chess.ChessMove;
+
+public record MakeMoveRequest(String authToken, Integer gameID, ChessMove move) {}

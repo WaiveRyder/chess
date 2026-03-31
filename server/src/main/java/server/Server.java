@@ -358,7 +358,7 @@ public class Server {
 
             ServerMessage msg = new ServerMessage(NOTIFICATION, username+" resigned the game", null);
             Vector<Session> sessions = wsSessions.get(gameID);
-            sendWSMessage(sessions, session, msg);
+            sendWSMessage(sessions, null, msg);
 
         } catch (DataAccessException e) {
             //Implement
@@ -419,9 +419,20 @@ public class Server {
         Vector<Session> sessions = wsSessions.get(command.getGameID());
         try {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
-
             GameData gameData = gameDAO.getGame(command.getGameID());
             ChessGame game = gameData.game();
+
+            MakeMoveRequest r = new MakeMoveRequest(
+                    command.getAuthToken(), command.getGameID(), command.getMove());
+            ReturnGameResponse response = gameService.makeMove(r);
+            if (response.message().isEmpty()) {
+                game = gameDAO.getGame(command.getGameID()).game();
+            } else {
+                ServerMessage msg = new ServerMessage(ERROR, response.message());
+                session.getRemote().sendString(gson.toJson(msg));
+                return;
+            }
+
             ServerMessage msg = new ServerMessage(LOAD_GAME, null, game);
             ServerMessage msgNotif = new ServerMessage(NOTIFICATION, username
                     + " made move " + command.getMessage(), null);
@@ -446,9 +457,11 @@ public class Server {
             if (msg2 != null) {
                 sendWSMessage(sessions, null, msg2);
             }
-        } catch (DataAccessException e) {
+        } catch (IOException | DataAccessException e) {
             try {
-                session.getRemote().sendString(gson.toJson(new ServerMessage(ERROR, e.getMessage())));
+                if (e instanceof DataAccessException) {
+                    session.getRemote().sendString(gson.toJson(new ServerMessage(ERROR, e.getMessage())));
+                }
             } catch (Exception et) {
                 //Implement
             }
@@ -480,7 +493,7 @@ public class Server {
             context.status(400);
         } else {
             MakeMoveRequest requestMove = new MakeMoveRequest(
-                    request.getAuthToken(), request.getGameID(), request.getMessage());
+                    request.getAuthToken(), request.getGameID(), request.getMove());
             ReturnGameResponse response = gameService.makeMove(requestMove);
             context.result(gson.toJson(response));
             if (Objects.equals(response.message(), "")) {

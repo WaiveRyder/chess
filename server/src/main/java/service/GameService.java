@@ -94,29 +94,7 @@ public class GameService {
         try {
             AuthData auth = authenticate(request.authToken());
 
-            String[] moveRequest = request.move().split(" ");
-            ChessPiece.PieceType promotion = null;
-            if (moveRequest.length != 4 && moveRequest.length != 5) {
-                return new ReturnGameResponse(null, "Error: Invalid move format");
-            } else if (moveRequest.length == 5) {
-                switch (moveRequest[4].toLowerCase()) {
-                    case "pawn" -> promotion = ChessPiece.PieceType.PAWN;
-                    case "rook" -> promotion = ChessPiece.PieceType.ROOK;
-                    case "knight" -> promotion = ChessPiece.PieceType.KNIGHT;
-                    case "bishop" -> promotion = ChessPiece.PieceType.BISHOP;
-                    case "queen" -> promotion = ChessPiece.PieceType.QUEEN;
-                    default -> {return new ReturnGameResponse(null, "Error: Invalid promotion piece type");}
-                }
-            }
-
-            int startCol = Integer.parseInt(moveRequest[0]);
-            int startRow = Integer.parseInt(moveRequest[1]);
-            ChessPosition startPos = new ChessPosition(startRow, startCol);
-
-            int endCol = Integer.parseInt(moveRequest[2]);
-            int endRow = Integer.parseInt(moveRequest[3]);
-            ChessPosition endPos = new ChessPosition(endRow, endCol);
-            ChessMove move = new ChessMove(startPos, endPos, promotion);
+            ChessMove move = request.move();
 
             GameData game = gameDAO.makeMove(request.gameID(), auth.username(), move);
             return new ReturnGameResponse(game, "");

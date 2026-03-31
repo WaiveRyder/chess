@@ -1,5 +1,6 @@
 package client;
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import ui.ClientDraw;
@@ -53,10 +54,11 @@ public class ClientWS {
             UserGameCommand.CommandType type,
             String authToken,
             Integer gameID,
-            String message
+            String message,
+            ChessMove move
     ) throws ConnectException {
         if (session != null && session.isOpen()) {
-            UserGameCommand command = new UserGameCommand(type, authToken, gameID, message);
+            UserGameCommand command = new UserGameCommand(type, authToken, gameID, message, move);
             session.getAsyncRemote().sendText(gson.toJson(command));
         } else {
             throw new ConnectException("Error: Websocket session is not open.");
@@ -64,19 +66,19 @@ public class ClientWS {
     }
 
     public void connect(String authToken, Integer gameID, String message) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.CONNECT, authToken, gameID, message);
+        sendMessage(UserGameCommand.CommandType.CONNECT, authToken, gameID, message, null);
     }
 
-    public void makeMove(String authToken, Integer gameID, String message) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, message);
+    public void makeMove(String authToken, Integer gameID,String message,ChessMove move) throws ConnectException{
+        sendMessage(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, message, move);
     }
 
     public void leave(String authToken, Integer gameID) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.LEAVE, authToken, gameID, ".");
+        sendMessage(UserGameCommand.CommandType.LEAVE, authToken, gameID, null, null);
     }
 
     public void resign(String authToken, Integer gameID) throws ConnectException {
-        sendMessage(UserGameCommand.CommandType.RESIGN, authToken, gameID, ".");
+        sendMessage(UserGameCommand.CommandType.RESIGN, authToken, gameID, null, null);
     }
 
     public void close() {

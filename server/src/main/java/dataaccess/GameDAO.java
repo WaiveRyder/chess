@@ -259,7 +259,7 @@ public class GameDAO {
             pstmt.setInt(1, gameID);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                ChessGame gameData = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+                ChessGame game = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
                 ChessGame.TeamColor color;
                 String whiteUsername = rs.getString("whiteUsername");
                 String blackUsername = rs.getString("blackUsername");
@@ -272,24 +272,24 @@ public class GameDAO {
                     throw new DataAccessException("Error: User is not a player in this game");
                 }
 
-                ChessPiece piece = gameData.getBoard().getPiece(move.getStartPosition());
-                if (piece != null && piece.getTeamColor() != color && !gameData.gameOver) {
+                ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+                if (piece != null && piece.getTeamColor() != color && !game.gameOver) {
                     throw new DataAccessException("Error: Cannot move opponent's piece");
-                } else if (gameData.gameOver) {
+                } else if (game.gameOver) {
                     throw new DataAccessException("Error: Game is over, no moves can be made");
                 }
 
-                gameData.makeMove(move);
+                game.makeMove(move);
                 var updateStatement = "UPDATE game SET chessGame = ? WHERE gameID = ?";
                 PreparedStatement updatePstmt = conn.prepareStatement(updateStatement);
-                String serialize = gson.toJson(gameData);
+                String serialize = gson.toJson(game);
                 updatePstmt.setString(1, serialize);
                 updatePstmt.setInt(2, gameID);
                 int rows = updatePstmt.executeUpdate();
                 if (rows == 0) {
                     throw new DataAccessException("Error: Could not update game. Please try again later.");
                 } else {
-                    return new GameData(gameID,whiteUsername, blackUsername, rs.getString("gameName"), gameData);
+                    return new GameData(gameID,whiteUsername, blackUsername, rs.getString("gameName"), game);
                 }
 
             } else {
