@@ -40,6 +40,8 @@ public class ClientWS {
 
         if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             ClientDraw.drawBoard(serverMessage.getGame().getBoard(), playerColor);
+        } else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            ClientDraw.printError(serverMessage.getErrorMessage());
         }
     }
 
@@ -54,7 +56,7 @@ public class ClientWS {
             String message
     ) throws ConnectException {
         if (session != null && session.isOpen()) {
-            UserGameCommand command= new UserGameCommand(type, authToken, gameID, message);
+            UserGameCommand command = new UserGameCommand(type, authToken, gameID, message);
             session.getAsyncRemote().sendText(gson.toJson(command));
         } else {
             throw new ConnectException("Error: Websocket session is not open.");

@@ -24,8 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
-import static websocket.messages.ServerMessage.ServerMessageType.LOAD_GAME;
-import static websocket.messages.ServerMessage.ServerMessageType.NOTIFICATION;
+import static websocket.messages.ServerMessage.ServerMessageType.*;
 
 public class Server {
     private final Gson gson;
@@ -386,6 +385,7 @@ public class Server {
         try {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
             int gameID = command.getGameID();
+            ChessGame game = gameDAO.getGame(gameID).game();
 
             Vector<Session> sessions = wsSessions.putIfAbsent(gameID, new Vector<>());
             if (sessions != null) {
@@ -394,11 +394,23 @@ public class Server {
                         ServerMessage.ServerMessageType.NOTIFICATION,
                         username + " connected to the game" + command.getMessage(), null);
                 sendWSMessage(sessions, session, msg);
+
             } else {
                 wsSessions.get(gameID).add(session);
             }
+            try {
+                session.getRemote().sendString(gson.toJson(new ServerMessage(LOAD_GAME, null, game)));
+            } catch (Exception e) {
+                //Implement
+            }
         } catch (DataAccessException e) {
-            //Implement
+            try {
+                ServerMessage msg = new ServerMessage(ERROR, e.getMessage());
+                session.getRemote().sendString(gson.toJson(msg));
+            } catch (Exception ex) {
+                //Implement
+            }
+
         }
     }
 

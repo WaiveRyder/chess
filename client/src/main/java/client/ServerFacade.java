@@ -307,7 +307,7 @@ public class ServerFacade {
                     ws.connect(authToken, gameID, " as " + color);
                     playerColor = color;
                     ws.setColor(color);
-                    ClientDraw.drawBoard(game.getBoard(), color);
+                    //ClientDraw.drawBoard(game.getBoard(), color);
                 } else {
                     ClientDraw.printError("Join game failed due to "
                             + gson.fromJson(response.body(), Message.class).message());
