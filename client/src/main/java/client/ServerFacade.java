@@ -476,14 +476,12 @@ public class ServerFacade {
             ClientDraw.draw("resign", state);
             confirmResign = false;
         }
-
         try {
             ws.resign(authToken, gameID);
         } catch (Exception e) {
             ClientDraw.printError("Error: failed to connect to server, please try again");
         }
     }
-
     public void clear() {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:" + port + "/db"))
@@ -497,5 +495,4 @@ public class ServerFacade {
             System.out.println("Error: failed to connect to server, please try again");
         }
     }
-
 }
