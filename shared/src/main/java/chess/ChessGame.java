@@ -119,7 +119,11 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
 
         if(piece == null || !validMoves(startPosition).contains(move) || piece.getTeamColor() != teamTurn) {
-            if(piece != null && isInCheck(piece.getTeamColor())) {
+            if (piece != null && isInStalemate(piece.getTeamColor())) {
+                throw new InvalidMoveException("You are in stalemate. Game is over");
+            } else if(piece != null && isInCheckmate(piece.getTeamColor())) {
+                throw new InvalidMoveException("You are in check. Game is over");
+            } else if (piece != null && isInCheck(piece.getTeamColor())) {
                 throw new InvalidMoveException("Warning invalid move, you are in check");
             }
             String builder = "Warning invalid move on " + (piece != null ? piece : "no piece");
