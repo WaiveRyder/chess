@@ -336,6 +336,21 @@ public class Server {
             case CONNECT -> handleWSConnect(command, ctx.session);
             case LEAVE -> handleWSLeave(command, ctx.session);
             case MAKE_MOVE -> handleWSMove(command, ctx.session);
+            case RESIGN -> handleWSResign(command, ctx.session);
+        }
+    }
+
+    private void handleWSResign(UserGameCommand command, Session session) {
+        try {
+            String username = authDAO.getAuthData(command.getAuthToken()).username();
+            int gameID = command.getGameID();
+
+            ServerMessage msg = new ServerMessage(NOTIFICATION, username+" resigned the game", null);
+            Vector<Session> sessions = wsSessions.get(gameID);
+            sendWSMessage(sessions, session, msg);
+
+        } catch (DataAccessException e) {
+            //Implement
         }
     }
 
