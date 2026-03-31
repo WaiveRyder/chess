@@ -37,6 +37,8 @@ public class ServerFacade {
     private ChessGame game;
     private ChessGame.TeamColor playerColor;
 
+    private boolean confirmResign;
+
     public ServerFacade(int port) {
         this.port = port;
         client = HttpClient.newHttpClient();
@@ -44,6 +46,7 @@ public class ServerFacade {
         state = PRE_LOGIN;
         games = null;
         ws = null;
+        confirmResign = false;
     }
 
     public void request(String... args) {
@@ -87,8 +90,16 @@ public class ServerFacade {
                     case "move" -> moveHandler(args);
                     case "highlight" -> highlightHandler(args);
                     case "leave" -> leaveHandler(args);
-                    case "resign" -> System.out.println("Not implemented yet4");
-                    default -> ClientDraw.printError("Unknown command: " + args[0]);
+                    case "resign" -> resignHandler(args);
+                    case "confirm" -> resignHandler(args);
+                    default -> {
+                        if (confirmResign) {
+                            ClientDraw.draw("deny", GAMEPLAY);
+                            confirmResign = false;
+                        } else {
+                            ClientDraw.printError("Unknown command: " + args[0]);
+                        }
+                    }
                 }
             }
         }
@@ -517,6 +528,41 @@ public class ServerFacade {
         switch (promotion) {
             case "pawn", "rook", "knight", "bishop", "queen", "king" -> {return promotion;}
             default -> {return null;}
+        }
+    }
+
+    private void resignHandler(String... args) {
+        if (args.length != 1) {
+            ClientDraw.printError("Usage: resign");
+        } else if (args[0].equalsIgnoreCase("resign") && !confirmResign) {
+            ClientDraw.draw("confirm", state);
+            confirmResign = true;
+            return;
+        } else if (args[0].equalsIgnoreCase("resign") && confirmResign) {
+            ClientDraw.draw("deny", state);
+            confirmResign = false;
+            return;
+        } else if (args[0].equalsIgnoreCase("confirm") && !confirmResign) {
+            ClientDraw.printError("Unknown command: " + args[0]);
+        }
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:" + port + "/game/resign"))
+                .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"}"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", authToken)
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                ClientDraw.draw(args[0], state);
+            } else {
+                ClientDraw.printError("Failed to resign because of "
+                        + gson.fromJson(response.body(), Message.class).message());
+            }
+        } catch (Exception e) {
+            ClientDraw.printError("Error: failed to connect to server, please try again");
         }
     }
 
