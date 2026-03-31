@@ -208,13 +208,11 @@ public class Server {
                 body.playerColor(),
                 body.gameID()
         );
-
         context.contentType("application/json");
         if (request.gameID() == null || request.playerColor() == null || request.authToken() == null) {
             context.result(gson.toJson(new ReturnGameResponse(null,"Error: No Null Elements Allowed")));
             context.status(400);
         } else {
-
             ReturnGameResponse response = gameService.joinGame(request);
             context.result(gson.toJson(response));
             if (Objects.equals(response.message(), "")) {
@@ -230,7 +228,6 @@ public class Server {
             }
         }
     }
-
     private void handleLeaveGame(Context context) {
         JoinGameRequest body = gson.fromJson(context.body(), JoinGameRequest.class);
         JoinGameRequest request = new JoinGameRequest(
@@ -243,7 +240,6 @@ public class Server {
             context.result(gson.toJson(new GenericResponse("Error: No Null Elements Allowed")));
             context.status(400);
         } else {
-
             GenericResponse response = gameService.leaveGame(request);
             context.result(gson.toJson(response));
             if (Objects.equals(response.message(), "")) {
@@ -259,7 +255,6 @@ public class Server {
             }
         }
     }
-
     private void handleClear(Context context) {
         GenericResponse gameClear = gameService.clear();
         GenericResponse userClear = userService.clear();
@@ -271,11 +266,8 @@ public class Server {
                 }
             }
         }
-
         wsSessions.clear();
-
         context.contentType("application/jason");
-
         if (!Objects.equals(userClear.message(), "")) {
             context.status(500);
             context.result(gson.toJson(userClear));
@@ -287,7 +279,6 @@ public class Server {
             context.result(gson.toJson(new GenericResponse("")));
         }
     }
-
     private void handleResign(Context context) {
         ResignGameRequest request = gson.fromJson(context.body(), ResignGameRequest.class);
         request = new ResignGameRequest(context.header("Authorization"), request.gameID());
@@ -309,7 +300,6 @@ public class Server {
             }
         }
     }
-
     private void handleWebsocketMessage(WsMessageContext ctx) {
         UserGameCommand command = gson.fromJson(ctx.message(), UserGameCommand.class);
         switch (command.getCommandType()) {
@@ -319,15 +309,12 @@ public class Server {
             case RESIGN -> handleWSResign(command, ctx.session);
         }
     }
-
     private void handleWSResign(UserGameCommand command, Session session) {
         try {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
             int gameID = command.getGameID();
-
             GenericResponse r = gameService.resignGame(
                     new ResignGameRequest(command.getAuthToken(), command.getGameID()));
-
             if (!r.message().isEmpty()) {
                 try {
                     ServerMessage msg = new ServerMessage(ERROR, r.message());
@@ -337,7 +324,6 @@ public class Server {
                     //Implement
                 }
             }
-
             ServerMessage msg = new ServerMessage(NOTIFICATION, username+" resigned the game", null);
             Vector<Session> sessions = wsSessions.get(gameID);
             sendWSMessage(sessions, null, msg);
@@ -346,7 +332,6 @@ public class Server {
             //Implement
         }
     }
-
     private void handleWSLeave(UserGameCommand command, Session session) {
         try {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
@@ -364,7 +349,6 @@ public class Server {
                     //Implement
                 }
             }
-
             Vector<Session> sessions = wsSessions.get(gameID);
             if (sessions != null) {
                 ServerMessage msg = new ServerMessage(
@@ -377,7 +361,6 @@ public class Server {
             //Implement
         }
     }
-
     private void handleWSConnect(UserGameCommand command, Session session) {
         try {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
@@ -410,14 +393,12 @@ public class Server {
 
         }
     }
-
     private void handleWSMove(UserGameCommand command, Session session) {
         Vector<Session> sessions = wsSessions.get(command.getGameID());
         try {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
             GameData gameData = gameDAO.getGame(command.getGameID());
             ChessGame game = gameData.game();
-
             MakeMoveRequest r = new MakeMoveRequest(
                     command.getAuthToken(), command.getGameID(), command.getMove());
             ReturnGameResponse response = gameService.makeMove(r);
@@ -428,13 +409,11 @@ public class Server {
                 session.getRemote().sendString(gson.toJson(msg));
                 return;
             }
-
             ServerMessage msg = new ServerMessage(LOAD_GAME, null, game);
             ServerMessage msgNotif = new ServerMessage(NOTIFICATION, username
                     + " made move " + command.getMessage(), null);
             sendWSMessage(sessions, null, msg);
             sendWSMessage(sessions, session, msgNotif);
-
             ServerMessage msg2 = null;
             if (game.isInStalemate(ChessGame.TeamColor.WHITE)) {
                 msg2 = new ServerMessage(NOTIFICATION, gameData.whiteUsername() + " is in stalemate", null);
@@ -463,7 +442,6 @@ public class Server {
             }
         }
     }
-
     private void sendWSMessage(Vector<Session> sessions, Session session, ServerMessage msg) {
         Iterator<Session> sessionIterator = sessions.iterator();
         while(sessionIterator.hasNext()) {
@@ -480,7 +458,6 @@ public class Server {
             }
         }
     }
-
     private void handleMakeMove(Context context) {
         UserGameCommand request = gson.fromJson(context.body(), UserGameCommand.class);
         context.contentType("application/json");
@@ -503,7 +480,6 @@ public class Server {
             }
         }
     }
-
     public void handleWSClose(WsCloseContext ctx) {
         Session s = ctx.session;
         Iterator <Vector<Session>> sessionIterator = wsSessions.values().iterator();

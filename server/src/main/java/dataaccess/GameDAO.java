@@ -162,22 +162,6 @@ public class GameDAO {
         }
     }
 
-    public void leaveObserveGame(int id, String username) throws DataAccessException {
-        var statement = "DELETE FROM observers WHERE gameID = ? AND username = ?";
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(statement)) {
-            pstmt.setInt(1, id);
-            pstmt.setString(2, username);
-            int rows = pstmt.executeUpdate();
-
-            if (rows == 0) {
-                throw new DataAccessException("Error: Could not remove observer from game. Try again.");
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: could not connect to the database. Please try again later.");
-        }
-    }
-
     public void clear() throws DataAccessException {
         if (useMap) {
             gameDAOMap.clear();

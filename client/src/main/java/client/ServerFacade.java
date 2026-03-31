@@ -89,16 +89,18 @@ public class ServerFacade {
                     case "leave" -> leaveHandler(args);
                     case "resign" -> resignHandler(args);
                     case "confirm" -> resignHandler(args);
-                    default -> {
-                        if (confirmResign) {
-                            ClientDraw.draw("deny", state);
-                            confirmResign = false;
-                        } else {
-                            ClientDraw.printError("Unknown command: " + args[0]);
-                        }
-                    }
+                    default -> handleResignBoolean(args);
                 }
             }
+        }
+    }
+
+    private void handleResignBoolean(String... args) {
+        if (confirmResign) {
+            ClientDraw.draw("deny", state);
+            confirmResign = false;
+        } else {
+            ClientDraw.printError("Unknown command: " + args[0]);
         }
     }
 
