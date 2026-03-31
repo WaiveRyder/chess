@@ -82,8 +82,12 @@ public class ClientDraw {
 
     private static void listHandler(String[] args) {
         System.out.println("Games:");
-        for (String game : args) {
-            System.out.println(game);
+        if (args.length == 0) {
+            System.out.println("No games found, please create a new game");
+        } else {
+            for (String game : args) {
+                System.out.println(game);
+            }
         }
     }
 
