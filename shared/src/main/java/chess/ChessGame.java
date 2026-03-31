@@ -251,7 +251,12 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return noMovesLeft(teamColor);
+        if (noMovesLeft(teamColor)) {
+            gameOver = true;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -262,7 +267,8 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        if(!isInCheck(teamColor)) {
+        if(!isInCheck(teamColor) && noMovesLeft(teamColor)) {
+            gameOver = true;
             return noMovesLeft(teamColor);
         } else {
             return false;
