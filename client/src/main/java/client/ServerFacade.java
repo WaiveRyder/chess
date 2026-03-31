@@ -418,55 +418,13 @@ public class ServerFacade {
         if (args.length != 1) {
             ClientDraw.printError("Usage: leave");
         } else {
-            if (state == OBSERVE) {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:" + port + "/observe"))
-                        .DELETE()
-                        .header("Content-Type", "application/json")
-                        .header("Authorization", authToken)
-                        .header("gameID", String.valueOf(gameID))
-                        .build();
-                try {
-                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                    if (response.statusCode() == 200) {
-                        ClientDraw.draw(args[0], state);
-                        ws.leave(authToken, gameID);
-                        ws.close();
-                        state = State.POST_LOGIN;
-                    } else {
-                        ClientDraw.printError("Leaving game failed due to "
-                                + gson.fromJson(response.body(), Message.class).message());
-                    }
-                } catch (Exception e) {
-                    ClientDraw.printError("Error: failed to connect to server, please try again");
-                }
-            } else if (state == GAMEPLAY) {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:" + port + "/game/leave"))
-                        .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"," +
-                                " \"playerColor\":\"" + playerColor + "\"}"))
-                        .header("Content-Type", "application/json")
-                        .header("Authorization", authToken)
-                        .build();
-                try {
-                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                    if (response.statusCode() == 200) {
-                        ClientDraw.draw(args[0], state);
-                        state = POST_LOGIN;
-                        ws.leave(authToken, gameID);
-                        ws.close();
-                    } else {
-                        ClientDraw.printError("Leaving game failed due to "
-                                + gson.fromJson(response.body(), Message.class).message());
-                    }
-                } catch (Exception e) {
-                    if (e.getClass() == ConnectException.class) {
-                        ClientDraw.printError("Error: Could not send message to others," +
-                                " but command completed successfully.");
-                    } else {
-                        ClientDraw.printError("Error: failed to connect to server, please try again");
-                    }
-                }
+            try {
+                ws.leave(authToken, gameID);
+                ws.close();
+                ClientDraw.draw(args[0], state);
+                state = State.POST_LOGIN;
+            } catch (Exception e) {
+                ClientDraw.printError("Error: failed to connect to server, please try again");
             }
         }
     }

@@ -383,12 +383,35 @@ public class Server {
             String username = authDAO.getAuthData(command.getAuthToken()).username();
             int gameID = command.getGameID();
 
+            ChessGame.TeamColor color = null;
+            if (command.getMessage().equalsIgnoreCase("white")) {
+                color = ChessGame.TeamColor.WHITE;
+            } else if (command.getMessage().equalsIgnoreCase("black")) {
+                color = ChessGame.TeamColor.BLACK;
+            }
+
+            if (color == null) {
+                JoinGameRequest req = new JoinGameRequest(command.getAuthToken(), color, command.getGameID());
+                GenericResponse res = gameService.leaveGame(req);
+
+                if (!res.message().isEmpty()) {
+                    ServerMessage msg = new ServerMessage(ERROR, res.message());
+                    try {
+                        session.getRemote().sendString(gson.toJson(msg));
+                        return;
+                    } catch (Exception e) {
+                        //Implement
+                    }
+                }
+            }
+
             Vector<Session> sessions = wsSessions.get(gameID);
             if (sessions != null) {
                 ServerMessage msg = new ServerMessage(
                         ServerMessage.ServerMessageType.NOTIFICATION,
                         username + " left the game" + command.getMessage(), null);
                 sendWSMessage(sessions, session, msg);
+                session.close();
             }
         } catch (DataAccessException e) {
             //Implement

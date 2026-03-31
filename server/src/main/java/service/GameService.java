@@ -75,21 +75,6 @@ public class GameService {
         }
     }
 
-    public ReturnGameResponse observeGame(ObserveGameRequest request) {
-        try {
-            AuthData auth = authenticate(request.token());
-            if (request.leave()) {
-                gameDAO.leaveObserveGame(request.gameID(), auth.username());
-                return new ReturnGameResponse(null, "");
-            } else {
-                GameData game = gameDAO.observeGame(request.gameID(), auth.username());
-                return new ReturnGameResponse(game, "");
-            }
-        } catch (DataAccessException e) {
-            return new ReturnGameResponse(null,  e.getMessage());
-        }
-    }
-
     public ReturnGameResponse makeMove(MakeMoveRequest request) {
         try {
             AuthData auth = authenticate(request.authToken());
