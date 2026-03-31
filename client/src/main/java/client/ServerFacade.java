@@ -94,7 +94,7 @@ public class ServerFacade {
                     case "confirm" -> resignHandler(args);
                     default -> {
                         if (confirmResign) {
-                            ClientDraw.draw("deny", GAMEPLAY);
+                            ClientDraw.draw("deny", state);
                             confirmResign = false;
                         } else {
                             ClientDraw.printError("Unknown command: " + args[0]);
@@ -548,6 +548,7 @@ public class ServerFacade {
             return;
         } else {
             ClientDraw.draw("resign", state);
+            confirmResign = false;
         }
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -560,7 +561,7 @@ public class ServerFacade {
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
-                ClientDraw.draw(args[0], state);
+                ClientDraw.draw("left", state);
             } else {
                 ClientDraw.printError("Failed to resign because of "
                         + gson.fromJson(response.body(), Message.class).message());

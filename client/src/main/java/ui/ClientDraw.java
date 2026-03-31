@@ -115,6 +115,7 @@ public class ClientDraw {
                     "Type 'confirm' to resign or anything else to cancel");
             case "deny" -> System.out.println("Resignation cancelled. Continuing game");
             case "resign" -> System.out.println("Resigning from game");
+            case "left" -> System.out.println("Resigned successfully");
             case "leave" -> System.out.println("Left game and returned to menu");
         }
     }
