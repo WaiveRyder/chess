@@ -313,7 +313,7 @@ public class ServerFacade {
         } else {
             String gameName = args[1];
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/game/join"))
+                    .uri(URI.create("http://localhost:" + port + "/game"))
                     .POST(HttpRequest.BodyPublishers.ofString("{\"gameName\":\"" + gameName + "\"}"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", authToken)
