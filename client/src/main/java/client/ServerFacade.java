@@ -291,7 +291,7 @@ public class ServerFacade {
             }
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/game/join"))
+                    .uri(URI.create("http://localhost:" + port + "/game"))
                     .PUT(HttpRequest.BodyPublishers.ofString("{\"gameID\":\"" + gameID + "\"," +
                             " \"playerColor\":\"" + color + "\"}"))
                     .header("Content-Type", "application/json")
