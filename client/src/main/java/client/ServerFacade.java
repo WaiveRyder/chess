@@ -431,8 +431,10 @@ public class ServerFacade {
                     ClientDraw.printError("Promotion piece must be either a pawn, " +
                             "rook, knight, bishop, queen, or king");
                     return;
-                } else {
+                } else if (args.length == 4) {
                     move = new ChessMove(startPos, endPos, checkPromotionFormat(args[3]));
+                } else {
+                    move = new ChessMove(startPos, endPos, null);
                 }
                 try {
                     String message = args[1] + " " + args[2] + (args.length == 4 ? " " + args[3] : "");

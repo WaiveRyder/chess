@@ -41,13 +41,14 @@ public class ClientWS {
     @OnMessage
     public void onMessage(String message) {
         ServerMessage serverMessage = gson.fromJson(message, ServerMessage.class);
-        ClientDraw.draw("message", State.POST_LOGIN, serverMessage.getMessage());
 
         if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
             game = serverMessage.getGame();
             ClientDraw.drawBoard(game.getBoard(), playerColor);
         } else if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
             ClientDraw.printError(serverMessage.getErrorMessage());
+        } else {
+            ClientDraw.draw("message", State.POST_LOGIN, serverMessage.getMessage());
         }
     }
 

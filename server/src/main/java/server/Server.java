@@ -369,7 +369,7 @@ public class Server {
             if (sessions != null) {
                 ServerMessage msg = new ServerMessage(
                         ServerMessage.ServerMessageType.NOTIFICATION,
-                        username + " left the game" + command.getMessage(), null);
+                        username + " left the game", null);
                 sendWSMessage(sessions, session, msg);
                 session.close();
             }

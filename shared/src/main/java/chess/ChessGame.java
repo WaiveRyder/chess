@@ -110,10 +110,6 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        isInCheckmate(TeamColor.WHITE);
-        isInCheckmate(TeamColor.BLACK);
-        isInStalemate(TeamColor.WHITE);
-        isInStalemate(TeamColor.BLACK);
         if (gameOver) {
             throw new InvalidMoveException("Game is over, no moves can be made");
         }
@@ -138,6 +134,12 @@ public class ChessGame {
             }
             board.addPiece(endPosition, piece);
             board.addPiece(startPosition, null);
+
+            isInCheckmate(TeamColor.WHITE);
+            isInCheckmate(TeamColor.BLACK);
+            isInStalemate(TeamColor.WHITE);
+            isInStalemate(TeamColor.BLACK);
+
             if(teamTurn == TeamColor.WHITE){
                 teamTurn = TeamColor.BLACK;
             } else {
