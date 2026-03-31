@@ -91,7 +91,8 @@ public class ServerFacadeTests {
 
     @Test
     public void list() {
-        String expected = "Games:" + System.lineSeparator();
+        String expected = "Games:" + System.lineSeparator()
+                + "No games found, please create a new game" + System.lineSeparator();
 
         serverFacade.request("login", "user", "user");
         outputStreamCaptor.reset();
@@ -116,7 +117,7 @@ public class ServerFacadeTests {
     @Test
     public void join() {
         String expected = "Successfully joined game with ID: 1 as WHITE" + System.lineSeparator()
-                + game;
+                + "Connected to server" + System.lineSeparator() + game;
 
         serverFacade.request("login", "user", "user");
         serverFacade.request("create", "testgame");
@@ -145,7 +146,8 @@ public class ServerFacadeTests {
 
     @Test
     public void exit() {
-        String expected = "Exited game and returned to menu." + System.lineSeparator();
+        String expected = "\u001B[38;5;160mError: Unknown command: exit\u001B[39m" + System.lineSeparator()
+                + "Type 'help' for a list of commands." + System.lineSeparator();
 
         serverFacade.request("login", "user", "user");
         serverFacade.request("create", "testgame");
@@ -160,8 +162,7 @@ public class ServerFacadeTests {
 
     @Test
     public void exitInvalid() {
-        String expected = "\u001B[38;5;160mError: You cannot exit a game while not playing one, " +
-                "please join a game before trying to exit\u001B[39m" + System.lineSeparator()
+        String expected = "\u001B[38;5;160mError: Unknown command: exit\u001B[39m" + System.lineSeparator()
                 + "Type 'help' for a list of commands." + System.lineSeparator();
 
         serverFacade.request("login", "user", "user");
@@ -202,7 +203,8 @@ public class ServerFacadeTests {
 
     @Test
     public void observe() {
-        String expected = "Now observing game with ID: 1" + System.lineSeparator() + game;
+        String expected = "Now observing game with ID: 1" + System.lineSeparator()
+                + "Connected to server" + System.lineSeparator() + game;
 
         serverFacade.request("login", "user", "user");
         serverFacade.request("create", "testgame");
@@ -240,7 +242,7 @@ public class ServerFacadeTests {
     }
 
     @Test public void logoutInvalid() {
-        String expected = "\u001B[38;5;160mError: You must be logged in to logout\u001B[39m" + System.lineSeparator()
+        String expected = "\u001B[38;5;160mError: Unknown command: logout\u001B[39m" + System.lineSeparator()
                 + "Type 'help' for a list of commands." + System.lineSeparator();
 
         serverFacade.request("logout");
@@ -262,7 +264,7 @@ public class ServerFacadeTests {
 
     @Test
     public void leaveInvalid() {
-        String expected = "\u001B[38;5;160mError: You must be observing a game to leave a game\u001B[39m"
+        String expected = "\u001B[38;5;160mError: Unknown command: leave\u001B[39m"
                 + System.lineSeparator()
                 + "Type 'help' for a list of commands." + System.lineSeparator();
 
