@@ -100,7 +100,7 @@ public class Server {
         javalin.post("/game", new Handler() {
             public void handle(@NotNull Context context) {handleCreateGame(context);}
         });
-        javalin.put("/game/join", new Handler() {
+        javalin.put("/game", new Handler() {
             public void handle(@NotNull Context context) {handleJoinGame(context);}
         });
         javalin.put("/game/move", new Handler() {
