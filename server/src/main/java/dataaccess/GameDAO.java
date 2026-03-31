@@ -331,7 +331,7 @@ public class GameDAO {
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 if (!username.equals(rs.getString("whiteUsername"))
-                        || !username.equals(rs.getString("blackUsername"))) {
+                        && !username.equals(rs.getString("blackUsername"))) {
                     throw new DataAccessException("Error: User is not a player in this game");
                 }
                 ChessGame gameData = gson.fromJson(rs.getString("chessGame"), ChessGame.class);

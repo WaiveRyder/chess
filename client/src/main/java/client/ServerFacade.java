@@ -534,6 +534,7 @@ public class ServerFacade {
     private void resignHandler(String... args) {
         if (args.length != 1) {
             ClientDraw.printError("Usage: resign");
+            return;
         } else if (args[0].equalsIgnoreCase("resign") && !confirmResign) {
             ClientDraw.draw("confirm", state);
             confirmResign = true;
@@ -544,6 +545,7 @@ public class ServerFacade {
             return;
         } else if (args[0].equalsIgnoreCase("confirm") && !confirmResign) {
             ClientDraw.printError("Unknown command: " + args[0]);
+            return;
         } else {
             ClientDraw.draw("resign", state);
         }

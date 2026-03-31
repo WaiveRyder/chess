@@ -123,7 +123,9 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
 
         if(piece == null || !validMoves(startPosition).contains(move) || piece.getTeamColor() != teamTurn) {
-            if (piece != null && piece.getTeamColor() != teamTurn) {
+            if (piece != null && isInCheck(piece.getTeamColor()) && piece.getTeamColor() == teamTurn){
+                throw new InvalidMoveException("Warning you are in check, you must move out of check");
+            } else if (piece != null && piece.getTeamColor() != teamTurn) {
                 String notTurn = "Warning it is not your turn ";
                 throw new InvalidMoveException(notTurn);
             } else {
