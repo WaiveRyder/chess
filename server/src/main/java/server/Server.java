@@ -363,9 +363,9 @@ public class Server {
 
             ServerMessage msg2 = null;
             if (game.isInCheck(ChessGame.TeamColor.WHITE)) {
-                msg2 = new ServerMessage(NOTIFICATION, gameData.whiteUsername(), null);
+                msg2 = new ServerMessage(NOTIFICATION, gameData.whiteUsername() + " is in check", null);
             } else if (game.isInCheck(ChessGame.TeamColor.BLACK)) {
-                msg2 = new ServerMessage(NOTIFICATION, gameData.blackUsername(), null);
+                msg2 = new ServerMessage(NOTIFICATION, gameData.blackUsername() + " is in check", null);
             } else if (game.isInCheckmate(ChessGame.TeamColor.WHITE)) {
                 msg2 = new ServerMessage(NOTIFICATION, gameData.whiteUsername() + " is in checkmate", null);
             } else if (game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
