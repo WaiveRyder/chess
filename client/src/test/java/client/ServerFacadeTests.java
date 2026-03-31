@@ -204,7 +204,7 @@ public class ServerFacadeTests {
     @Test
     public void observe() {
         String expected = "Now observing game with ID: 1" + System.lineSeparator()
-                + "Connected to server" + System.lineSeparator() + game;
+                + "Connected to server" + System.lineSeparator();
 
         serverFacade.request("login", "user", "user");
         serverFacade.request("create", "testgame");
