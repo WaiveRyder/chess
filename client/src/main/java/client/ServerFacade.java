@@ -562,6 +562,7 @@ public class ServerFacade {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
                 ClientDraw.draw("left", state);
+                ws.resign(authToken, gameID);
             } else {
                 ClientDraw.printError("Failed to resign because of "
                         + gson.fromJson(response.body(), Message.class).message());
