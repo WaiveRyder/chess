@@ -6,6 +6,7 @@ import dataaccess.*;
 import io.javalin.*;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsContext;
 import io.javalin.websocket.WsMessageContext;
 import model.GameData;
@@ -124,7 +125,7 @@ public class Server {
         javalin.ws("/ws", ws -> {
             ws.onConnect(WsContext::enableAutomaticPings);
             ws.onMessage(this::handleWebsocketMessage);
-            ws.onClose(WsContext::closeSession);
+            ws.onClose(this::handleWSClose);
         });
     }
 
@@ -460,6 +461,23 @@ public class Server {
                 context.status(500);
             } else {
                 context.status(400);
+            }
+        }
+    }
+
+    public void handleWSClose(WsCloseContext ctx) {
+        Session s = ctx.session;
+        Iterator <Vector<Session>> sessionIterator = wsSessions.values().iterator();
+        Iterator <Session> innerIterator;
+        while (sessionIterator.hasNext()) {
+            innerIterator = sessionIterator.next().iterator();
+            while (innerIterator.hasNext()) {
+                Session singleSession = innerIterator.next();
+                if (singleSession.equals(s)) {
+                    innerIterator.remove();
+                    s.close();
+                    return;
+                }
             }
         }
     }
