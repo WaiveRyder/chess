@@ -509,7 +509,7 @@ public class ServerFacade {
                     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                     if (response.statusCode() == 200) {
                         game = gson.fromJson(response.body(), Game.class).gameData().game();
-                        ClientDraw.drawBoard(game.getBoard(), playerColor);
+                        //ClientDraw.drawBoard(game.getBoard(), playerColor);
                         String moveMessage = args[1] + " " + args[2] + (args.length == 4 ? " " + args[3].toLowerCase() : "");
                         ws.makeMove(authToken, gameID, moveMessage);
                     } else {

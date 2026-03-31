@@ -19,6 +19,7 @@ import service.responses.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -421,8 +422,11 @@ public class Server {
 
             GameData gameData = gameDAO.getGame(command.getGameID());
             ChessGame game = gameData.game();
-            ServerMessage msg = new ServerMessage(LOAD_GAME, username+" made move "+command.getMessage(), game);
-            sendWSMessage(sessions, session,msg);
+            ServerMessage msg = new ServerMessage(LOAD_GAME, null, game);
+            ServerMessage msgNotif = new ServerMessage(NOTIFICATION, username
+                    + " made move " + command.getMessage(), null);
+            sendWSMessage(sessions, null, msg);
+            sendWSMessage(sessions, session, msgNotif);
 
             ServerMessage msg2 = null;
             if (game.isInStalemate(ChessGame.TeamColor.WHITE)) {
@@ -443,7 +447,11 @@ public class Server {
                 sendWSMessage(sessions, null, msg2);
             }
         } catch (DataAccessException e) {
-            //Implement
+            try {
+                session.getRemote().sendString(gson.toJson(new ServerMessage(ERROR, e.getMessage())));
+            } catch (Exception et) {
+                //Implement
+            }
         }
     }
 
