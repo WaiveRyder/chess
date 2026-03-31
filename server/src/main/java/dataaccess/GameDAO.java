@@ -335,6 +335,9 @@ public class GameDAO {
                     throw new DataAccessException("Error: User is not a player in this game");
                 }
                 ChessGame gameData = gson.fromJson(rs.getString("chessGame"), ChessGame.class);
+                if (gameData.gameOver) {
+                    throw new DataAccessException("Error: Game is already over, cannot resign");
+                }
                 gameData.resign();
                 var updateStatement = "UPDATE game SET chessGame = ? WHERE gameID = ?";
                 PreparedStatement updatePstmt = conn.prepareStatement(updateStatement);
