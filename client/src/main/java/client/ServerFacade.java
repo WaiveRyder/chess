@@ -57,6 +57,9 @@ public class ServerFacade {
             } else if (command.equals("quit")) {
                 quitHandler(args);
                 return;
+            } else if (command.equals("clear")) {
+                clear();
+                return;
             }
 
             if (state == PRE_LOGIN) {
