@@ -68,7 +68,11 @@ public class GameService {
             } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(auth.username())) {
                 color = ChessGame.TeamColor.BLACK;
             }
-            gameDAO.leaveGame(request.gameID(), color);
+
+            if (color != null) {
+                gameDAO.leaveGame(request.gameID(), color);
+            }
+
             return new GenericResponse("");
         } catch (DataAccessException e) {
             return new GenericResponse(e.getMessage());
